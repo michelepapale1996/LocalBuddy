@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "164893696006",
+    "firebase_url": "https://localbuddy-ddb9d.firebaseio.com",
+    "project_id": "localbuddy-ddb9d",
+    "storage_bucket": "localbuddy-ddb9d.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:164893696006:android:496b7de111530df8",
+        "android_client_info": {
+          "package_name": "com.localbuddy"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "164893696006-i24sqn53ugc5754nujpihsmkgq88t046.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD-7NarbZCY6Hyg-XINoxvRR8E0PZmW0ME"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
