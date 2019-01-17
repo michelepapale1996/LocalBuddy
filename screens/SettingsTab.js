@@ -6,6 +6,9 @@ export default class SettingsTab extends Component {
     render() {
         return (
             <View style={styles.container}>
+                <Text>Notifiche</Text>
+                <Text>Modifica password</Text>
+                <Text>Elimina account</Text>
                 <Button
                     title="LogOut"
                     onPress={() => firebase.auth().signOut()
@@ -13,7 +16,7 @@ export default class SettingsTab extends Component {
                             this.props.navigation.navigate('Loading')
                         })
                         .catch(function(error) {
-                            console.log("Error")
+                            console.log(error)
                         })}
                 />
             </View>

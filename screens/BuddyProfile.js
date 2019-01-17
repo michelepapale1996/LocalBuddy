@@ -12,7 +12,7 @@ function Biography(props){
                 {
                     props.bio != ""
                         ? <Text>{props.bio}</Text>
-                        : <Text>Non hai ancora una biografia!</Text>
+                        : <Text>Non ha ancora una biografia!</Text>
                 }
             </View>
         </View>
@@ -28,27 +28,10 @@ function NameAndSurname(props) {
 }
 
 function PhotoProfile(props) {
-    uploadImg = () => {
-        ImagePicker.showImagePicker((response) => {
-            if (response.didCancel) {
-                console.log('User cancelled image picker');
-            } else if (response.error) {
-                console.log('ImagePicker Error: ', response.error);
-            } else if (response.customButton) {
-                console.log('User tapped custom button: ', response.customButton);
-            } else {
-                const source = response.uri
-                firebase.storage().ref("/PhotosProfile/" + props.userId).putFile(source)
-            }
-        })
-    }
-
     return(
-        <TouchableWithoutFeedback onPress={uploadImg}>
-            <Image
-                style={styles.photoProfile}
-                source={{uri: props.photoPath}}/>
-        </TouchableWithoutFeedback>
+        <Image
+            style={styles.photoProfile}
+            source={{uri: props.photoPath}}/>
     )
 }
 
@@ -89,9 +72,9 @@ function Feedbacks(props){
             <View style={styles.biography}>
                 <Text style={{fontWeight:"bold"}}>Feedbacks</Text>
                 {
-                    props.feedbacks != ""
+                    props.feedbacks != null
                         ? <FeedbacksOverview feedbacks={props.feedbacks}/>
-                        : <Text>Non hai ancora alcun feedback!</Text>
+                        : <Text>Non ha ancora alcun feedback!</Text>
                 }
             </View>
         </View>
@@ -143,24 +126,27 @@ export default class ProfileTab extends Component {
     }
 
     componentDidMount(){
-        const id  = firebase.auth().currentUser.uid;
-
+        const id = this.props.navigation.getParam('idUser', 'Error')
         let promises = []
+
         promises.push(firebase.database().ref("/users/" + id ).once("value"))
         promises.push(this.getUrlPhoto(id))
         promises.push(firebase.database().ref("/users/" + id + "/feedbacks").once("value"))
 
         Promise.all(promises).then(
             results => {
-                this.setState({
-                    name: results[0].val().name,
-                    surname: results[0].val().surname,
-                    bio: results[0].val().biography,
-                    photoPath: results[1]
-                })
+                this.setState(
+                    {
+                        name: results[0].val().name,
+                        surname: results[0].val().surname,
+                        bio: results[0].val().biography,
+                        photoPath: results[1]
+                    }
+                )
+                this.props.navigation.setParams({nameBuddy: results[0].val().name + " " + results[0].val().surname})
 
                 const feedbacks = results[2].val()
-                if (feedbacks != null) {
+                if (feedbacks != null && feedbacks != "") {
                     //for each traveler get the name and surname
                     let names = feedbacks.map(
                         feedback => {
@@ -203,13 +189,21 @@ export default class ProfileTab extends Component {
         )
     }
 
+    static navigationOptions = ({ navigation }) => {
+        return {
+            title: navigation.state.params.nameBuddy,
+        };
+    };
+
     render() {
+        const id = this.props.navigation.getParam('idUser', 'Error')
+
         if(this.state.loadingDone != false){
             return(
                 <ScrollView contentContainerStyle={styles.container}>
                     <View style={styles.viewContainer}>
                         <View style={styles.userTop}>
-                            <PhotoProfile photoPath={this.state.photoPath} userId={firebase.auth().currentUser.uid}/>
+                            <PhotoProfile photoPath={this.state.photoPath} userId={id}/>
                             <NameAndSurname name={this.state.name} surname={this.state.surname}/>
                         </View>
                         <Biography bio={this.state.bio}/>

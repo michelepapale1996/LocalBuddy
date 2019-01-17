@@ -11,6 +11,7 @@ import ChooseCity from "./screens/ChooseCity";
 import Loading from "./screens/Loading";
 import Login from "./screens/Login";
 import SignUp from "./screens/SignUp";
+import BuddyProfile from "./screens/BuddyProfile"
 
 const SearchTab = createStackNavigator({
     Home: {
@@ -18,6 +19,9 @@ const SearchTab = createStackNavigator({
     },
     CityChosen: {
         screen: CityChosen,
+    },
+    BuddyProfile: {
+        screen: BuddyProfile
     }
 });
 
