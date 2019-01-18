@@ -15,6 +15,7 @@ export default class SignUp extends React.Component {
                 firebase.database().ref("/users/" + user.uid + "/isBuddy").set(0);
                 firebase.database().ref("/users/" + user.uid + "/biography").set("");
                 firebase.database().ref("/users/" + user.uid + "/feedbacks").set("");
+                firebase.database().ref("/users/" + user.uid + "/chats").set("");
             })
             .then(() => this.props.navigation.navigate('TabNavigator'))
             .catch(error => this.setState({ errorMessage: error.message }))

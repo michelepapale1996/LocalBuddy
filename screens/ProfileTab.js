@@ -3,6 +3,7 @@ import {StyleSheet, Text, View, Button, Image, ScrollView, TouchableWithoutFeedb
 import firebase from "react-native-firebase"
 import ImagePicker from 'react-native-image-picker';
 import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen';
+import Db from '../res/Db'
 
 function Biography(props){
     return(
@@ -122,32 +123,12 @@ export default class ProfileTab extends Component {
         }
     }
 
-    getUrlPhoto = (userId) => {
-        return new Promise(
-            resolve => {
-                firebase.storage().ref("/PhotosProfile/" + userId).getDownloadURL().then(
-                    (url) => {
-                        resolve(url)
-                    }
-                ).catch(
-                    ()=> {
-                        firebase.storage().ref("/PhotosProfile/blank.png").getDownloadURL().then(
-                            (url) => {
-                                resolve(url)
-                            }
-                        )
-                    }
-                )
-            }
-        )
-    }
-
     componentDidMount(){
         const id  = firebase.auth().currentUser.uid;
 
         let promises = []
         promises.push(firebase.database().ref("/users/" + id ).once("value"))
-        promises.push(this.getUrlPhoto(id))
+        promises.push(Db.getUrlPhotoFromId(id))
         promises.push(firebase.database().ref("/users/" + id + "/feedbacks").once("value"))
 
         Promise.all(promises).then(
@@ -177,7 +158,7 @@ export default class ProfileTab extends Component {
                         ()=>{
                             urlPhotos = feedbacks.map(
                                 feedback => {
-                                    return this.getUrlPhoto(feedback.travelerId)
+                                    return Db.getUrlPhotoFromId(feedback.travelerId)
                                 }
                             )
                             Promise.all(urlPhotos).then(result => {
