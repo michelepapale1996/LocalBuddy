@@ -11,6 +11,10 @@ export default class ChooseCity extends Component {
         this.state = {
             cities: []
         };
+
+        this.props.navigation.setParams({
+            getCities: this.getCities
+        })
     }
 
     static navigationOptions = ({ navigation }) => {
@@ -19,7 +23,7 @@ export default class ChooseCity extends Component {
                         <TextInput
                             placeholder="Inserisci il nome della città"
                             placeholderTextColor= 'gray'
-                            onChangeText={(input) => navigation.setParams({input: input})}
+                            onChangeText={(input) => navigation.getParam("getCities", null)(input)}
                             style={{
                                 borderBottomWidth: 1,
                                 fontSize:20,
@@ -37,16 +41,22 @@ export default class ChooseCity extends Component {
     getCities = (input) => {
         ApiKey = "AIzaSyBRfBut3xLOq-gimCV4mT2zalmchEppB6U"
         sessionToken = "1234567890"
+
+        AppId = "nIjKA6dhmhmoMEAGvlaA"
+        AppCode = "Ii8RBuVJB1l_RiJbtZcp-Q"
+
         if(input != null && input.length > 3){
-            const query = "https://maps.googleapis.com/maps/api/place/autocomplete/json?input="
+            const queryGoogle = "https://maps.googleapis.com/maps/api/place/autocomplete/json?input="
                 +input+"&key="+ApiKey+"&sessiontoken="+sessionToken+"&types=(cities)"
                 +"&language=it"
-            fetch(query)
+
+            fetch(queryGoogle)
                 .then(response => {
                     response.json().then(json => {
                         let cities = json.predictions.map(
                             prediction => {
-                                return {name : prediction.description, cityId :  prediction.place_id}
+                                console.log(prediction.description, prediction.place_id)
+                                return {name : prediction.description, cityId: prediction.place_id}
                             }
                         )
                         this.setState({
@@ -54,13 +64,39 @@ export default class ChooseCity extends Component {
                         })
                     })
                 })
-                .catch(err => console.log(err))
+                .catch(
+                    err => console.log(err)
+                )
+
+            /*const query = "http://autocomplete.geocoder.api.here.com/6.2/suggest.json?" +
+                "query=" + input +
+                "&app_id=" + AppId +
+                "&app_code=" + AppCode +
+                "&language=IT" +
+                "&maxresults=10" +
+                "&resultType=areas"
+
+            fetch(query)
+                .then(response => {
+                    response.json().then(json => {
+                        let cities = json.suggestions.filter(city => city.matchLevel == "city").map(
+                            prediction => {
+                                console.log(prediction)
+                                return {name : prediction.label, cityId :  prediction.locationId}
+                            }
+                        )
+                        this.setState({
+                            cities: cities
+                        })
+                    })
+                })
+                .catch(
+                    err => console.log(err)
+                )*/
         }
     }
 
     render() {
-        this.getCities(this.props.navigation.getParam("input", null))
-
         return (
             <FlatList
                 data={this.state.cities}

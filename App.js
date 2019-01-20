@@ -23,6 +23,9 @@ const SearchTab = createStackNavigator({
     },
     BuddyProfile: {
         screen: BuddyProfile
+    },
+    SingleChat: {
+        screen: SingleChat
     }
 });
 

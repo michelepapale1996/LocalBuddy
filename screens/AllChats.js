@@ -2,7 +2,7 @@ import React, {Component} from 'react';
 import {StyleSheet, Text, View, Button, FlatList, ActivityIndicator, Image, TouchableWithoutFeedback} from 'react-native';
 import firebase from 'react-native-firebase'
 import Db from '../res/Db'
-import {widthPercentageToDP as wp} from "react-native-responsive-screen";
+import {widthPercentageToDP as wp, heightPercentageToDP as hp} from "react-native-responsive-screen";
 
 function Loading(){
     return(
@@ -14,6 +14,24 @@ function Loading(){
 }
 
 function Chat(props) {
+    const time = new Date(props.item.lastMessageTime)
+    const now = new Date()
+    let lastMessageTime = ""
+
+    if(time.getDate() == now.getDate()){
+        let minutes = 0;
+        if (time.getMinutes() < 10){
+            minutes = "0" + time.getMinutes()
+        }else{
+            minutes = time.getMinutes()
+        }
+        lastMessageTime = time.getHours() + ":" + minutes
+    }else if(time.getDate() + 1== now.getDate()){
+        lastMessageTime = "Ieri"
+    }else{
+        lastMessageTime = time.getDate() + "/" + (time.getMonth()+1) + "/" + time.getFullYear()
+    }
+
     return(
         <TouchableWithoutFeedback
             onPress={() => props.nav.navigate('SingleChat',
@@ -22,13 +40,23 @@ function Chat(props) {
                     nameAndSurname: props.item.nameAndSurname,
                     urlPhotoOther: props.item.urlPhotoOther
                 })}>
-            <View style={styles.chat}>
+            <View style={styles.singleChatContainer}>
                 <Image
                     style={styles.userPhoto}
                     source={{uri: props.item.urlPhotoOther}}/>
-                <Text style={styles.text}>
-                    {props.item.nameAndSurname}
-                </Text>
+                <View style={styles.singleChat}>
+                    <View style={{flexDirection: "row", justifyContent:"space-between"}}>
+                        <Text style={styles.text}>
+                            {props.item.nameAndSurname}
+                        </Text>
+                        <Text>
+                            {lastMessageTime}
+                        </Text>
+                    </View>
+                    <Text>
+                        {props.item.lastMessageText}
+                    </Text>
+                </View>
             </View>
         </TouchableWithoutFeedback>
     )
@@ -52,9 +80,11 @@ export default class AllChats extends Component {
 
     componentDidMount(){
         const id  = firebase.auth().currentUser.uid;
-        firebase.database().ref("/users/" + id + "/chats").once("value").then(
+
+        //get all the chats of the logged user
+        firebase.database().ref("/users/" + id + "/chats").on("value",
             snap => {
-                if(snap == ""){
+                if(snap.val() == null){
                     //non ha chats
                     this.setState({
                         loadingDone:true
@@ -62,42 +92,22 @@ export default class AllChats extends Component {
                 }else{
                     //the user has some chats
                     let chats = []
-                    let promises = snap.val().map(
-                        idChat => {
-                            chats.push({chatId: idChat})
-                            return firebase.database().ref("/chats/" + idChat).once("value")
-                        }
-                    )
-                    Promise.all(promises).then(
-                        result => {
-                            result.map(
-                                (chat, index) => {
-                                    let idOtherUser = "";
-                                    if( id == chat.val().idUser1){
-                                        idOtherUser = chat.val().idUser2;
-                                    }else{
-                                        idOtherUser = chat.val().idUser1;
-                                    }
+                    valSnap = snap.val()
+                    for(var key in valSnap){
+                        chats.push(valSnap[key])
+                    }
 
-                                    let promises1 = [
-                                        Db.getNameAndSurnameFromId(idOtherUser),
-                                        Db.getUrlPhotoFromId(idOtherUser),
-                                        Db.getUrlPhotoFromId(id)
-                                    ]
-                                    Promise.all(promises1).then(
-                                        results => {
-                                            chats[index].nameAndSurname = results[0]
-                                            chats[index].urlPhotoOther = results[1]
-                                            chats[index].urlPhotoUser = results[2]
-                                        }
-                                    ).then(()=>{
-                                        this.setState({
-                                            chats: chats,
-                                            loadingDone: true
-                                        })
-                                    })
-                                }
-                            )
+                    Db.getChatsInfoFromChatId(chats).then(
+                        chats => {
+                            //chats must be in chronological order
+                            chats.sort(function(a,b){
+                                return new Date(b.lastMessageTime) - new Date(a.lastMessageTime);
+                            });
+
+                            this.setState({
+                                chats: chats,
+                                loadingDone: true
+                            })
                         }
                     )
                 }
@@ -148,16 +158,22 @@ const styles = StyleSheet.create({
     },
     text: {
         fontSize: 20,
-        textAlign: 'center',
-        margin: 10,
+        fontWeight: "bold"
     },
-    chat: {
-        borderWidth: 1,
-        flexDirection: 'row'
+    singleChat: {
+        borderBottomWidth: 1,
+        flex: 1,
+        flexDirection: 'column',
+        marginLeft: wp("3%")
+    },
+    singleChatContainer: {
+        flexDirection: 'row',
+        margin: wp("3%"),
+        height: hp("10%")
     },
     userPhoto: {
-        width: wp("20%"),
-        height: wp("20%"),
-        borderRadius: wp("20%")
+        width: wp("15%"),
+        height: wp("15%"),
+        borderRadius: wp("15%")
     }
 });

@@ -3,6 +3,7 @@ import {StyleSheet, Text, View, Button, Image, ScrollView, TouchableWithoutFeedb
 import firebase from "react-native-firebase"
 import ImagePicker from 'react-native-image-picker';
 import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen';
+import Db from "../res/Db";
 
 function Biography(props){
     return(
@@ -23,6 +24,15 @@ function NameAndSurname(props) {
     return(
         <View style={styles.nameAndSurname}>
             <Text style={styles.infoUser}>{props.name} {props.surname}</Text>
+            <Button
+                title="Invia un messaggio"
+                onPress={() => props.nav.navigate('SingleChat',
+                    {
+                        otherUserId: props.userId,
+                        chatId: props.chatId,
+                        nameAndSurname: props.name + " " + props.surname,
+                        urlPhotoOther: props.photoPath
+                    })}/>
         </View>
     )
 }
@@ -101,7 +111,8 @@ export default class ProfileTab extends Component {
             surname: null,
             photoPath: null,
             photoToUpload: null,
-            loadingDone: false
+            loadingDone: false,
+            chatId: null
         }
     }
 
@@ -127,10 +138,12 @@ export default class ProfileTab extends Component {
 
     componentDidMount(){
         const id = this.props.navigation.getParam('idUser', 'Error')
+        const idLoggedUser = firebase.auth().currentUser.uid
         let promises = []
 
         promises.push(firebase.database().ref("/users/" + id ).once("value"))
         promises.push(this.getUrlPhoto(id))
+        promises.push(Db.getChatIdFromUsersIds(idLoggedUser, id))
         promises.push(firebase.database().ref("/users/" + id + "/feedbacks").once("value"))
 
         Promise.all(promises).then(
@@ -140,12 +153,13 @@ export default class ProfileTab extends Component {
                         name: results[0].val().name,
                         surname: results[0].val().surname,
                         bio: results[0].val().biography,
-                        photoPath: results[1]
+                        photoPath: results[1],
+                        chatId: results[2]
                     }
                 )
                 this.props.navigation.setParams({nameBuddy: results[0].val().name + " " + results[0].val().surname})
 
-                const feedbacks = results[2].val()
+                const feedbacks = results[3].val()
                 if (feedbacks != null && feedbacks != "") {
                     //for each traveler get the name and surname
                     let names = feedbacks.map(
@@ -204,7 +218,13 @@ export default class ProfileTab extends Component {
                     <View style={styles.viewContainer}>
                         <View style={styles.userTop}>
                             <PhotoProfile photoPath={this.state.photoPath} userId={id}/>
-                            <NameAndSurname name={this.state.name} surname={this.state.surname}/>
+                            <NameAndSurname
+                                name={this.state.name}
+                                surname={this.state.surname}
+                                photoPath={this.state.photoPath}
+                                chatId={this.state.chatId}
+                                nav={this.props.navigation}
+                                userId={id}/>
                         </View>
                         <Biography bio={this.state.bio}/>
                         <Feedbacks feedbacks={this.state.feedbacks}/>

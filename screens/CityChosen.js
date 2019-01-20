@@ -47,6 +47,8 @@ export default class CityChosen extends Component {
                                 })
                             }
                         )
+                        //delete the actual user logged, if it is in the buddies
+                        buddies = buddies.filter(buddy => buddy.id != firebase.auth().currentUser.uid)
                         this.setState({
                             buddies: buddies,
                             loadingDone: true
