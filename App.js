@@ -48,10 +48,10 @@ const TabNavigator = createBottomTabNavigator({
             tabBarIcon:<Icon name="search" size={26}/>
         }
     },
-    Feedbacks: {
+    MyBuddies: {
         screen: FeedbacksTab,
         navigationOptions:{
-            tabBarIcon:<Icon name="feedback" size={26}/>
+            tabBarIcon:<Icon name="group" size={26}/>
         }
     },
     Chat: {
@@ -63,7 +63,7 @@ const TabNavigator = createBottomTabNavigator({
     Profile: {
         screen: ProfileTab,
         navigationOptions:{
-            tabBarIcon:<Icon name="group" size={26}/>
+            tabBarIcon:<Icon name="user" type='feather' size={26}/>
         }
     },
     Settings: {

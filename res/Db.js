@@ -1,4 +1,5 @@
 import firebase from 'react-native-firebase'
+import ChatsHandler from "./ChatsHandler";
 
 class Db {
     static getNameAndSurnameFromId(id){
@@ -46,7 +47,6 @@ class Db {
     static getChatsInfoFromChatId(chats){
         const id = firebase.auth().currentUser.uid
         let promisesAllChats = []
-
         chats.map(
             chat=>{
                 promisesAllChats.push(firebase.database().ref("/chats/" + chat).once("value"))
@@ -56,19 +56,10 @@ class Db {
         return new Promise(resolve => {
             Promise.all(promisesAllChats).then(
                 result => {
-                    promises = result.map(
+                    const promises = result.map(
                         (chat,index) => {
                             const messages = chat.val().messages
-                            let messagesArray = []
-
-                            for(key in messages){
-                                messagesArray.push(messages[key])
-                            }
-
-                            //sort the messages in date order
-                            messagesArray.sort(function(a,b){
-                                return new Date(b.createdAt) - new Date(a.createdAt);
-                            })
+                            const lastMessage = ChatsHandler.getLastMessage(messages)
 
                             let idOtherUser = "";
                             if( id == chat.val().idUser1){
@@ -82,13 +73,12 @@ class Db {
                                 Db.getUrlPhotoFromId(idOtherUser),
                                 Db.getUrlPhotoFromId(id)
                             ]
-
                             return Promise.all(promisesInfoChat).then(
                                 results => {
                                     return {
                                         chatId: chats[index],
-                                        lastMessageText: messagesArray[0].text,
-                                        lastMessageTime: messagesArray[0].createdAt,
+                                        lastMessageText: lastMessage.text,
+                                        createdAt: lastMessage.createdAt,
                                         nameAndSurname: results[0],
                                         urlPhotoOther: results[1],
                                         urlPhotoUser: results[2]

@@ -25,15 +25,18 @@ export default class SingleChat extends Component {
         };
     };
 
+    componentWillUnmount(){
+        firebase.database().ref("/chats/" + this.state.chatId + "/messages").off()
+    }
+
     loadMessages = (chatId)=>{
         firebase.database().ref("/chats/" + chatId + "/messages").on("value",
             snap => {
                 messages = snap.val()
                 const that = this
                 let toDisplay = []
-
+                const id  = firebase.auth().currentUser.uid;
                 for(var key in messages){
-                    const id  = firebase.auth().currentUser.uid;
                     if(id == messages[key].idUser){
                         value = 1
                         photo =  that.props.navigation.getParam("urlPhotoUser", "Error")

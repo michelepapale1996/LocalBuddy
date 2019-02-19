@@ -1,7 +1,6 @@
 import React, {Component} from 'react';
 import {StyleSheet, Text, View, TextInput, FlatList} from 'react-native';
 import {Icon} from 'react-native-elements';
-import firebase from 'react-native-firebase'
 import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen';
 
 

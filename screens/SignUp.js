@@ -1,21 +1,22 @@
 import React from 'react'
 import { StyleSheet, Text, TextInput, View, Button } from 'react-native'
 import firebase from 'react-native-firebase'
+import UserHandler from "../res/UserHandler";
 
 export default class SignUp extends React.Component {
-    state = { email: '', password: '', errorMessage: null }
+    state = { email: '', password: '', errorMessage: null , name: "", surname: ""}
     handleSignUp = () => {
         firebase
             .auth()
             .createUserWithEmailAndPassword(this.state.email, this.state.password)
             .then(()=> {
                 const user = firebase.auth().currentUser;
-                firebase.database().ref("/users/" + user.uid + "/name").set(this.state.name);
-                firebase.database().ref("/users/" + user.uid + "/surname").set(this.state.surname);
-                firebase.database().ref("/users/" + user.uid + "/isBuddy").set(0);
-                firebase.database().ref("/users/" + user.uid + "/biography").set("");
-                firebase.database().ref("/users/" + user.uid + "/feedbacks").set("");
-                firebase.database().ref("/users/" + user.uid + "/chats").set("");
+
+                firebase.auth().currentUser.getIdToken(true).then((idToken) => {
+                    UserHandler.signUp(user.uid, this.state.name, this.state.surname, 0, idToken)
+                }).catch(function(error) {
+                    console.log("ERRORE", error)
+                });
             })
             .then(() => this.props.navigation.navigate('TabNavigator'))
             .catch(error => this.setState({ errorMessage: error.message }))

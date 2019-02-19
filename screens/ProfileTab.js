@@ -1,15 +1,25 @@
 import React, {Component} from 'react';
-import {StyleSheet, Text, View, Button, Image, ScrollView, TouchableWithoutFeedback, ActivityIndicator, FlatList} from 'react-native';
+import {StyleSheet, Text, View, Image, ScrollView, TouchableWithoutFeedback, AsyncStorage,ActivityIndicator} from 'react-native';
 import firebase from "react-native-firebase"
 import ImagePicker from 'react-native-image-picker';
 import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen';
-import Db from '../res/Db'
+import {Icon} from 'react-native-elements';
+import ProfileHandler from "../res/ProfileHandler";
 
 function Biography(props){
+
+    modifyBiography = ()=>{
+        alert("Da fare")
+    }
+
     return(
         <View style={styles.biographyContainer}>
             <View style={styles.biography}>
-                <Text style={{fontWeight:"bold"}}>Biografia</Text>
+                <View style={{flexDirection:"row", justifyContent:"space-between"}}>
+                    <Text style={{fontWeight:"bold"}}>Biografia</Text>
+                    <Icon onPress={modifyBiography} name='pencil' type='evilicon' size={30}/>
+
+                </View>
                 {
                     props.bio != ""
                         ? <Text>{props.bio}</Text>
@@ -55,15 +65,24 @@ function PhotoProfile(props) {
 
 function Feedback(props){
     return(
-        <View>
-            <Text>________________________</Text>
+        <View style={{borderBottomWidth:1, flexDirection:"row", margin:10}}>
             <Image
                 style={styles.photoTravelerProfile}
                 source={{uri: props.feedback.url}}/>
-            <Text>Viaggiatore: {props.feedback.name}</Text>
-            <Text>Voto: {props.feedback.rating}/5</Text>
-            <Text style={{fontWeight:"bold"}}>Commento:</Text>
-            <Text>{props.feedback.text}</Text>
+            <View style={{margin:5, flex:1}}>
+                <Text>
+                    <Text style={{fontWeight:"bold"}}>Viaggiatore:</Text>
+                    {props.feedback.name}
+                </Text>
+                <Text>
+                    <Text style={{fontWeight:"bold"}}>Voto:</Text>
+                    {props.feedback.rating}/5
+                </Text>
+                <Text style={{flexWrap: "wrap", }}>
+                    <Text style={{fontWeight:"bold"}}>Commento:</Text>
+                    {props.feedback.text}
+                </Text>
+            </View>
         </View>
     )
 }
@@ -113,11 +132,7 @@ export default class ProfileTab extends Component {
         super(props);
 
         this.state = {
-            bio: null,
-            feedbacks: null,
-            name: null,
-            surname: null,
-            photoPath: null,
+            user: null,
             photoToUpload: null,
             loadingDone: false
         }
@@ -126,75 +141,27 @@ export default class ProfileTab extends Component {
     componentDidMount(){
         const id  = firebase.auth().currentUser.uid;
 
-        let promises = []
-        promises.push(firebase.database().ref("/users/" + id ).once("value"))
-        promises.push(Db.getUrlPhotoFromId(id))
-        promises.push(firebase.database().ref("/users/" + id + "/feedbacks").once("value"))
-
-        Promise.all(promises).then(
-            results => {
+        ProfileHandler.retrieveUserInfo().then(
+            user => {
                 this.setState({
-                    name: results[0].val().name,
-                    surname: results[0].val().surname,
-                    bio: results[0].val().biography,
-                    photoPath: results[1]
+                    user: user,
+                    loadingDone: true
                 })
-
-                const feedbacks = results[2].val()
-                if (feedbacks != null) {
-                    //for each traveler get the name and surname
-                    let names = feedbacks.map(
-                        feedback => {
-                            return firebase.database().ref("/users/" + feedback.travelerId).once("value")
-                        }
-                    )
-                    Promise.all(names).then((result) => {
-                        result.map(
-                            (user, index) => {
-                                feedbacks[index].name = user.val().name + " " + user.val().surname
-                            }
-                        )
-                    }).then(
-                        ()=>{
-                            urlPhotos = feedbacks.map(
-                                feedback => {
-                                    return Db.getUrlPhotoFromId(feedback.travelerId)
-                                }
-                            )
-                            Promise.all(urlPhotos).then(result => {
-                                result.map((url, index) => {
-                                    feedbacks[index].url = url
-                                })
-                            }).then(
-                                () => {
-                                    this.setState({
-                                        feedbacks: feedbacks,
-                                        loadingDone: true
-                                    })
-                                }
-                            )
-                        }
-                    )
-                }else{
-                    this.setState({
-                        loadingDone: true
-                    })
-                }
             }
         )
     }
 
     render() {
-        if(this.state.loadingDone != false){
+        if (this.state.loadingDone){
             return(
                 <ScrollView contentContainerStyle={styles.container}>
                     <View style={styles.viewContainer}>
                         <View style={styles.userTop}>
-                            <PhotoProfile photoPath={this.state.photoPath} userId={firebase.auth().currentUser.uid}/>
-                            <NameAndSurname name={this.state.name} surname={this.state.surname}/>
+                            <PhotoProfile photoPath={this.state.user.photoPath} userId={this.state.user.id}/>
+                            <NameAndSurname name={this.state.user.name} surname={this.state.user.surname}/>
                         </View>
-                        <Biography bio={this.state.bio}/>
-                        <Feedbacks feedbacks={this.state.feedbacks}/>
+                        <Biography bio={this.state.user.bio}/>
+                        <Feedbacks feedbacks={this.state.user.feedbacks}/>
                     </View>
                 </ScrollView>
             )

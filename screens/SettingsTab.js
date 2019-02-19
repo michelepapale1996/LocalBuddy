@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
 import {StyleSheet, Text, View, Button} from 'react-native';
 import firebase from 'react-native-firebase'
+import ProfileHandler from "../res/ProfileHandler";
 
 export default class SettingsTab extends Component {
     render() {
@@ -12,7 +13,8 @@ export default class SettingsTab extends Component {
                 <Button
                     title="LogOut"
                     onPress={() => firebase.auth().signOut()
-                        .then(function() {
+                        .then(() => {
+                            ProfileHandler.clearStorage()
                             this.props.navigation.navigate('Loading')
                         })
                         .catch(function(error) {

@@ -3,6 +3,7 @@ import {StyleSheet, Text, View, Button, FlatList, ActivityIndicator, Image, Touc
 import firebase from 'react-native-firebase'
 import Db from '../res/Db'
 import {widthPercentageToDP as wp, heightPercentageToDP as hp} from "react-native-responsive-screen";
+import ChatsHandler from "../res/ChatsHandler";
 
 function Loading(){
     return(
@@ -14,23 +15,28 @@ function Loading(){
 }
 
 function Chat(props) {
-    const time = new Date(props.item.lastMessageTime)
-    const now = new Date()
-    let lastMessageTime = ""
+    var getTime = () => {
+        const time = new Date(props.item.createdAt)
+        const now = new Date()
+        let lastMessageTime = ""
 
-    if(time.getDate() == now.getDate()){
-        let minutes = 0;
-        if (time.getMinutes() < 10){
-            minutes = "0" + time.getMinutes()
+        if(time.getDate() == now.getDate()){
+            let minutes = 0;
+            if (time.getMinutes() < 10){
+                minutes = "0" + time.getMinutes()
+            }else{
+                minutes = time.getMinutes()
+            }
+            lastMessageTime = time.getHours() + ":" + minutes
+        }else if(time.getDate() + 1== now.getDate()){
+            lastMessageTime = "Ieri"
         }else{
-            minutes = time.getMinutes()
+            lastMessageTime = time.getDate() + "/" + (time.getMonth()+1) + "/" + time.getFullYear()
         }
-        lastMessageTime = time.getHours() + ":" + minutes
-    }else if(time.getDate() + 1== now.getDate()){
-        lastMessageTime = "Ieri"
-    }else{
-        lastMessageTime = time.getDate() + "/" + (time.getMonth()+1) + "/" + time.getFullYear()
+        return lastMessageTime
     }
+
+    const lastMessageTime = getTime()
 
     return(
         <TouchableWithoutFeedback
@@ -78,6 +84,19 @@ export default class AllChats extends Component {
         };
     };
 
+    setChats = (idChats) => {
+        Db.getChatsInfoFromChatId(idChats).then(
+            chats => {
+                chats = ChatsHandler.sortInDateOrder(chats)
+
+                this.setState({
+                    chats: chats,
+                    loadingDone: true
+                })
+            }
+        )
+    }
+
     componentDidMount(){
         const id  = firebase.auth().currentUser.uid;
 
@@ -85,29 +104,27 @@ export default class AllChats extends Component {
         firebase.database().ref("/users/" + id + "/chats").on("value",
             snap => {
                 if(snap.val() == null){
-                    //non ha chats
+                    //it does not have chats
                     this.setState({
                         loadingDone:true
                     })
                 }else{
                     //the user has some chats
-                    let chats = []
+                    let idChats = []
                     valSnap = snap.val()
                     for(var key in valSnap){
-                        chats.push(valSnap[key])
+                        idChats.push(valSnap[key])
                     }
 
-                    Db.getChatsInfoFromChatId(chats).then(
-                        chats => {
-                            //chats must be in chronological order
-                            chats.sort(function(a,b){
-                                return new Date(b.lastMessageTime) - new Date(a.lastMessageTime);
-                            });
+                    //load chat the first time
+                    this.setChats(idChats)
 
-                            this.setState({
-                                chats: chats,
-                                loadingDone: true
-                            })
+                    //Add listeners to all chats
+                    idChats.map(
+                        chatId=> {
+                            firebase.database().ref("/chats/" + chatId).on("value",
+                                () => this.setChats(idChats)
+                            )
                         }
                     )
                 }
