@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import {StyleSheet, Text, View, Button} from 'react-native';
 import firebase from 'react-native-firebase'
-import ProfileHandler from "../res/ProfileHandler";
+import LocalStateHandler from "../res/LocalStateHandler";
 
 export default class SettingsTab extends Component {
     render() {
@@ -14,7 +14,7 @@ export default class SettingsTab extends Component {
                     title="LogOut"
                     onPress={() => firebase.auth().signOut()
                         .then(() => {
-                            ProfileHandler.clearStorage()
+                            LocalStateHandler.clearStorage()
                             this.props.navigation.navigate('Loading')
                         })
                         .catch(function(error) {

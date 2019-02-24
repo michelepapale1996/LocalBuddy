@@ -1,7 +1,7 @@
 import React from 'react'
 import { StyleSheet, Text, TextInput, View, Button } from 'react-native'
 import firebase from 'react-native-firebase'
-import UserHandler from "../res/UserHandler";
+import AccountHandler from "../res/AccountHandler";
 
 export default class SignUp extends React.Component {
     state = { email: '', password: '', errorMessage: null , name: "", surname: ""}
@@ -13,7 +13,7 @@ export default class SignUp extends React.Component {
                 const user = firebase.auth().currentUser;
 
                 firebase.auth().currentUser.getIdToken(true).then((idToken) => {
-                    UserHandler.signUp(user.uid, this.state.name, this.state.surname, 0, idToken)
+                    AccountHandler.signUp(user.uid, this.state.name, this.state.surname,this.state.username, 0, idToken)
                 }).catch(function(error) {
                     console.log("ERRORE", error)
                 });
@@ -42,6 +42,13 @@ export default class SignUp extends React.Component {
                     style={styles.textInput}
                     onChangeText={surname => this.setState({ surname })}
                     value={this.state.surname}
+                />
+                <TextInput
+                    placeholder="username"
+                    autoCapitalize="none"
+                    style={styles.textInput}
+                    onChangeText={username => this.setState({ username })}
+                    value={this.state.username}
                 />
                 <TextInput
                     placeholder="Email"

@@ -1,21 +1,8 @@
 import firebase from 'react-native-firebase'
 import ChatsHandler from "./ChatsHandler";
+import UserHandler from "./UserHandler";
 
 class Db {
-    static getNameAndSurnameFromId(id){
-        return new Promise(
-            (resolve,reject) => {
-                firebase.database().ref("/users/" + id).once("value").then(
-                    snap => {
-                        resolve(snap.val().name + " " +snap.val().surname)
-                    }
-                ).catch(
-                    err => console.log(err)
-                )
-            }
-        )
-    }
-
     static createChatBetween(idUser, idOtherUser){
         //create node in /chats
         var ref = firebase.database().ref("/chats").push(
@@ -69,9 +56,9 @@ class Db {
                             }
 
                             let promisesInfoChat = [
-                                Db.getNameAndSurnameFromId(idOtherUser),
-                                Db.getUrlPhotoFromId(idOtherUser),
-                                Db.getUrlPhotoFromId(id)
+                                UserHandler.getNameAndSurname(idOtherUser),
+                                UserHandler.getUrlPhoto(idOtherUser),
+                                UserHandler.getUrlPhoto(id)
                             ]
                             return Promise.all(promisesInfoChat).then(
                                 results => {
@@ -100,26 +87,6 @@ class Db {
                 firebase.database().ref(query).once("value").then(
                     chatId =>{
                         resolve(chatId.val())
-                    }
-                )
-            }
-        )
-    }
-
-    static getUrlPhotoFromId = (userId) => {
-        return new Promise(
-            resolve => {
-                firebase.storage().ref("/PhotosProfile/" + userId).getDownloadURL().then(
-                    (url) => {
-                        resolve(url)
-                    }
-                ).catch(
-                    ()=> {
-                        firebase.storage().ref("/PhotosProfile/blank.png").getDownloadURL().then(
-                            (url) => {
-                                resolve(url)
-                            }
-                        )
                     }
                 )
             }

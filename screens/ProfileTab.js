@@ -4,7 +4,7 @@ import firebase from "react-native-firebase"
 import ImagePicker from 'react-native-image-picker';
 import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen';
 import {Icon} from 'react-native-elements';
-import ProfileHandler from "../res/ProfileHandler";
+import LocalStateHandler from "../res/LocalStateHandler";
 
 function Biography(props){
 
@@ -139,9 +139,7 @@ export default class ProfileTab extends Component {
     }
 
     componentDidMount(){
-        const id  = firebase.auth().currentUser.uid;
-
-        ProfileHandler.retrieveUserInfo().then(
+        LocalStateHandler.retrieveUserInfo().then(
             user => {
                 this.setState({
                     user: user,

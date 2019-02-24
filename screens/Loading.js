@@ -1,7 +1,9 @@
 import React from 'react'
 import { View, Text, ActivityIndicator, StyleSheet } from 'react-native'
 import firebase from 'react-native-firebase'
-import ProfileHandler from "../res/ProfileHandler";
+import LocalStateHandler from "../res/LocalStateHandler";
+import ConnectyCubeHandler from "../res/ConnectyCubeHandler";
+import SingleChatHandler from "../res/SingleChatHandler";
 
 export default class Loading extends React.Component {
     //authFlag used because onAuthStateChanged can be called multiple times and the job must be done once
@@ -18,8 +20,10 @@ export default class Loading extends React.Component {
                     // Handle error
                 });*/
 
-                //current user must have his info in local
-                ProfileHandler.handleLocalState(user.uid).then(
+                ConnectyCubeHandler.setInstance(user.uid).then(()=>{
+                    //current user must have his info in local
+                    return LocalStateHandler.handleLocalState(user.uid)
+                }).then(
                     ()=> this.props.navigation.navigate('Home')
                 )
 

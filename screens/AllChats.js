@@ -1,9 +1,11 @@
 import React, {Component} from 'react';
 import {StyleSheet, Text, View, Button, FlatList, ActivityIndicator, Image, TouchableWithoutFeedback} from 'react-native';
 import firebase from 'react-native-firebase'
-import Db from '../res/Db'
 import {widthPercentageToDP as wp, heightPercentageToDP as hp} from "react-native-responsive-screen";
 import ChatsHandler from "../res/ChatsHandler";
+import SingleChatHandler from "../res/SingleChatHandler";
+import UserHandler from "../res/UserHandler";
+import ConnectyCubeHandler from "../res/ConnectyCubeHandler";
 
 function Loading(){
     return(
@@ -16,7 +18,11 @@ function Loading(){
 
 function Chat(props) {
     var getTime = () => {
-        const time = new Date(props.item.createdAt)
+        //const time = new Date(props.item.createdAt)
+        var utcSeconds = props.item.createdAt;
+        var time = new Date(0); // The 0 there is the key, which sets the date to the epoch
+        time.setUTCSeconds(utcSeconds);
+
         const now = new Date()
         let lastMessageTime = ""
 
@@ -44,7 +50,8 @@ function Chat(props) {
                 {
                     chatId: props.item.chatId,
                     nameAndSurname: props.item.nameAndSurname,
-                    urlPhotoOther: props.item.urlPhotoOther
+                    urlPhotoOther: props.item.urlPhotoOther,
+                    CCopponentUserId: props.item.CCopponentUserId
                 })}>
             <View style={styles.singleChatContainer}>
                 <Image
@@ -84,50 +91,18 @@ export default class AllChats extends Component {
         };
     };
 
-    setChats = (idChats) => {
-        Db.getChatsInfoFromChatId(idChats).then(
-            chats => {
-                chats = ChatsHandler.sortInDateOrder(chats)
+    componentWillUnmount(){
+        SingleChatHandler.disconnectToChat()
+    }
 
+    componentDidMount(){
+        const CCUserId = ConnectyCubeHandler.getCCUserId()
+        SingleChatHandler.connectToChat(CCUserId, 'LocalBuddy')
+        ChatsHandler.getChats().then(chats => {
                 this.setState({
                     chats: chats,
                     loadingDone: true
                 })
-            }
-        )
-    }
-
-    componentDidMount(){
-        const id  = firebase.auth().currentUser.uid;
-
-        //get all the chats of the logged user
-        firebase.database().ref("/users/" + id + "/chats").on("value",
-            snap => {
-                if(snap.val() == null){
-                    //it does not have chats
-                    this.setState({
-                        loadingDone:true
-                    })
-                }else{
-                    //the user has some chats
-                    let idChats = []
-                    valSnap = snap.val()
-                    for(var key in valSnap){
-                        idChats.push(valSnap[key])
-                    }
-
-                    //load chat the first time
-                    this.setChats(idChats)
-
-                    //Add listeners to all chats
-                    idChats.map(
-                        chatId=> {
-                            firebase.database().ref("/chats/" + chatId).on("value",
-                                () => this.setChats(idChats)
-                            )
-                        }
-                    )
-                }
             }
         )
     }

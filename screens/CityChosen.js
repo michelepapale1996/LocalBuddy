@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import {StyleSheet, Text, View, FlatList, ActivityIndicator} from 'react-native';
-import firebase from 'react-native-firebase'
+import CityHandler from "../res/CityHandler";
 
 function Loading(){
     return(
@@ -25,44 +25,23 @@ export default class CityChosen extends Component {
     }
 
     componentDidMount(){
-        firebase.database().ref("/Citta/" + this.cityId).once('value').then(
-            (snap) =>{
-                //we have to check if the city exists in the db
-                if (snap.val() != null){
-                    let promises = []
-                    snap.val().buddies.map(
-                        buddy => {
-                            promises.push(firebase.database().ref("/users/" + buddy).once("value"))
-                        }
-                    )
-
-                    let buddies = []
-                    Promise.all(promises).then(values => {
-                        values.map(
-                            v => {
-                                buddies.push({
-                                    name: v.val().name,
-                                    surname: v.val().surname,
-                                    id: v.key
-                                })
-                            }
-                        )
-                        //delete the actual user logged, if it is in the buddies
-                        buddies = buddies.filter(buddy => buddy.id != firebase.auth().currentUser.uid)
-                        this.setState({
-                            buddies: buddies,
-                            loadingDone: true
-                        })
-                    })
-                    this.props.navigation.setParams({title: "Buddies a " + snap.val().name})
-                }else{
-                    this.setState({
-                        loadingDone: true
-                    })
-                }
+        CityHandler.getCity(this.cityId).then((response)=>{
+            //response status is 200
+            if(response != null){
+                this.setState({
+                    buddies: response.buddies,
+                    loadingDone: true
+                })
+                //setting the title
+                this.props.navigation.setParams({title: "Buddies a " + response.name})
+            }else{
+                this.setState({
+                    loadingDone: true
+                })
+                //setting the title
+                this.props.navigation.setParams({title: "Buddies" })
             }
-        )
-
+        })
 
     }
 

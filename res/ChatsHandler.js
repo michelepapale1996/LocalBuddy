@@ -1,23 +1,63 @@
-import firebase from 'react-native-firebase'
-import Db from "./Db";
+import SingleChatHandler from "./SingleChatHandler";
+import ConnectyCubeHandler from "./ConnectyCubeHandler";
+import UserHandler from "./UserHandler";
 
 class ChatsHandler {
-    static getLastMessage(messages){
-        let messagesArray = []
-        for(key in messages){
-            messagesArray.push(messages[key])
-        }
-        messagesArray = ChatsHandler.sortInDateOrder(messagesArray)
 
-        return messagesArray[0]
+    //from ConnectyCube
+    static getUserId(id){
+        return new Promise((resolve,reject) => {
+            var searchParams = {filter: { field: 'id', param: 'in', value: id }};
+
+            ConnectyCubeHandler.getInstance().users.get(searchParams, function(error, res){
+                if(error !== null) reject(error);
+                else resolve(res.items[0].user.custom_data)
+            })
+        })
     }
 
-    //this function assumes that each object in container has a field called createdAt
-    static sortInDateOrder(container){
-        container.sort(function(a,b){
-            return new Date(b.createdAt) - new Date(a.createdAt);
+    static getInfoChatWith(id, chat){
+        return ChatsHandler.getUserId(id).then(userId => {
+            var state = ({
+                chatId: chat._id,
+                CCopponentUserId: id,
+                ccUserId: chat.user_id,
+                lastMessageText: chat.last_message,
+                createdAt: chat.last_message_date_sent
+            })
+
+            const promises = [UserHandler.getNameAndSurname(userId), UserHandler.getUrlPhoto(userId)]
+            return Promise.all(promises).then(
+                (res) => {
+                    state.nameAndSurname = res[0]
+                    state.urlPhotoOther = res[1]
+                    return state
+                }
+            )
+        }).catch( err => console.log("Errore: ", err))
+    }
+
+    static getChatsAsync(){
+        return new Promise((resolve, reject) => {
+            ConnectyCubeHandler.getInstance().chat.dialog.list({}, function(error, dialogs) {
+                if (error!==null) reject(error)
+
+                resolve(dialogs.items)
+            })
         })
-        return container
+    }
+
+    static getChats(){
+        return ChatsHandler.getChatsAsync().then(chats => {
+            var promises = chats.map(chat => {
+                const partecipantIds = chat.occupants_ids
+                const opponentId = partecipantIds.filter((id) => id!=ConnectyCubeHandler.getCCUserId())
+
+                return ChatsHandler.getInfoChatWith(opponentId[0], chat)
+            })
+            return Promise.all(promises).then(state => state)
+        })
+
     }
 }
 

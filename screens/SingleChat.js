@@ -1,86 +1,56 @@
 import React, {Component} from 'react';
 import {StyleSheet, Text, View} from 'react-native';
 import {GiftedChat} from 'react-native-gifted-chat'
-import Db from '../res/Db'
 import firebase from "react-native-firebase";
+import SingleChatHandler from "../res/SingleChatHandler";
 
 export default class SingleChat extends Component {
     constructor(props){
         super(props)
 
         this.state = {
-            otherUserId: this.props.navigation.getParam('otherUserId', 'Error'),
+            CCopponentUserId: this.props.navigation.getParam('CCopponentUserId', 'Error'),
             chatId : this.props.navigation.getParam('chatId', 'Error'),
+            urlPhotoUser: this.props.navigation.getParam("urlPhotoUser", "Error"),
+            urlPhotoOther: this.props.navigation.getParam("urlPhotoOther", "Error"),
             messages: []
         }
     }
 
-    componentDidMount() {
-        this.loadMessages(this.state.chatId)
-    }
-    
     static navigationOptions = ({ navigation }) => {
         return {
             title: navigation.state.params.nameAndSurname,
         };
     };
 
-    componentWillUnmount(){
-        firebase.database().ref("/chats/" + this.state.chatId + "/messages").off()
-    }
-
-    loadMessages = (chatId)=>{
-        firebase.database().ref("/chats/" + chatId + "/messages").on("value",
-            snap => {
-                messages = snap.val()
-                const that = this
-                let toDisplay = []
-                const id  = firebase.auth().currentUser.uid;
-                for(var key in messages){
-                    if(id == messages[key].idUser){
-                        value = 1
-                        photo =  that.props.navigation.getParam("urlPhotoUser", "Error")
-                    }else{
-                        value = 2
-                        photo = that.props.navigation.getParam("urlPhotoOther", "Error")
-                    }
-                    toDisplay.push({
-                        _id: 1,
-                        text: messages[key].text,
-                        createdAt: messages[key].createdAt,
-                        user: {
-                            _id: value,
-                            avatar: photo
-                        }
-                    })
-                }
-
-                //sort the messages in date order
-                toDisplay.sort(function(a,b){
-                    return new Date(b.createdAt) - new Date(a.createdAt);
-                });
-
-                this.setState({
-                    messages: toDisplay
-                })
-            }
+    componentDidMount() {
+        const urlPhotoUser = this.state.urlPhotoUser
+        const urlPhotoOther = this.state.urlPhotoOther
+        SingleChatHandler.retrieveChatHistory(this.state.chatId, 100, urlPhotoUser, urlPhotoOther).then(
+            messages => this.setState({
+                messages: messages
+            })
         )
     }
 
-    onSend(messages = []) {
-        const idUser = firebase.auth().currentUser.uid
+    onSend(messages){
+        SingleChatHandler.sendMessage(messages[0].text, this.state.chatId, this.state.CCopponentUserId)
+        var toDisplay = this.state.messages
+        toDisplay.push({
+            _id: messages[0]._id,
+            text: messages[0].text,
+            createdAt: new Date().getTime(),
+            user: {
+                _id: 1,
+                avatar: this.state.urlPhotoUser
+            }
+        })
+        //sort the messages in date order
+        toDisplay.sort(function(a,b){
+            return new Date(b.createdAt) - new Date(a.createdAt);
+        });
 
-        //If it is the first message between them, the chat does not exist in Db-> create it!
-        if(this.state.chatId == undefined || this.state.chatId == null){
-            const chatId = Db.createChatBetween(idUser, this.state.otherUserId)
-            Db.sendNewMessage(chatId, idUser, messages[0])
-            this.setState({
-                chatId: chatId
-            })
-            this.loadMessages(chatId)
-        }else{
-            Db.sendNewMessage(this.state.chatId, idUser, messages[0])
-        }
+        this.setState({messages: toDisplay})
     }
 
     render() {
