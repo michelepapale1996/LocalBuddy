@@ -1,5 +1,6 @@
 import cc from "connectycube-reactnative";
 import UserHandler from "./UserHandler";
+import MessagesUpdatesHandler from "./MessagesUpdatesHandler";
 
 const CREDENTIALS = {
     appId: 422,
@@ -15,7 +16,7 @@ class ConnectyCubeHandler{
     static CCUserId = null
 
     static onMessage(userId, message) {
-        console.log(userId, message)
+        MessagesUpdatesHandler.update(message, userId)
     }
 
     static init(userId){

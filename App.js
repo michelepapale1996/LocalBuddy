@@ -12,7 +12,6 @@ import Login from "./screens/Login";
 import SignUp from "./screens/SignUp";
 import BuddyProfile from "./screens/BuddyProfile"
 import AllChats from "./screens/AllChats"
-import Chat from "./screens/Chat"
 import SingleChat from "./screens/SingleChat"
 
 const SearchTab = createStackNavigator({

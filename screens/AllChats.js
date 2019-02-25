@@ -6,6 +6,7 @@ import ChatsHandler from "../res/ChatsHandler";
 import SingleChatHandler from "../res/SingleChatHandler";
 import UserHandler from "../res/UserHandler";
 import ConnectyCubeHandler from "../res/ConnectyCubeHandler";
+import MessagesUpdatesHandler from "../res/MessagesUpdatesHandler";
 
 function Loading(){
     return(
@@ -17,32 +18,11 @@ function Loading(){
 }
 
 function Chat(props) {
-    var getTime = () => {
-        //const time = new Date(props.item.createdAt)
-        var utcSeconds = props.item.createdAt;
-        var time = new Date(0); // The 0 there is the key, which sets the date to the epoch
-        time.setUTCSeconds(utcSeconds);
+    const lastMessageTime = props.getTime(props.item.createdAt)
 
-        const now = new Date()
-        let lastMessageTime = ""
-
-        if(time.getDate() == now.getDate()){
-            let minutes = 0;
-            if (time.getMinutes() < 10){
-                minutes = "0" + time.getMinutes()
-            }else{
-                minutes = time.getMinutes()
-            }
-            lastMessageTime = time.getHours() + ":" + minutes
-        }else if(time.getDate() + 1== now.getDate()){
-            lastMessageTime = "Ieri"
-        }else{
-            lastMessageTime = time.getDate() + "/" + (time.getMonth()+1) + "/" + time.getFullYear()
-        }
-        return lastMessageTime
-    }
-
-    const lastMessageTime = getTime()
+    const Badge = ()=>(
+        <View style = {styles.circle}></View>
+    );
 
     return(
         <TouchableWithoutFeedback
@@ -66,9 +46,11 @@ function Chat(props) {
                             {lastMessageTime}
                         </Text>
                     </View>
-                    <Text>
-                        {props.item.lastMessageText}
-                    </Text>
+                    <View style={{flexDirection: "row", justifyContent:"space-between"}}>
+                        <Text>
+                            {props.item.lastMessageText}
+                        </Text>
+                    </View>
                 </View>
             </View>
         </TouchableWithoutFeedback>
@@ -93,11 +75,53 @@ export default class AllChats extends Component {
 
     componentWillUnmount(){
         SingleChatHandler.disconnectToChat()
+        MessagesUpdatesHandler.removeListeners(this.onMessageRcvd)
     }
+
+    getTime = (createdAt) => {
+        var utcSeconds = createdAt;
+        var time = new Date(0); // The 0 there is the key, which sets the date to the epoch
+        time.setUTCSeconds(utcSeconds);
+
+        const now = new Date()
+        let lastMessageTime = ""
+
+        if(time.getDate() == now.getDate()){
+            let minutes = 0;
+            if (time.getMinutes() < 10){
+                minutes = "0" + time.getMinutes()
+            }else{
+                minutes = time.getMinutes()
+            }
+            lastMessageTime = time.getHours() + ":" + minutes
+        }else if(time.getDate() + 1== now.getDate()){
+            lastMessageTime = "Ieri"
+        }else{
+            lastMessageTime = time.getDate() + "/" + (time.getMonth()+1) + "/" + time.getFullYear()
+        }
+        return lastMessageTime
+    }
+
+    onMessageRcvd = (msgRcvd, userId) => {
+        this.setState(prevState => {
+            var toUpdate = prevState.chats.filter((elem) => elem.CCopponentUserId == userId)[0]
+            toUpdate.lastMessageText = msgRcvd.body
+            toUpdate.createdAt = this.getTime(msgRcvd.date_sent)
+
+            var otherChats = prevState.chats.filter((elem) => elem.CCopponentUserId != userId)
+            if (otherChats.length == 0) allChats = [toUpdate]
+            else allChats = [toUpdate, otherChats]
+            return ({
+                chats: allChats
+            })
+        })
+    }
+
 
     componentDidMount(){
         const CCUserId = ConnectyCubeHandler.getCCUserId()
         SingleChatHandler.connectToChat(CCUserId, 'LocalBuddy')
+        MessagesUpdatesHandler.addListener(this.onMessageRcvd)
         ChatsHandler.getChats().then(chats => {
                 this.setState({
                     chats: chats,
@@ -115,7 +139,7 @@ export default class AllChats extends Component {
                         data={this.state.chats}
                         renderItem={
                             ({item}) => (
-                                <Chat item={item} nav={this.props.navigation}/>
+                                <Chat item={item} getTime={this.getTime} nav={this.props.navigation}/>
                             )
                         }
                         keyExtractor={(item, index) => index.toString()}
@@ -167,5 +191,11 @@ const styles = StyleSheet.create({
         width: wp("15%"),
         height: wp("15%"),
         borderRadius: wp("15%")
+    },
+    circle:{
+        width:36,
+        height:36,
+        borderRadius:18,   //half radius will make it cirlce,
+        backgroundColor:'green'
     }
 });

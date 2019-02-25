@@ -1,8 +1,10 @@
 import React, {Component} from 'react';
 import {StyleSheet, Text, View} from 'react-native';
-import {GiftedChat} from 'react-native-gifted-chat'
+import {GiftedChat, Bubble} from 'react-native-gifted-chat'
 import firebase from "react-native-firebase";
 import SingleChatHandler from "../res/SingleChatHandler";
+import MessagesUpdatesHandler from "../res/MessagesUpdatesHandler";
+import * as Animatable from "react-native-animatable"
 
 export default class SingleChat extends Component {
     constructor(props){
@@ -26,17 +28,38 @@ export default class SingleChat extends Component {
     componentDidMount() {
         const urlPhotoUser = this.state.urlPhotoUser
         const urlPhotoOther = this.state.urlPhotoOther
+
         SingleChatHandler.retrieveChatHistory(this.state.chatId, 100, urlPhotoUser, urlPhotoOther).then(
             messages => this.setState({
                 messages: messages
             })
         )
+
+        MessagesUpdatesHandler.addListener(this.onMessageRcvd)
+    }
+
+    componentWillUnmount(){
+        MessagesUpdatesHandler.removeListeners(this.onMessageRcvd)
+    }
+
+    onMessageRcvd = (msgRcvd, userId)=>{
+        const message = {
+            _id: userId,
+            text: msgRcvd.body,
+            createdAt: new Date().getTime(),
+            user: {
+                _id: 2,
+                avatar: this.state.urlPhotoOther
+            }
+        }
+        this.setState(previousState => ({
+            messages: GiftedChat.append(previousState.messages, message),
+        }))
     }
 
     onSend(messages){
         SingleChatHandler.sendMessage(messages[0].text, this.state.chatId, this.state.CCopponentUserId)
-        var toDisplay = this.state.messages
-        toDisplay.push({
+        const message = {
             _id: messages[0]._id,
             text: messages[0].text,
             createdAt: new Date().getTime(),
@@ -44,18 +67,30 @@ export default class SingleChat extends Component {
                 _id: 1,
                 avatar: this.state.urlPhotoUser
             }
-        })
-        //sort the messages in date order
-        toDisplay.sort(function(a,b){
-            return new Date(b.createdAt) - new Date(a.createdAt);
-        });
+        }
+        this.setState(previousState => ({
+            messages: GiftedChat.append(previousState.messages, message),
+        }))
+    }
 
-        this.setState({messages: toDisplay})
+    renderMessages = (props) => {
+        return (
+            <Animatable.View animation="bounceInUp" duration={400}>
+                <Bubble {...props} wrapperStyle={
+                    {
+                        left: {
+                            backgroundColor: '#f0f0f0',
+                        }
+                    }}
+                />
+            </Animatable.View>
+        );
     }
 
     render() {
         return (
             <GiftedChat
+                renderBubble={this.renderMessages}
                 messages={this.state.messages}
                 onSend={messages => this.onSend(messages)}
                 user={{
