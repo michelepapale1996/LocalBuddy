@@ -6,7 +6,6 @@ class MessagesUpdatesHandler{
         MessagesUpdatesHandler.listeners.push(fn);
     }
 
-    //todo: check that works!
     static removeListeners(fn){
         MessagesUpdatesHandler.listeners = MessagesUpdatesHandler.listeners.filter( elem => {
             if (elem != fn) return elem

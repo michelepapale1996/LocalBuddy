@@ -54,6 +54,20 @@ class SingleChatHandler{
         };
 
         ConnectyCubeHandler.getInstance().chat.send(opponentId, message);
+
+        var payload = JSON.stringify({
+            message: messageBody
+        });
+
+        var pushParameters = {
+            notification_type: 'push',
+            user: {ids: [opponentId]}, // recipients.
+            environment: 'development', // environment, can be 'production'.
+            message: ConnectyCubeHandler.getInstance().pushnotifications.base64Encode(payload)
+        };
+
+        ConnectyCubeHandler.getInstance().pushnotifications.events.create(pushParameters, function(error, result) {
+        });
     }
 
     static disconnectToChat(){

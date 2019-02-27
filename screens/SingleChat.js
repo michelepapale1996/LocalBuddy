@@ -1,7 +1,6 @@
 import React, {Component} from 'react';
 import {StyleSheet, Text, View} from 'react-native';
 import {GiftedChat, Bubble} from 'react-native-gifted-chat'
-import firebase from "react-native-firebase";
 import SingleChatHandler from "../res/SingleChatHandler";
 import MessagesUpdatesHandler from "../res/MessagesUpdatesHandler";
 import * as Animatable from "react-native-animatable"

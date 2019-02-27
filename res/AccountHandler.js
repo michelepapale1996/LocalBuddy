@@ -1,6 +1,7 @@
+import IP_ADDRESS from '../ip'
 class AccountHandler {
     static signUp(idAccount, name, surname, username, isBuddy, idToken){
-        return fetch("http://192.168.100.8:3000/api/Accounts/" + idAccount, {
+        return fetch(IP_ADDRESS + ":3000/api/Accounts/" + idAccount, {
             method: "POST",
             headers: {
                 Accept: 'application/json',
