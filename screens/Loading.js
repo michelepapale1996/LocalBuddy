@@ -3,11 +3,17 @@ import { View, Text, ActivityIndicator, StyleSheet } from 'react-native'
 import firebase from 'react-native-firebase'
 import LocalStateHandler from "../res/LocalStateHandler";
 import ConnectyCubeHandler from "../res/ConnectyCubeHandler";
-import SingleChatHandler from "../res/SingleChatHandler";
 
 export default class Loading extends React.Component {
     //authFlag used because onAuthStateChanged can be called multiple times and the job must be done once
     authFlag = false;
+
+    messageListener = firebase.messaging().onMessage((message) => {
+        // Process your message as required
+        console.log(JSON.stringify(message))
+        alert(JSON.stringify(message))
+    });
+
     componentDidMount() {
         firebase.auth().onAuthStateChanged(user => {
             if(user && !this.authFlag){
@@ -21,18 +27,27 @@ export default class Loading extends React.Component {
                 });*/
 
                 ConnectyCubeHandler.setInstance(user.uid).then(()=>{
-                    //current user must have his info in local
-                    return LocalStateHandler.handleLocalState(user.uid)
-                }).then(
-                    ()=> this.props.navigation.navigate('Home')
-                )
-
-                /*push notifications
-                firebase.messaging().hasPermission()
-                    .then(enabled => {
+                    //push notifications
+                    firebase.messaging().hasPermission().then(enabled => {
                         if (enabled) {
                             firebase.messaging().getToken().then(token => {
-                                console.log("LOG: ", token);
+                                console.log(token)
+                                var params = {
+                                    notification_channel: 'gcm',
+                                    device: {
+                                        platform: 'android',
+                                        udid: token
+                                    },
+                                    push_token: {
+                                        environment: 'development',
+                                        client_identification_sequence: token
+                                    }
+                                };
+
+                                ConnectyCubeHandler.getInstance().pushnotifications.subscriptions.create(params, function(error, result){
+
+                                });
+
                             })
                             // user has permissions
                         } else {
@@ -48,26 +63,18 @@ export default class Loading extends React.Component {
                         }
                     });
 
-                this.notificationListener = firebase.notifications().onNotification((notification) => {
-                    // Process your notification as required
-                    const {
-                        body,
-                        data,
-                        notificationId,
-                        sound,
-                        subtitle,
-                        title
-                    } = notification;
-                    console.log("LOG: ", title, body, JSON.stringify(data))
-                });
-                */
+                    //current user must have his info in local
+                    return LocalStateHandler.handleLocalState(user.uid)
+                }).then(
+                    ()=> this.props.navigation.navigate('Home')
+                )
+
             }else{
                 this.props.navigation.navigate('Login')
             }
 
         })
     }
-
 
     render() {
         return (
