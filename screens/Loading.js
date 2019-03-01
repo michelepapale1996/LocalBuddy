@@ -3,16 +3,19 @@ import { View, Text, ActivityIndicator, StyleSheet } from 'react-native'
 import firebase from 'react-native-firebase'
 import LocalStateHandler from "../res/LocalStateHandler";
 import ConnectyCubeHandler from "../res/ConnectyCubeHandler";
+import {NotificationsAndroid} from 'react-native-notifications';
+
+// On Android, we allow for only one (global) listener per each event type.
+
+
+NotificationsAndroid.setNotificationOpenedListener((notification) => {
+    console.log("Notification opened by device user", notification.getData());
+    alert(JSON.stringify(notification))
+});
 
 export default class Loading extends React.Component {
     //authFlag used because onAuthStateChanged can be called multiple times and the job must be done once
     authFlag = false;
-
-    messageListener = firebase.messaging().onMessage((message) => {
-        // Process your message as required
-        console.log(JSON.stringify(message))
-        alert(JSON.stringify(message))
-    });
 
     componentDidMount() {
         firebase.auth().onAuthStateChanged(user => {

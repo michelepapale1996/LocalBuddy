@@ -4,7 +4,6 @@
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
-    <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.VIBRATE" />
 
@@ -14,6 +13,7 @@
       android:icon="@mipmap/ic_launcher"
       android:allowBackup="false"
       android:theme="@style/AppTheme">
+        <meta-data android:name="com.wix.reactnativenotifications.gcmSenderId" android:value="164893696006\0"/>
       <activity
         android:name=".MainActivity"
         android:label="@string/app_name"
@@ -24,6 +24,7 @@
             <category android:name="android.intent.category.LAUNCHER" />
         </intent-filter>
       </activity>
+        <!-- commented to use react-native-notifications
       <activity
               android:launchMode="singleTop"
               android:name="com.facebook.react.devsupport.DevSettingsActivity"/>
@@ -37,7 +38,7 @@
             <intent-filter>
                 <action android:name="com.google.firebase.INSTANCE_ID_EVENT"/>
             </intent-filter>
-        </service>
+        </service>-->
     </application>
 
 </manifest>
