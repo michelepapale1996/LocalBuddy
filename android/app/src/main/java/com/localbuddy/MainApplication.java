@@ -21,11 +21,17 @@ import io.invertase.firebase.storage.RNFirebaseStoragePackage;
 import io.invertase.firebase.messaging.RNFirebaseMessagingPackage;
 import com.wix.reactnativenotifications.RNNotificationsPackage;
 
+import com.wix.reactnativenotifications.core.notification.*;
+import android.content.*;
+import android.os.*;
+import com.wix.reactnativenotifications.core.*;
+import com.localbuddy.MyPushNotification;
+
 
 import java.util.Arrays;
 import java.util.List;
 
-public class MainApplication extends Application implements ReactApplication {
+public class MainApplication extends Application implements ReactApplication, INotificationsApplication{
 
   private final ReactNativeHost mReactNativeHost = new ReactNativeHost(this) {
     @Override
@@ -66,4 +72,9 @@ public class MainApplication extends Application implements ReactApplication {
     super.onCreate();
     SoLoader.init(this, /* native exopackage */ false);
   }
+
+  @Override
+      public IPushNotification getPushNotification(Context context, Bundle bundle, AppLifecycleFacade defaultFacade, AppLaunchHelper defaultAppLaunchHelper) {
+          return new MyPushNotification(context, bundle, defaultFacade, defaultAppLaunchHelper, new JsIOHelper());
+      }
 }

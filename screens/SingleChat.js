@@ -4,6 +4,8 @@ import {GiftedChat, Bubble} from 'react-native-gifted-chat'
 import SingleChatHandler from "../res/SingleChatHandler";
 import MessagesUpdatesHandler from "../res/MessagesUpdatesHandler";
 import * as Animatable from "react-native-animatable"
+import firebase from "react-native-firebase";
+import UserHandler from "../res/UserHandler";
 
 export default class SingleChat extends Component {
     constructor(props){
@@ -14,6 +16,7 @@ export default class SingleChat extends Component {
             chatId : this.props.navigation.getParam('chatId', 'Error'),
             urlPhotoUser: this.props.navigation.getParam("urlPhotoUser", "Error"),
             urlPhotoOther: this.props.navigation.getParam("urlPhotoOther", "Error"),
+            username: null,
             messages: []
         }
     }
@@ -27,11 +30,17 @@ export default class SingleChat extends Component {
     componentDidMount() {
         const urlPhotoUser = this.state.urlPhotoUser
         const urlPhotoOther = this.state.urlPhotoOther
+        const userId = firebase.auth().currentUser.uid;
 
-        SingleChatHandler.retrieveChatHistory(this.state.chatId, 100, urlPhotoUser, urlPhotoOther).then(
-            messages => this.setState({
-                messages: messages
-            })
+        UserHandler.getNameAndSurname(userId).then(
+            username => {
+                SingleChatHandler.retrieveChatHistory(this.state.chatId, 100, urlPhotoUser, urlPhotoOther).then(
+                    messages => this.setState({
+                        username: username,
+                        messages: messages
+                    })
+                )
+            }
         )
 
         MessagesUpdatesHandler.addListener(this.onMessageRcvd)
@@ -57,7 +66,7 @@ export default class SingleChat extends Component {
     }
 
     onSend(messages){
-        SingleChatHandler.sendMessage(messages[0].text, this.state.chatId, this.state.CCopponentUserId)
+        SingleChatHandler.sendMessage(messages[0].text, this.state.chatId, this.state.CCopponentUserId, this.state.username)
         const message = {
             _id: messages[0]._id,
             text: messages[0].text,

@@ -31,7 +31,8 @@ function Chat(props) {
                     chatId: props.item.chatId,
                     nameAndSurname: props.item.nameAndSurname,
                     urlPhotoOther: props.item.urlPhotoOther,
-                    CCopponentUserId: props.item.CCopponentUserId
+                    CCopponentUserId: props.item.CCopponentUserId,
+                    userName: props.item.nameAndSurname
                 })}>
             <View style={styles.singleChatContainer}>
                 <Image
@@ -139,7 +140,7 @@ export default class AllChats extends Component {
                         data={this.state.chats}
                         renderItem={
                             ({item}) => (
-                                <Chat item={item} getTime={this.getTime} nav={this.props.navigation}/>
+                                <Chat item={item} getTime={this.getTime} nav={this.props.navigation} userName={this.state.username}/>
                             )
                         }
                         keyExtractor={(item, index) => index.toString()}

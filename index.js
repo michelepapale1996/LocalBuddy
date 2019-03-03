@@ -6,4 +6,4 @@ import {name as appName} from './app.json';
 
 AppRegistry.registerComponent(appName, () => App);
 //to receive background notifications
-AppRegistry.registerHeadlessTask('RNFirebaseBackgroundMessage', () => bgMessaging);
+//AppRegistry.registerHeadlessTask('RNFirebaseBackgroundMessage', () => bgMessaging);

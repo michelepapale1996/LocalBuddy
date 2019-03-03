@@ -1,4 +1,5 @@
 import ConnectyCubeHandler from "./ConnectyCubeHandler";
+import UserHandler from "./UserHandler";
 
 class SingleChatHandler{
     static createConversation(otherUser){
@@ -42,7 +43,7 @@ class SingleChatHandler{
         })
     }
 
-    static sendMessage(messageBody, dialogId, opponentId){
+    static sendMessage(messageBody, dialogId, opponentId, opponentName){
         var message = {
             type: 'chat',
             body: messageBody,
@@ -56,7 +57,8 @@ class SingleChatHandler{
         ConnectyCubeHandler.getInstance().chat.send(opponentId, message);
 
         var payload = JSON.stringify({
-            message: messageBody
+            message: messageBody,
+            opponentName: opponentName
         });
 
         var pushParameters = {
