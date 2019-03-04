@@ -8,7 +8,6 @@ import {NotificationsAndroid, PendingNotifications} from 'react-native-notificat
 // On Android, we allow for only one (global) listener per each event type.
 NotificationsAndroid.setNotificationOpenedListener((notification) => {
     console.log("Notification opened by device user", notification);
-    alert(JSON.stringify(notification))
 });
 
 /*firebase.messaging().onMessage((notification: RemoteMessage) => {

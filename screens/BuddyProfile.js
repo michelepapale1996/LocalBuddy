@@ -1,9 +1,7 @@
 import React, {Component} from 'react';
 import {StyleSheet, Text, View, Button, Image, ScrollView, TouchableWithoutFeedback, ActivityIndicator, FlatList} from 'react-native';
-import firebase from "react-native-firebase"
-import ImagePicker from 'react-native-image-picker';
 import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen';
-import Db from "../res/Db";
+import UserHandler from "../res/UserHandler";
 
 function Biography(props){
     return(
@@ -61,12 +59,6 @@ function Feedback(props){
 }
 
 function FeedbacksOverview(props) {
-    getNumber = (rating) => {
-        return props.feedbacks.filter(
-            elem => elem.rating == rating
-        ).length
-    }
-
     return(
         <View>
             {props.feedbacks != null && props.feedbacks.map(
@@ -116,91 +108,51 @@ export default class ProfileTab extends Component {
         }
     }
 
-    getUrlPhoto = (userId) => {
-        return new Promise(
-            resolve => {
-                firebase.storage().ref("/PhotosProfile/" + userId).getDownloadURL().then(
-                    (url) => {
-                        resolve(url)
-                    }
-                ).catch(
-                    ()=> {
-                        firebase.storage().ref("/PhotosProfile/blank.png").getDownloadURL().then(
-                            (url) => {
-                                resolve(url)
-                            }
-                        )
-                    }
-                )
-            }
-        )
+    getFeedbacksToDisplay = (feedbacks) => {
+        let promises = feedbacks.map((feedback) => {
+            const travelerId = feedback.travelerId
+            return UserHandler.getUserInfo(travelerId)
+        })
+
+        return Promise.all(promises).then(results => {
+            return results.map((res,index)=> {
+                return({
+                    name: res.name + " " + res.surname,
+                    url: res.photoPath,
+                    text: feedbacks[index].text
+                })
+            })
+        })
     }
 
     componentDidMount(){
-        const id = this.props.navigation.getParam('idUser', 'Error')
-        const idLoggedUser = firebase.auth().currentUser.uid
-        let promises = []
+        const idBuddy = this.props.navigation.getParam('idUser', 'Error')
+        UserHandler.getUserInfo(idBuddy).then(buddy => {
+            this.setState(
+                {
+                    name: buddy.name,
+                    surname: buddy.surname,
+                    bio: buddy.bio,
+                    photoPath: buddy.photoPath,
+                    chatId: ""
+                }
+            )
+            this.props.navigation.setParams({nameBuddy: buddy.name + " " + buddy.surname})
+            const feedbacks = buddy.feedbacks
 
-        promises.push(firebase.database().ref("/users/" + id ).once("value"))
-        promises.push(this.getUrlPhoto(id))
-        promises.push(Db.getChatIdFromUsersIds(idLoggedUser, id))
-        promises.push(firebase.database().ref("/users/" + id + "/feedbacks").once("value"))
-
-        Promise.all(promises).then(
-            results => {
-                this.setState(
-                    {
-                        name: results[0].val().name,
-                        surname: results[0].val().surname,
-                        bio: results[0].val().biography,
-                        photoPath: results[1],
-                        chatId: results[2]
-                    }
-                )
-                this.props.navigation.setParams({nameBuddy: results[0].val().name + " " + results[0].val().surname})
-
-                const feedbacks = results[3].val()
-                if (feedbacks != null && feedbacks != "") {
-                    //for each traveler get the name and surname
-                    let names = feedbacks.map(
-                        feedback => {
-                            return firebase.database().ref("/users/" + feedback.travelerId).once("value")
-                        }
-                    )
-                    Promise.all(names).then((result) => {
-                        result.map(
-                            (user, index) => {
-                                feedbacks[index].name = user.val().name + " " + user.val().surname
-                            }
-                        )
-                    }).then(
-                        ()=>{
-                            urlPhotos = feedbacks.map(
-                                feedback => {
-                                    return this.getUrlPhoto(feedback.travelerId)
-                                }
-                            )
-                            Promise.all(urlPhotos).then(result => {
-                                result.map((url, index) => {
-                                    feedbacks[index].url = url
-                                })
-                            }).then(
-                                () => {
-                                    this.setState({
-                                        feedbacks: feedbacks,
-                                        loadingDone: true
-                                    })
-                                }
-                            )
-                        }
-                    )
-                }else{
+            if (feedbacks != null && feedbacks != "") {
+                this.getFeedbacksToDisplay(feedbacks).then(toDisplay => {
                     this.setState({
+                        feedbacks: toDisplay,
                         loadingDone: true
                     })
-                }
+                })
+            }else{
+                this.setState({
+                    loadingDone: true
+                })
             }
-        )
+        })
     }
 
     static navigationOptions = ({ navigation }) => {
@@ -212,7 +164,7 @@ export default class ProfileTab extends Component {
     render() {
         const id = this.props.navigation.getParam('idUser', 'Error')
 
-        if(this.state.loadingDone != false){
+        if(this.state.loadingDone){
             return(
                 <ScrollView contentContainerStyle={styles.container}>
                     <View style={styles.viewContainer}>
