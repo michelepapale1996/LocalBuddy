@@ -1,14 +1,42 @@
 import ConnectyCubeHandler from "./ConnectyCubeHandler";
-import UserHandler from "./UserHandler";
+import ChatsHandler from "./ChatsHandler";
 
 class SingleChatHandler{
-    static createConversation(otherUser){
-        var params = {
-            type: 3,
-            occupants_ids: [otherUser]
-        };
 
-        ConnectyCubeHandler.getInstance().chat.dialog.create(params, function(error, conversation) {});
+    //get ConnectyCube chatId if the chat between the logged user and the opponentUserId exists
+    //otherwise return null
+    static getChatId(opponentUserId){
+        //list all the chats and check if the user has already a chat with the opponent
+        return ChatsHandler.getChatsAsync().then(chats=>{
+            const promises = chats.map(chat => {
+                const opponent = chat.occupants_ids.filter(user => user != ConnectyCubeHandler.getCCUserId())[0]
+                return ChatsHandler.getUserId(opponent)
+            })
+
+            return Promise.all(promises).then(results => {
+                var chatId = null
+                results.forEach((item, index) => {
+                    if(item == opponentUserId){
+                        chatId = chats[index]._id
+                    }
+                })
+                return chatId
+            })
+        })
+    }
+
+    static createConversation(otherUser){
+        return new Promise((resolve, reject) => {
+            var params = {
+                type: 3,
+                occupants_ids: [otherUser]
+            };
+
+            ConnectyCubeHandler.getInstance().chat.dialog.create(params, function(error, conversation) {
+                if(error != null) reject(error)
+                resolve(conversation)
+            });
+        })
     }
 
     static retrieveChatHistory(dialogId, limit, urlPhotoUser, urlPhotoOther){

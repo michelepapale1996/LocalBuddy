@@ -75,7 +75,6 @@ export default class AllChats extends Component {
     };
 
     componentWillUnmount(){
-        SingleChatHandler.disconnectToChat()
         MessagesUpdatesHandler.removeListeners(this.onMessageRcvd)
     }
 
@@ -120,8 +119,6 @@ export default class AllChats extends Component {
 
 
     componentDidMount(){
-        const CCUserId = ConnectyCubeHandler.getCCUserId()
-        SingleChatHandler.connectToChat(CCUserId, 'LocalBuddy')
         MessagesUpdatesHandler.addListener(this.onMessageRcvd)
         ChatsHandler.getChats().then(chats => {
                 this.setState({

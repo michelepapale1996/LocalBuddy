@@ -4,6 +4,7 @@ import firebase from 'react-native-firebase'
 import LocalStateHandler from "../res/LocalStateHandler";
 import ConnectyCubeHandler from "../res/ConnectyCubeHandler";
 import {NotificationsAndroid, PendingNotifications} from 'react-native-notifications';
+import SingleChatHandler from "../res/SingleChatHandler";
 
 // On Android, we allow for only one (global) listener per each event type.
 NotificationsAndroid.setNotificationOpenedListener((notification) => {
@@ -27,62 +28,56 @@ export default class Loading extends React.Component {
 
     componentDidMount() {
         firebase.auth().onAuthStateChanged(user => {
-            if(user && !this.authFlag){
+            if(!this.authFlag) {
                 this.authFlag = true
 
-                /* TO DO CALL TO BACKEND
-                firebase.auth().currentUser.getIdToken(true).then(function(idToken) {
-                    console.log(idToken)
-                }).catch(function(error) {
-                    // Handle error
-                });*/
+                if (user) {
+                    ConnectyCubeHandler.setInstance(user.uid).then(() => {
+                        //push notifications
+                        firebase.messaging().hasPermission().then(enabled => {
+                            if (enabled) {
+                                firebase.messaging().getToken().then(token => {
+                                    var params = {
+                                        notification_channel: 'gcm',
+                                        device: {
+                                            platform: 'android',
+                                            udid: token
+                                        },
+                                        push_token: {
+                                            environment: 'development',
+                                            client_identification_sequence: token
+                                        }
+                                    };
 
-                ConnectyCubeHandler.setInstance(user.uid).then(()=>{
-                    //push notifications
-                    firebase.messaging().hasPermission().then(enabled => {
-                        if (enabled) {
-                            firebase.messaging().getToken().then(token => {
-                                var params = {
-                                    notification_channel: 'gcm',
-                                    device: {
-                                        platform: 'android',
-                                        udid: token
-                                    },
-                                    push_token: {
-                                        environment: 'development',
-                                        client_identification_sequence: token
-                                    }
-                                };
+                                    ConnectyCubeHandler.getInstance().pushnotifications.subscriptions.create(params, function (error, result) {
 
-                                ConnectyCubeHandler.getInstance().pushnotifications.subscriptions.create(params, function(error, result){
+                                    });
 
-                                });
-
-                            })
-                            // user has permissions
-                        } else {
-                            firebase.messaging().requestPermission()
-                                .then(() => {
-                                    alert("User Now Has Permission")
                                 })
-                                .catch(error => {
-                                    console.log(error)
-                                    alert("Error", error)
-                                    // User has rejected permissions
-                                });
-                        }
-                    });
+                                // user has permissions
+                            } else {
+                                firebase.messaging().requestPermission()
+                                    .then(() => {
+                                        alert("User Now Has Permission")
+                                    })
+                                    .catch(error => {
+                                        console.log(error)
+                                        alert("Error", error)
+                                        // User has rejected permissions
+                                    });
+                            }
+                        });
 
-                    //current user must have his info in local
-                    return LocalStateHandler.handleLocalState(user.uid)
-                }).then(
-                    ()=> this.props.navigation.navigate('Home')
-                )
+                        const CCUserId = ConnectyCubeHandler.getCCUserId()
+                        SingleChatHandler.connectToChat(CCUserId, 'LocalBuddy')
 
-            }else{
-                this.props.navigation.navigate('Login')
+                        //current user must have his info in local
+                        return LocalStateHandler.handleLocalState(user.uid)
+                    }).then(() => this.props.navigation.navigate('Home'))
+                } else {
+                    this.props.navigation.navigate('Login')
+                }
             }
-
         })
     }
 

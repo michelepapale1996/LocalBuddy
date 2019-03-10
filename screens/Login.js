@@ -11,7 +11,7 @@ export default class Login extends React.Component {
             .auth()
             .signInWithEmailAndPassword(email, password)
             .then(() => {
-                this.props.navigation.navigate('TabNavigator')
+                this.props.navigation.navigate('Loading')
             })
             .catch(error => this.setState({ errorMessage: error.message }))
     }

@@ -34,12 +34,12 @@ export default class SingleChat extends Component {
 
         UserHandler.getNameAndSurname(userId).then(
             username => {
-                SingleChatHandler.retrieveChatHistory(this.state.chatId, 100, urlPhotoUser, urlPhotoOther).then(
-                    messages => this.setState({
-                        username: username,
-                        messages: messages
-                    })
-                )
+                this.setState({username: username})
+                if(this.state.chatId != null){
+                    SingleChatHandler.retrieveChatHistory(this.state.chatId, 100, urlPhotoUser, urlPhotoOther).then(
+                        messages => this.setState({messages: messages})
+                    )
+                }
             }
         )
 
@@ -66,7 +66,17 @@ export default class SingleChat extends Component {
     }
 
     onSend(messages){
-        SingleChatHandler.sendMessage(messages[0].text, this.state.chatId, this.state.CCopponentUserId, this.state.username)
+        //check if the chat exists
+        if(this.state.chatId == null){
+            //create the chat and set the chatId
+            SingleChatHandler.createConversation(this.state.CCopponentUserId).then(chat => {
+                SingleChatHandler.sendMessage(messages[0].text, chat._id, this.state.CCopponentUserId, this.state.username)
+            })
+        }else{
+            SingleChatHandler.sendMessage(messages[0].text, this.state.chatId, this.state.CCopponentUserId, this.state.username)
+
+        }
+
         const message = {
             _id: messages[0]._id,
             text: messages[0].text,

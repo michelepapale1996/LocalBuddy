@@ -2,6 +2,7 @@ import React, {Component} from 'react';
 import {StyleSheet, Text, View, Button, Image, ScrollView, TouchableWithoutFeedback, ActivityIndicator, FlatList} from 'react-native';
 import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen';
 import UserHandler from "../res/UserHandler";
+import SingleChatHandler from "../res/SingleChatHandler";
 
 function Biography(props){
     return(
@@ -26,7 +27,7 @@ function NameAndSurname(props) {
                 title="Invia un messaggio"
                 onPress={() => props.nav.navigate('SingleChat',
                     {
-                        otherUserId: props.userId,
+                        CCopponentUserId: props.ccUserId,
                         chatId: props.chatId,
                         nameAndSurname: props.name + " " + props.surname,
                         urlPhotoOther: props.photoPath
@@ -128,30 +129,35 @@ export default class ProfileTab extends Component {
     componentDidMount(){
         const idBuddy = this.props.navigation.getParam('idUser', 'Error')
         UserHandler.getUserInfo(idBuddy).then(buddy => {
-            this.setState(
-                {
-                    name: buddy.name,
-                    surname: buddy.surname,
-                    bio: buddy.bio,
-                    photoPath: buddy.photoPath,
-                    chatId: ""
-                }
-            )
-            this.props.navigation.setParams({nameBuddy: buddy.name + " " + buddy.surname})
-            const feedbacks = buddy.feedbacks
 
-            if (feedbacks != null && feedbacks != "") {
-                this.getFeedbacksToDisplay(feedbacks).then(toDisplay => {
+            //check if it exists already a chat between the logged user and the buddy
+            SingleChatHandler.getChatId(idBuddy).then( connectyCubeChatId => {
+                this.setState(
+                    {
+                        name: buddy.name,
+                        surname: buddy.surname,
+                        bio: buddy.bio,
+                        photoPath: buddy.photoPath,
+                        chatId: connectyCubeChatId,
+                        ccUserId: buddy.ccUserId
+                    }
+                )
+                this.props.navigation.setParams({nameBuddy: buddy.name + " " + buddy.surname})
+                const feedbacks = buddy.feedbacks
+
+                if (feedbacks != null && feedbacks != "") {
+                    this.getFeedbacksToDisplay(feedbacks).then(toDisplay => {
+                        this.setState({
+                            feedbacks: toDisplay,
+                            loadingDone: true
+                        })
+                    })
+                }else{
                     this.setState({
-                        feedbacks: toDisplay,
                         loadingDone: true
                     })
-                })
-            }else{
-                this.setState({
-                    loadingDone: true
-                })
-            }
+                }
+            })
         })
     }
 
@@ -175,6 +181,7 @@ export default class ProfileTab extends Component {
                                 surname={this.state.surname}
                                 photoPath={this.state.photoPath}
                                 chatId={this.state.chatId}
+                                ccUserId={this.state.ccUserId}
                                 nav={this.props.navigation}
                                 userId={id}/>
                         </View>
