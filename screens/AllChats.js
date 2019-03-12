@@ -1,11 +1,7 @@
 import React, {Component} from 'react';
 import {StyleSheet, Text, View, Button, FlatList, ActivityIndicator, Image, TouchableWithoutFeedback} from 'react-native';
-import firebase from 'react-native-firebase'
 import {widthPercentageToDP as wp, heightPercentageToDP as hp} from "react-native-responsive-screen";
 import ChatsHandler from "../res/ChatsHandler";
-import SingleChatHandler from "../res/SingleChatHandler";
-import UserHandler from "../res/UserHandler";
-import ConnectyCubeHandler from "../res/ConnectyCubeHandler";
 import MessagesUpdatesHandler from "../res/MessagesUpdatesHandler";
 
 function Loading(){
@@ -106,7 +102,8 @@ export default class AllChats extends Component {
         this.setState(prevState => {
             var toUpdate = prevState.chats.filter((elem) => elem.CCopponentUserId == userId)[0]
             toUpdate.lastMessageText = msgRcvd.body
-            toUpdate.createdAt = this.getTime(msgRcvd.date_sent)
+            //convert from timestamp to utc epoch
+            toUpdate.createdAt = Math.round(msgRcvd.createdAt.getTime() / 1000)
 
             var otherChats = prevState.chats.filter((elem) => elem.CCopponentUserId != userId)
             if (otherChats.length == 0) allChats = [toUpdate]
@@ -116,7 +113,6 @@ export default class AllChats extends Component {
             })
         })
     }
-
 
     componentDidMount(){
         MessagesUpdatesHandler.addListener(this.onMessageRcvd)

@@ -30,7 +30,7 @@ export default class SingleChat extends Component {
     componentDidMount() {
         const urlPhotoUser = this.state.urlPhotoUser
         const urlPhotoOther = this.state.urlPhotoOther
-        const userId = firebase.auth().currentUser.uid;
+        const userId = firebase.auth().currentUser.uid
 
         UserHandler.getNameAndSurname(userId).then(
             username => {
@@ -50,13 +50,16 @@ export default class SingleChat extends Component {
         MessagesUpdatesHandler.removeListeners(this.onMessageRcvd)
     }
 
-    onMessageRcvd = (msgRcvd, userId)=>{
+    //local is a bool that is true if the msg is sent from the loggedUser
+    onMessageRcvd = (msgRcvd, userId, local)=>{
+        var id = 1
+        if(!local) id = 2
         const message = {
             _id: userId,
             text: msgRcvd.body,
             createdAt: new Date().getTime(),
             user: {
-                _id: 2,
+                _id: id,
                 avatar: this.state.urlPhotoOther
             }
         }
@@ -68,7 +71,7 @@ export default class SingleChat extends Component {
     onSend(messages){
         //check if the chat exists
         if(this.state.chatId == null){
-            //create the chat and set the chatId
+            //create the conversation and set the chatId
             SingleChatHandler.createConversation(this.state.CCopponentUserId).then(chat => {
                 SingleChatHandler.sendMessage(messages[0].text, chat._id, this.state.CCopponentUserId, this.state.username)
             })
@@ -76,19 +79,7 @@ export default class SingleChat extends Component {
             SingleChatHandler.sendMessage(messages[0].text, this.state.chatId, this.state.CCopponentUserId, this.state.username)
 
         }
-
-        const message = {
-            _id: messages[0]._id,
-            text: messages[0].text,
-            createdAt: new Date().getTime(),
-            user: {
-                _id: 1,
-                avatar: this.state.urlPhotoUser
-            }
-        }
-        this.setState(previousState => ({
-            messages: GiftedChat.append(previousState.messages, message),
-        }))
+        MessagesUpdatesHandler.updateBecauseLocalSending(messages[0], this.state.CCopponentUserId)
     }
 
     renderMessages = (props) => {

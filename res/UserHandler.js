@@ -31,6 +31,12 @@ class UserHandler{
             return user.username
         })
     }
+
+    static isBuddy(id){
+        return this.getUserInfo(id).then(user => {
+            return user.isBuddy
+        })
+    }
 }
 
 UserHandler.shared = new UserHandler()

@@ -16,7 +16,7 @@ class ConnectyCubeHandler{
     static CCUserId = null
 
     static onMessage(userId, message) {
-        MessagesUpdatesHandler.update(message, userId)
+        MessagesUpdatesHandler.updateFromConnectyCube(message, userId)
     }
 
     static init(userId){

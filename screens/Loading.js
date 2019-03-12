@@ -33,40 +33,6 @@ export default class Loading extends React.Component {
 
                 if (user) {
                     ConnectyCubeHandler.setInstance(user.uid).then(() => {
-                        //push notifications
-                        firebase.messaging().hasPermission().then(enabled => {
-                            if (enabled) {
-                                firebase.messaging().getToken().then(token => {
-                                    var params = {
-                                        notification_channel: 'gcm',
-                                        device: {
-                                            platform: 'android',
-                                            udid: token
-                                        },
-                                        push_token: {
-                                            environment: 'development',
-                                            client_identification_sequence: token
-                                        }
-                                    };
-
-                                    ConnectyCubeHandler.getInstance().pushnotifications.subscriptions.create(params, function (error, result) {
-
-                                    });
-
-                                })
-                                // user has permissions
-                            } else {
-                                firebase.messaging().requestPermission()
-                                    .then(() => {
-                                        alert("User Now Has Permission")
-                                    })
-                                    .catch(error => {
-                                        console.log(error)
-                                        alert("Error", error)
-                                        // User has rejected permissions
-                                    });
-                            }
-                        });
 
                         const CCUserId = ConnectyCubeHandler.getCCUserId()
                         SingleChatHandler.connectToChat(CCUserId, 'LocalBuddy')
