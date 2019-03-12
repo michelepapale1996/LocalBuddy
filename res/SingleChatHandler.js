@@ -71,7 +71,7 @@ class SingleChatHandler{
         })
     }
 
-    static sendMessage(messageBody, dialogId, opponentId, opponentName){
+    static sendMessage(messageBody, dialogId, opponentId, opponentName, ccOpponentUserId, urlOpponentPhoto){
         var message = {
             type: 'chat',
             body: messageBody,
@@ -86,7 +86,11 @@ class SingleChatHandler{
 
         var payload = JSON.stringify({
             message: messageBody,
-            opponentName: opponentName
+            opponentName: opponentName,
+            title: opponentName,
+            chatId: dialogId,
+            urlPhotoOther: urlOpponentPhoto,
+            CCopponentUserId: ccOpponentUserId
         });
 
         var pushParameters = {

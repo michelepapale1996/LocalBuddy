@@ -3,12 +3,12 @@ package com.localbuddy;
 import android.app.Application;
 
 import com.facebook.react.ReactApplication;
+import com.dieam.reactnativepushnotification.ReactNativePushNotificationPackage;
 import com.imagepicker.ImagePickerPackage;
 import com.oblador.vectoricons.VectorIconsPackage;
 import com.swmansion.gesturehandler.react.RNGestureHandlerPackage;
 import io.invertase.firebase.RNFirebasePackage;
 import com.RNFetchBlob.RNFetchBlobPackage;
-import io.invertase.firebase.RNFirebasePackage;
 import com.swmansion.gesturehandler.react.RNGestureHandlerPackage;
 import com.oblador.vectoricons.VectorIconsPackage;
 import com.facebook.react.ReactNativeHost;
@@ -19,19 +19,12 @@ import io.invertase.firebase.auth.RNFirebaseAuthPackage;
 import io.invertase.firebase.database.RNFirebaseDatabasePackage;
 import io.invertase.firebase.storage.RNFirebaseStoragePackage;
 import io.invertase.firebase.messaging.RNFirebaseMessagingPackage;
-import com.wix.reactnativenotifications.RNNotificationsPackage;
-
-import com.wix.reactnativenotifications.core.notification.*;
-import android.content.*;
-import android.os.*;
-import com.wix.reactnativenotifications.core.*;
-import com.localbuddy.MyPushNotification;
 
 
 import java.util.Arrays;
 import java.util.List;
 
-public class MainApplication extends Application implements ReactApplication, INotificationsApplication{
+public class MainApplication extends Application implements ReactApplication{
 
   private final ReactNativeHost mReactNativeHost = new ReactNativeHost(this) {
     @Override
@@ -43,6 +36,7 @@ public class MainApplication extends Application implements ReactApplication, IN
     protected List<ReactPackage> getPackages() {
       return Arrays.<ReactPackage>asList(
           new MainReactPackage(),
+            new ReactNativePushNotificationPackage(),
             new ImagePickerPackage(),
             new VectorIconsPackage(),
             new RNGestureHandlerPackage(),
@@ -51,8 +45,7 @@ public class MainApplication extends Application implements ReactApplication, IN
             new RNFirebaseAuthPackage(),
             new RNFirebaseDatabasePackage(),
             new RNFirebaseStoragePackage(),
-            new RNFirebaseMessagingPackage(),
-            new RNNotificationsPackage(MainApplication.this)
+            new RNFirebaseMessagingPackage()
       );
     }
 
@@ -72,9 +65,4 @@ public class MainApplication extends Application implements ReactApplication, IN
     super.onCreate();
     SoLoader.init(this, /* native exopackage */ false);
   }
-
-  @Override
-      public IPushNotification getPushNotification(Context context, Bundle bundle, AppLifecycleFacade defaultFacade, AppLaunchHelper defaultAppLaunchHelper) {
-          return new MyPushNotification(context, bundle, defaultFacade, defaultAppLaunchHelper, new JsIOHelper());
-      }
 }

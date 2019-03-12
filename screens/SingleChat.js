@@ -73,33 +73,18 @@ export default class SingleChat extends Component {
         if(this.state.chatId == null){
             //create the conversation and set the chatId
             SingleChatHandler.createConversation(this.state.CCopponentUserId).then(chat => {
-                SingleChatHandler.sendMessage(messages[0].text, chat._id, this.state.CCopponentUserId, this.state.username)
+                SingleChatHandler.sendMessage(messages[0].text, chat._id, this.state.CCopponentUserId, this.state.username, this.state.CCopponentUserId, this.state.urlPhotoOther)
             })
         }else{
-            SingleChatHandler.sendMessage(messages[0].text, this.state.chatId, this.state.CCopponentUserId, this.state.username)
+            SingleChatHandler.sendMessage(messages[0].text, this.state.chatId, this.state.CCopponentUserId, this.state.username, this.state.CCopponentUserId, this.state.urlPhotoOther)
 
         }
         MessagesUpdatesHandler.updateBecauseLocalSending(messages[0], this.state.CCopponentUserId)
     }
 
-    renderMessages = (props) => {
-        return (
-            <Animatable.View animation="bounceInUp" duration={400}>
-                <Bubble {...props} wrapperStyle={
-                    {
-                        left: {
-                            backgroundColor: '#f0f0f0',
-                        }
-                    }}
-                />
-            </Animatable.View>
-        );
-    }
-
     render() {
         return (
             <GiftedChat
-                renderBubble={this.renderMessages}
                 messages={this.state.messages}
                 onSend={messages => this.onSend(messages)}
                 user={{
