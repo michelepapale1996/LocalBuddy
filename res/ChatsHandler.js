@@ -51,7 +51,11 @@ class ChatsHandler {
         return ChatsHandler.getChatsAsync().then(chats => {
             var promises = chats.map(chat => {
                 const partecipantIds = chat.occupants_ids
-                const opponentId = partecipantIds.filter((id) => id!=ConnectyCubeHandler.getCCUserId())
+                const opponentId = partecipantIds.filter((id) => id != ConnectyCubeHandler.getCCUserId())
+
+                var time = new Date(0); // The 0 there is the key, which sets the date to the epoch
+                time.setUTCSeconds(chat.last_message_date_sent);
+                chat.last_message_date_sent = time.toUTCString()
 
                 return ChatsHandler.getInfoChatWith(opponentId[0], chat)
             })

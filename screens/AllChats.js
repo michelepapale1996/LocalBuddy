@@ -3,6 +3,8 @@ import {StyleSheet, Text, View, Button, FlatList, ActivityIndicator, Image, Touc
 import {widthPercentageToDP as wp, heightPercentageToDP as hp} from "react-native-responsive-screen";
 import ChatsHandler from "../res/ChatsHandler";
 import MessagesUpdatesHandler from "../res/MessagesUpdatesHandler";
+import {Icon, Badge} from 'react-native-elements'
+import App from "../App"
 
 function Loading(){
     return(
@@ -75,10 +77,7 @@ export default class AllChats extends Component {
     }
 
     getTime = (createdAt) => {
-        var utcSeconds = createdAt;
-        var time = new Date(0); // The 0 there is the key, which sets the date to the epoch
-        time.setUTCSeconds(utcSeconds);
-
+        const time = new Date(createdAt)
         const now = new Date()
         let lastMessageTime = ""
 
@@ -101,11 +100,24 @@ export default class AllChats extends Component {
     onMessageRcvd = (msgRcvd, userId) => {
         this.setState(prevState => {
             var toUpdate = prevState.chats.filter((elem) => elem.CCopponentUserId == userId)[0]
-            toUpdate.lastMessageText = msgRcvd.body
-            //convert from timestamp to utc epoch
-            toUpdate.createdAt = Math.round(msgRcvd.createdAt.getTime() / 1000)
+            //if the user is starting a new conversation, toUpdate will be null
+            if(toUpdate == null){
+                alert("todo")
+            }
+
+            //we receive two different types of messages depending on the local/remote message
+            if (msgRcvd.isLocal){
+                toUpdate.lastMessageText = msgRcvd.text
+                var time = new Date(msgRcvd.createdAt)
+            }else{
+                toUpdate.lastMessageText = msgRcvd.body
+                var time = new Date(0); // The 0 there is the key, which sets the date to the epoch
+                time.setUTCSeconds(msgRcvd.extension.date_sent);
+            }
+            toUpdate.createdAt = time.toUTCString()
 
             var otherChats = prevState.chats.filter((elem) => elem.CCopponentUserId != userId)
+            //if the user has not other chats
             if (otherChats.length == 0) allChats = [toUpdate]
             else allChats = [toUpdate, otherChats]
             return ({

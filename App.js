@@ -1,8 +1,6 @@
 import React from 'react';
 import { createBottomTabNavigator, createAppContainer, createSwitchNavigator, createStackNavigator } from 'react-navigation';
-import {Icon} from 'react-native-elements';
-
-import FeedbacksTab from "./screens/FeedbacksTab";
+import {Icon, Badge} from 'react-native-elements';
 import ProfileTab from "./screens/ProfileTab";
 import SettingsTab from "./screens/SettingsTab";
 import CityChosen from "./screens/CityChosen";
@@ -46,12 +44,6 @@ const TabNavigator = createBottomTabNavigator({
         screen: SearchTab,
         navigationOptions:{
             tabBarIcon:<Icon name="search" size={26}/>
-        }
-    },
-    MyBuddies: {
-        screen: FeedbacksTab,
-        navigationOptions:{
-            tabBarIcon:<Icon name="group" size={26}/>
         }
     },
     Chat: {

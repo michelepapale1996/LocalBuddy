@@ -50,13 +50,18 @@ export default class SingleChat extends Component {
         MessagesUpdatesHandler.removeListeners(this.onMessageRcvd)
     }
 
-    //local is a bool that is true if the msg is sent from the loggedUser
+    //local parameter is a bool that is true if the msg is sent from the loggedUser
     onMessageRcvd = (msgRcvd, userId, local)=>{
         var id = 1
-        if(!local) id = 2
+        //depending on the message (local/remote), the message is in text or body
+        var message = msgRcvd.text
+        if(!local){
+            id = 2
+            message = msgRcvd.body
+        }
         const message = {
             _id: userId,
-            text: msgRcvd.body,
+            text: message,
             createdAt: new Date().getTime(),
             user: {
                 _id: id,

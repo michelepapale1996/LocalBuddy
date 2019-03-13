@@ -14,13 +14,14 @@ class MessagesUpdatesHandler{
 
     //when there is a new message arrived from ConnectyCube, this method will trigger all the listeners
     static updateFromConnectyCube(msgRcvd, userId) {
+        msgRcvd.isLocal = false
         MessagesUpdatesHandler.listeners.forEach(fn => fn(msgRcvd, userId, false));
     }
 
     //when there is a new message sent from the logged user, this method will trigger all the listeners
-    //the difference between the two methods is essentially in the msg parameter
+    //the difference between the two methods is essentially in the msg parameter that is different
     static updateBecauseLocalSending(msgRcvd, ccOpponentUserId) {
-        msgRcvd.body = msgRcvd.text
+        msgRcvd.isLocal = true
         MessagesUpdatesHandler.listeners.forEach(fn => fn(msgRcvd, ccOpponentUserId, true));
     }
 }

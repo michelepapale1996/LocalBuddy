@@ -56,10 +56,15 @@ class SingleChatHandler{
                         value = 2
                         photo = urlPhotoOther
                     }
+
+                    //from epoch to date, because connectycube provides unix epocs
+                    var time = new Date(0);
+                    time.setUTCSeconds(msg.date_sent);
+
                     return ({
                         _id: msg._id,
                         text: msg.message,
-                        createdAt: msg.date_sent,
+                        createdAt: time.toUTCString(),
                         user: {
                             _id: value,
                             avatar: photo
@@ -115,7 +120,8 @@ class SingleChatHandler{
         };
 
         ConnectyCubeHandler.getInstance().chat.connect(userCredentials,
-            function(error, contactList) {}
+            function(error, contactList) {
+            }
         );
     }
 }

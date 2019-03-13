@@ -129,7 +129,6 @@ export default class ProfileTab extends Component {
     componentDidMount(){
         const idBuddy = this.props.navigation.getParam('idUser', 'Error')
         UserHandler.getUserInfo(idBuddy).then(buddy => {
-
             //check if it exists already a chat between the logged user and the buddy
             SingleChatHandler.getChatId(idBuddy).then( connectyCubeChatId => {
                 this.setState(
