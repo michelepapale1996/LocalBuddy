@@ -1,31 +1,85 @@
 import React, {Component} from 'react';
-import {StyleSheet, Text, View, Button} from 'react-native';
+import {StyleSheet, Text, View, Button, ScrollView, TouchableWithoutFeedback} from 'react-native';
 import firebase from 'react-native-firebase'
 import LocalStateHandler from "../res/LocalStateHandler";
 import UserHandler from "../res/UserHandler";
+import {heightPercentageToDP as hp, widthPercentageToDP as wp} from "react-native-responsive-screen";
 
 function BuddyComponent(props){
     if(props.isBuddy == 1){
         return(
-            <Button
-                title="Smetti di essere un Buddy"
-                onPress={()=>{alert("todo")}}
-            />
+            <View style={styles.singleOptionContainer}>
+                <TouchableWithoutFeedback
+                    onPress={()=>{alert("todo")}}>
+                    <Text style={styles.text}>Smetti di essere un buddy</Text>
+                </TouchableWithoutFeedback>
+            </View>
         )
     }else{
         return(
-            <Button
-                title="Diventa un buddy"
-                onPress={()=>{alert("todo")}}
-            />
+            <View style={styles.singleOptionContainer}>
+                <TouchableWithoutFeedback
+                    onPress={()=>{alert("todo")}}>
+                    <Text style={styles.text}>Diventa un buddy</Text>
+                </TouchableWithoutFeedback>
+            </View>
         )
     }
+}
+
+function WhoCanFindMe() {
+    return(
+        <View style={styles.singleOptionContainer}>
+            <TouchableWithoutFeedback
+                onPress={()=>alert("todo")}>
+                <Text style={styles.text}>Chi può trovarmi</Text>
+            </TouchableWithoutFeedback>
+        </View>
+    )
+}
+
+function ChangePassword() {
+    return(
+        <View style={styles.singleOptionContainer}>
+            <TouchableWithoutFeedback
+                onPress={()=>alert("todo")}>
+                <Text style={styles.text}>Cambia password</Text>
+            </TouchableWithoutFeedback>
+        </View>
+    )
+}
+
+function DeleteAccount() {
+    return(
+        <View style={styles.singleOptionContainer}>
+            <TouchableWithoutFeedback
+                onPress={()=>alert("todo")}>
+                <Text style={styles.text}>Elimina account</Text>
+            </TouchableWithoutFeedback>
+        </View>
+    )
+}
+
+function LogOut(props) {
+    return(
+        <View style={styles.singleOptionContainer}>
+            <TouchableWithoutFeedback
+                onPress={() => firebase.auth().signOut()
+                    .then(() => {
+                        LocalStateHandler.clearStorage()
+                        props.nav.navigate('Loading')
+                    })
+                    .catch(function(error) {
+                        console.log(error)})}>
+                <Text style={styles.text}>Log out</Text>
+            </TouchableWithoutFeedback>
+        </View>
+    )
 }
 
 export default class SettingsTab extends Component {
     constructor(props){
         super(props)
-
         this.state = {
             isBuddy:0
         }
@@ -34,49 +88,54 @@ export default class SettingsTab extends Component {
     componentDidMount(){
         const userId = firebase.auth().currentUser.uid;
         UserHandler.isBuddy(userId).then(response => {
-            console.log(response)
             this.setState({isBuddy: response})
         })
     }
 
     render() {
         return (
-            <View style={styles.container}>
-                <Button
-                    title="Chi può trovarmi"
-                    onPress={()=>alert("todo")}
-                />
-                <Button
-                    title="Modifica password"
-                    onPress={()=>alert("todo")}
-                />
-                <BuddyComponent isBuddy={this.state.isBuddy}/>
-                <Button
-                    title="Elimina account"
-                    onPress={()=>alert("todo")}
-                />
-                <Button
-                    title="LogOut"
-                    onPress={() => firebase.auth().signOut()
-                        .then(() => {
-                            LocalStateHandler.clearStorage()
-                            this.props.navigation.navigate('Loading')
-                        })
-                        .catch(function(error) {
-                            console.log(error)
-                        })}
-                />
+            <View style={styles.mainContainer}>
+                <ScrollView>
+                    <View style={styles.container}>
+                        <Text style={styles.header}>Preferenze</Text>
+                        <WhoCanFindMe/>
+                        <BuddyComponent isBuddy={this.state.isBuddy}/>
+                    </View>
+                    <View style={styles.container}>
+                        <Text style={styles.header}>Gestione account</Text>
+                        <ChangePassword/>
+                        <DeleteAccount/>
+                        <LogOut nav={this.props.navigation}/>
+                    </View>
+                </ScrollView>
             </View>
         );
     }
 }
 
 const styles = StyleSheet.create({
-    container: {
+    mainContainer: {
+        margin: hp("0%"),
         flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
         backgroundColor: '#F5FCFF',
+    },
+    container:{
+        margin:hp("2%"),
+        borderBottomColor: 'grey',
+        borderBottomWidth: 1,
+    },
+    singleOptionContainer:{
+        margin: wp("3%"),
+        height: hp("5%")
+    },
+    text:{
+        fontSize: 20
+    },
+    header:{
+        height: hp("5%"),
+        fontSize: 20,
+        color: "green",
+        fontWeight:"bold"
     },
     welcome: {
         fontSize: 20,
