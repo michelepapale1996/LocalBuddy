@@ -3,17 +3,7 @@ import {StyleSheet, Text, View, Button, FlatList, ActivityIndicator, Image, Touc
 import {widthPercentageToDP as wp, heightPercentageToDP as hp} from "react-native-responsive-screen";
 import ChatsHandler from "../res/ChatsHandler";
 import MessagesUpdatesHandler from "../res/MessagesUpdatesHandler";
-import {Icon, Badge} from 'react-native-elements'
-import App from "../App"
-
-function Loading(){
-    return(
-        <View style={styles.container}>
-            <Text>Loading</Text>
-            <ActivityIndicator size="large"/>
-        </View>
-    )
-}
+import LoadingComponent from '../components/LoadingComponent'
 
 function Chat(props) {
     const lastMessageTime = props.getTime(props.item.createdAt)
@@ -161,7 +151,7 @@ export default class AllChats extends Component {
                 )
             }
         }else{
-            return(<Loading/>)
+            return(<LoadingComponent/>)
         }
     }
 }

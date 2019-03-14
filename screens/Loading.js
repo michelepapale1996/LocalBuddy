@@ -4,6 +4,7 @@ import firebase from 'react-native-firebase'
 import LocalStateHandler from "../res/LocalStateHandler";
 import ConnectyCubeHandler from "../res/ConnectyCubeHandler";
 import SingleChatHandler from "../res/SingleChatHandler";
+import LoadingComponent from "../components/LoadingComponent";
 var PushNotification = require('react-native-push-notification');
 
 export default class Loading extends React.Component {
@@ -108,10 +109,7 @@ export default class Loading extends React.Component {
 
     render() {
         return (
-            <View style={styles.container}>
-                <Text>Loading</Text>
-                <ActivityIndicator size="large" />
-            </View>
+            <LoadingComponent/>
         )
     }
 }

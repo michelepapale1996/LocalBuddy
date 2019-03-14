@@ -5,6 +5,7 @@ import ImagePicker from 'react-native-image-picker';
 import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen';
 import {Icon} from 'react-native-elements';
 import LocalStateHandler from "../res/LocalStateHandler";
+import LoadingComponent from "../components/LoadingComponent";
 
 function Biography(props){
 
@@ -118,15 +119,6 @@ function Feedbacks(props){
     )
 }
 
-function Loading(){
-    return(
-        <View style={styles.container}>
-            <Text>Loading</Text>
-            <ActivityIndicator size="large"/>
-        </View>
-    )
-}
-
 export default class ProfileTab extends Component {
     constructor(props){
         super(props);
@@ -164,7 +156,7 @@ export default class ProfileTab extends Component {
                 </ScrollView>
             )
         }else{
-            return(<Loading/>)
+            return(<LoadingComponent/>)
         }
     }
 }

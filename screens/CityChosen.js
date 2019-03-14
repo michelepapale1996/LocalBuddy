@@ -1,16 +1,7 @@
 import React, {Component} from 'react';
 import {StyleSheet, Text, View, FlatList, ActivityIndicator} from 'react-native';
 import CityHandler from "../res/CityHandler";
-
-function Loading(){
-    return(
-        <View style={styles.container}>
-            <Text>Loading</Text>
-            <ActivityIndicator size="large"/>
-        </View>
-    )
-}
-
+import LoadingComponent from "../components/LoadingComponent";
 
 export default class CityChosen extends Component {
     cityId = this.props.navigation.getParam('cityId', 'Error');
@@ -78,7 +69,7 @@ export default class CityChosen extends Component {
                 )
             }
         }else{
-            return(<Loading/>)
+            return(<LoadingComponent/>)
         }
     }
 }

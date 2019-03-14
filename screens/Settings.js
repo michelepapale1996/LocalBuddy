@@ -1,9 +1,10 @@
 import React, {Component} from 'react';
-import {StyleSheet, Text, View, Button, ScrollView, TouchableWithoutFeedback} from 'react-native';
+import {StyleSheet, Text, View, Alert, ScrollView, TouchableWithoutFeedback} from 'react-native';
 import firebase from 'react-native-firebase'
 import LocalStateHandler from "../res/LocalStateHandler";
 import UserHandler from "../res/UserHandler";
 import {heightPercentageToDP as hp, widthPercentageToDP as wp} from "react-native-responsive-screen";
+import LoadingComponent from '../components/LoadingComponent'
 
 function BuddyComponent(props){
     if(props.isBuddy == 1){
@@ -38,11 +39,11 @@ function WhoCanFindMe() {
     )
 }
 
-function ChangePassword() {
+function ChangePassword(props) {
     return(
         <View style={styles.singleOptionContainer}>
             <TouchableWithoutFeedback
-                onPress={()=>alert("todo")}>
+                onPress={()=>props.nav.navigate("ChangePassword")}>
                 <Text style={styles.text}>Cambia password</Text>
             </TouchableWithoutFeedback>
         </View>
@@ -50,10 +51,26 @@ function ChangePassword() {
 }
 
 function DeleteAccount() {
+    deleteAlert = () => {
+        Alert.alert(
+            'Elimina account',
+            'Sei sicuro di voler eliminare l\'account? L\'azione sarà irreversibile.',
+            [
+                {
+                    text: 'Cancel',
+                    onPress: () => console.log('Cancel Pressed'),
+                    style: 'cancel'
+                },
+                {text: 'OK', onPress: () => console.log('OK Pressed')},
+            ],
+            {cancelable: true}
+        );
+    }
+
     return(
         <View style={styles.singleOptionContainer}>
             <TouchableWithoutFeedback
-                onPress={()=>alert("todo")}>
+                onPress={deleteAlert}>
                 <Text style={styles.text}>Elimina account</Text>
             </TouchableWithoutFeedback>
         </View>
@@ -61,55 +78,86 @@ function DeleteAccount() {
 }
 
 function LogOut(props) {
+    logOutAlert = (props) => {
+        Alert.alert(
+            'Vuoi procedere al logout da LocalBuddy?',
+            '',
+            [
+                {
+                    text: 'Cancel',
+                    style: 'cancel'
+                },
+                {
+                    text: 'OK',
+                    onPress: () => {
+                        firebase.auth().signOut().then(() => {
+                            LocalStateHandler.clearStorage()
+                            props.nav.navigate('Loading')
+                        }).catch(function(error) {
+                            console.log(error)
+                        })
+                    }
+                },
+            ]
+        )
+    }
+
     return(
         <View style={styles.singleOptionContainer}>
             <TouchableWithoutFeedback
-                onPress={() => firebase.auth().signOut()
-                    .then(() => {
-                        LocalStateHandler.clearStorage()
-                        props.nav.navigate('Loading')
-                    })
-                    .catch(function(error) {
-                        console.log(error)})}>
+                onPress={() => this.logOutAlert(props)}>
                 <Text style={styles.text}>Log out</Text>
             </TouchableWithoutFeedback>
         </View>
     )
 }
 
-export default class SettingsTab extends Component {
+export default class Settings extends Component {
+    static navigationOptions = () => {
+        return {
+            title: "Impostazioni"
+        };
+    };
+
     constructor(props){
         super(props)
         this.state = {
-            isBuddy:0
+            loadingDone: false
         }
     }
 
     componentDidMount(){
         const userId = firebase.auth().currentUser.uid;
         UserHandler.isBuddy(userId).then(response => {
-            this.setState({isBuddy: response})
+            this.setState({
+                isBuddy: response,
+                loadingDone: true
+            })
         })
     }
 
     render() {
-        return (
-            <View style={styles.mainContainer}>
-                <ScrollView>
-                    <View style={styles.container}>
-                        <Text style={styles.header}>Preferenze</Text>
-                        <WhoCanFindMe/>
-                        <BuddyComponent isBuddy={this.state.isBuddy}/>
-                    </View>
-                    <View style={styles.container}>
-                        <Text style={styles.header}>Gestione account</Text>
-                        <ChangePassword/>
-                        <DeleteAccount/>
-                        <LogOut nav={this.props.navigation}/>
-                    </View>
-                </ScrollView>
-            </View>
-        );
+        if(this.state.loadingDone != false) {
+            return (
+                <View style={styles.mainContainer}>
+                    <ScrollView>
+                        <View style={styles.container}>
+                            <Text style={styles.header}>Preferenze</Text>
+                            <WhoCanFindMe/>
+                            <BuddyComponent isBuddy={this.state.isBuddy}/>
+                        </View>
+                        <View style={styles.container}>
+                            <Text style={styles.header}>Gestione account</Text>
+                            <ChangePassword nav={this.props.navigation}/>
+                            <DeleteAccount/>
+                            <LogOut nav={this.props.navigation}/>
+                        </View>
+                    </ScrollView>
+                </View>
+            )
+        }else{
+            return(<LoadingComponent/>)
+        }
     }
 }
 

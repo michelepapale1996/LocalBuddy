@@ -3,6 +3,7 @@ import {StyleSheet, Text, View, Button, Image, ScrollView, TouchableWithoutFeedb
 import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen';
 import UserHandler from "../res/UserHandler";
 import SingleChatHandler from "../res/SingleChatHandler";
+import LoadingComponent from "../components/LoadingComponent";
 
 function Biography(props){
     return(
@@ -80,15 +81,6 @@ function Feedbacks(props){
                         : <Text>Non ha ancora alcun feedback!</Text>
                 }
             </View>
-        </View>
-    )
-}
-
-function Loading(){
-    return(
-        <View style={styles.container}>
-            <Text>Loading</Text>
-            <ActivityIndicator size="large"/>
         </View>
     )
 }
@@ -190,7 +182,7 @@ export default class ProfileTab extends Component {
                 </ScrollView>
             )
         }else{
-            return(<Loading/>)
+            return(<LoadingComponent/>)
         }
     }
 }
