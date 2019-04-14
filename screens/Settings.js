@@ -5,35 +5,62 @@ import LocalStateHandler from "../res/LocalStateHandler";
 import UserHandler from "../res/UserHandler";
 import {heightPercentageToDP as hp, widthPercentageToDP as wp} from "react-native-responsive-screen";
 import LoadingComponent from '../components/LoadingComponent'
+import CitiesOfBuddy from "./CitiesOfBuddy";
 
 function BuddyComponent(props){
+
+    stopToBeBuddy = () => {
+        UserHandler.stopToBeBuddy()
+        props.isBuddyUpdater(0)
+    }
+
+    becomeBuddy = () => {
+        UserHandler.becomeBuddy()
+        props.isBuddyUpdater(1)
+    }
+
     if(props.isBuddy == 1){
         return(
-            <View style={styles.singleOptionContainer}>
-                <TouchableWithoutFeedback
-                    onPress={()=>{alert("todo")}}>
-                    <Text style={styles.text}>Smetti di essere un buddy</Text>
-                </TouchableWithoutFeedback>
+            <View>
+                <WhoCanFindMe nav={props.nav}/>
+                <YourCities nav={props.nav}/>
+                <View style={styles.singleOptionContainer}>
+                    <TouchableWithoutFeedback
+                        onPress={this.stopToBeBuddy}>
+                        <Text style={styles.text}>Stop to be buddy</Text>
+                    </TouchableWithoutFeedback>
+                </View>
             </View>
         )
     }else{
         return(
             <View style={styles.singleOptionContainer}>
                 <TouchableWithoutFeedback
-                    onPress={()=>{alert("todo")}}>
-                    <Text style={styles.text}>Diventa un buddy</Text>
+                    onPress={this.becomeBuddy}>
+                    <Text style={styles.text}>Become buddy</Text>
                 </TouchableWithoutFeedback>
             </View>
         )
     }
 }
 
-function WhoCanFindMe() {
-    return(
+function YourCities(props) {
+    return (
         <View style={styles.singleOptionContainer}>
             <TouchableWithoutFeedback
-                onPress={()=>alert("todo")}>
-                <Text style={styles.text}>Chi può trovarmi</Text>
+                onPress={() => props.nav.navigate('CitiesOfBuddy')}>
+                <Text style={styles.text}>Your cities</Text>
+            </TouchableWithoutFeedback>
+        </View>
+    )
+}
+
+function WhoCanFindMe(props) {
+    return (
+        <View style={styles.singleOptionContainer}>
+            <TouchableWithoutFeedback
+                onPress={() => props.nav.navigate('WhoCanFindMe')}>
+                <Text style={styles.text}>Who can find me</Text>
             </TouchableWithoutFeedback>
         </View>
     )
@@ -44,7 +71,7 @@ function ChangePassword(props) {
         <View style={styles.singleOptionContainer}>
             <TouchableWithoutFeedback
                 onPress={()=>props.nav.navigate("ChangePassword")}>
-                <Text style={styles.text}>Cambia password</Text>
+                <Text style={styles.text}>Change password</Text>
             </TouchableWithoutFeedback>
         </View>
     )
@@ -53,7 +80,7 @@ function ChangePassword(props) {
 function DeleteAccount() {
     deleteAlert = () => {
         Alert.alert(
-            'Elimina account',
+            'Delete account',
             'Sei sicuro di voler eliminare l\'account? L\'azione sarà irreversibile.',
             [
                 {
@@ -71,7 +98,7 @@ function DeleteAccount() {
         <View style={styles.singleOptionContainer}>
             <TouchableWithoutFeedback
                 onPress={deleteAlert}>
-                <Text style={styles.text}>Elimina account</Text>
+                <Text style={styles.text}>Delete account</Text>
             </TouchableWithoutFeedback>
         </View>
     )
@@ -115,7 +142,7 @@ function LogOut(props) {
 export default class Settings extends Component {
     static navigationOptions = () => {
         return {
-            title: "Impostazioni"
+            title: "Settings"
         };
     };
 
@@ -136,18 +163,24 @@ export default class Settings extends Component {
         })
     }
 
+    //function to change the state of this component from other components
+    isBuddyUpdater = (itIs) => {
+        this.setState({
+            isBuddy: itIs
+        })
+    }
+
     render() {
         if(this.state.loadingDone != false) {
             return (
                 <View style={styles.mainContainer}>
                     <ScrollView>
                         <View style={styles.container}>
-                            <Text style={styles.header}>Preferenze</Text>
-                            <WhoCanFindMe/>
-                            <BuddyComponent isBuddy={this.state.isBuddy}/>
+                            <Text style={styles.header}>Preferences</Text>
+                            <BuddyComponent isBuddy={this.state.isBuddy} isBuddyUpdater={this.isBuddyUpdater} nav={this.props.navigation}/>
                         </View>
                         <View style={styles.container}>
-                            <Text style={styles.header}>Gestione account</Text>
+                            <Text style={styles.header}>Account</Text>
                             <ChangePassword nav={this.props.navigation}/>
                             <DeleteAccount/>
                             <LogOut nav={this.props.navigation}/>
@@ -168,11 +201,13 @@ const styles = StyleSheet.create({
         backgroundColor: '#F5FCFF',
     },
     container:{
+        flex:1,
         margin:hp("2%"),
         borderBottomColor: 'grey',
         borderBottomWidth: 1,
     },
     singleOptionContainer:{
+        flex:1,
         margin: wp("3%"),
         height: hp("5%")
     },
@@ -184,10 +219,5 @@ const styles = StyleSheet.create({
         fontSize: 20,
         color: "green",
         fontWeight:"bold"
-    },
-    welcome: {
-        fontSize: 20,
-        textAlign: 'center',
-        margin: 10,
     }
 });

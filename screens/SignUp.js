@@ -12,11 +12,7 @@ export default class SignUp extends React.Component {
             .then(()=> {
                 const user = firebase.auth().currentUser;
 
-                firebase.auth().currentUser.getIdToken(true).then((idToken) => {
-                    AccountHandler.signUp(user.uid, this.state.name, this.state.surname,this.state.username, 0, idToken)
-                }).catch(function(error) {
-                    console.log("ERRORE", error)
-                });
+                AccountHandler.signUp(user.uid, this.state.name, this.state.surname,this.state.username, 0)
             })
             .then(() => this.props.navigation.navigate('TabNavigator'))
             .catch(error => this.setState({ errorMessage: error.message }))

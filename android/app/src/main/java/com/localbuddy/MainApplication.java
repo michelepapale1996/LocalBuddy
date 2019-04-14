@@ -3,6 +3,7 @@ package com.localbuddy;
 import android.app.Application;
 
 import com.facebook.react.ReactApplication;
+import com.reactnativecommunity.slider.ReactSliderPackage;
 import com.dieam.reactnativepushnotification.ReactNativePushNotificationPackage;
 import com.imagepicker.ImagePickerPackage;
 import com.oblador.vectoricons.VectorIconsPackage;
@@ -36,6 +37,7 @@ public class MainApplication extends Application implements ReactApplication{
     protected List<ReactPackage> getPackages() {
       return Arrays.<ReactPackage>asList(
           new MainReactPackage(),
+            new ReactSliderPackage(),
             new ReactNativePushNotificationPackage(),
             new ImagePickerPackage(),
             new VectorIconsPackage(),

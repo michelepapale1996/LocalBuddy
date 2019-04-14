@@ -20,7 +20,7 @@ export default class ChooseCity extends Component {
         return {
             header: <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
                         <TextInput
-                            placeholder="Inserisci il nome della città"
+                            placeholder="Type the name of the city"
                             placeholderTextColor= 'gray'
                             onChangeText={(input) => navigation.getParam("getCities", null)(input)}
                             style={{

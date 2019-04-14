@@ -1,6 +1,6 @@
 import React from 'react';
 import { createBottomTabNavigator, createAppContainer, createSwitchNavigator, createStackNavigator } from 'react-navigation';
-import {Icon, Badge} from 'react-native-elements';
+import {Icon} from 'react-native-elements';
 import ProfileTab from "./screens/ProfileTab";
 import Settings from "./screens/Settings";
 import CityChosen from "./screens/CityChosen";
@@ -12,6 +12,8 @@ import BuddyProfile from "./screens/BuddyProfile"
 import AllChats from "./screens/AllChats"
 import SingleChat from "./screens/SingleChat"
 import ChangePassword from "./screens/ChangePassword";
+import WhoCanFindMe from "./screens/WhoCanFindMe"
+import CitiesOfBuddy from "./screens/CitiesOfBuddy";
 
 const SearchTab = createStackNavigator({
     Home: {
@@ -46,6 +48,12 @@ const SettingsTab = createStackNavigator({
     },
     ChangePassword:{
         screen: ChangePassword
+    },
+    WhoCanFindMe:{
+        screen: WhoCanFindMe
+    },
+    CitiesOfBuddy:{
+        screen: CitiesOfBuddy
     }
 })
 

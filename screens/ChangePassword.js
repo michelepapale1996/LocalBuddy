@@ -1,5 +1,6 @@
 import React from 'react'
-import { View, TextInput, StyleSheet, Text} from 'react-native'
+import { View, TextInput, StyleSheet, Text, Button } from 'react-native'
+import AccountHandler from "../res/AccountHandler";
 
 export default class ChangePassword extends React.Component {
     state = { oldPassword: '', newPassword: '', errorMessage: null , repeatNewPassword: ""}
@@ -9,6 +10,13 @@ export default class ChangePassword extends React.Component {
             title: "Cambia password"
         };
     };
+
+    handleChangePassword = () => {
+        AccountHandler.changePassword(this.state.oldPassword, this.state.newPassword, this.state.repeatNewPassword)
+            .then(response=>{
+                alert("Password changed!")
+            }).catch(error => this.setState({ errorMessage: error }))
+    }
 
     render() {
         return (
@@ -41,6 +49,7 @@ export default class ChangePassword extends React.Component {
                     onChangeText={repeatNewPassword => this.setState({ repeatNewPassword })}
                     value={this.state.repeatNewPassword}
                 />
+                <Button title="Change password" onPress={this.handleChangePassword} />
             </View>
         )
     }
