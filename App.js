@@ -16,6 +16,7 @@ import WhoCanFindMe from "./screens/WhoCanFindMe"
 import CitiesOfBuddy from "./screens/CitiesOfBuddy"
 import FutureMeetings from "./screens/FutureMeetings"
 import PastMeetings from "./screens/PastMeetings"
+import NewMeeting from "./screens/NewMeeting";
 
 const SearchTab = createStackNavigator({
     Home: {
@@ -68,6 +69,18 @@ const MeetingsTab = createMaterialTopTabNavigator({
     }
 })
 
+const FutureMeetingsTabNavigator = createStackNavigator({
+    FutureMeetingsTab:{
+        screen: MeetingsTab,
+        navigationOptions: {
+            header: null
+        }
+    },
+    NewMeeting:{
+        screen: NewMeeting
+    }
+})
+
 const TabNavigator = createBottomTabNavigator({
     Search: {
         screen: SearchTab,
@@ -88,7 +101,7 @@ const TabNavigator = createBottomTabNavigator({
         }
     },
     MyMeetings: {
-        screen: MeetingsTab,
+        screen: FutureMeetingsTabNavigator,
         navigationOptions:{
             tabBarIcon:<Icon name="organization" type='octicon' size={26}/>
         }

@@ -36,12 +36,14 @@ function NewProposals(props){
                             </View>
                             <Button
                                 containerViewStyle={styles.button}
+                                buttonStyle={styles.button}
                                 onPress={() => acceptMeeting(item.idOpponent)}
                                 backgroundColor="blue"
                                 title="Accept"
                             />
                             <Button
                                 containerViewStyle={styles.button}
+                                buttonStyle={styles.button}
                                 onPress={() => denyMeeting(item.idOpponent)}
                                 backgroundColor="red"
                                 title="Deny"
@@ -80,6 +82,7 @@ function AlreadyFixedMeetings(props){
                             </View>
                             <Button
                                 containerViewStyle={styles.button}
+                                buttonStyle={styles.button}
                                 onPress={() => denyMeeting(item.idOpponent)}
                                 backgroundColor="red"
                                 title="Deny"
@@ -189,6 +192,15 @@ export default class FutureMeetings extends Component{
                             fixed={this.state.alreadyFixedMeetings}
                             deniedMeeting={this.deniedMeeting}/>
                     </ScrollView>
+                    <Button
+                        icon={{
+                            name: "add",
+                            size: 30,
+                            color: "blue"
+                        }}
+                        onPress={() => this.props.navigation.navigate('NewMeeting')}
+                        buttonStyle={styles.newMeetingButton}
+                    />
                 </View>
             )
         }else{
@@ -241,12 +253,24 @@ const styles = StyleSheet.create({
         margin: wp("1%"),
         height: hp("10%")
     },
-    buttonGroup:{
-        flexDirection: 'row',
-        flex:1
-    },
     button:{
         marginLeft:0,
-        marginRight:0
+        marginRight:0,
+        borderRadius: 25
+    },
+    newMeetingButton:{
+        position: 'absolute',
+        bottom: 10,
+        right: 0,
+        left: 300,
+        width: wp("15%"),
+        height: wp("15%"),
+        borderRadius: wp("15%"),
+        borderWidth: 1,
+        borderColor: 'blue',
+        backgroundColor: 'aquamarine',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
     }
 });
