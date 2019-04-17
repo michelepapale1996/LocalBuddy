@@ -4,7 +4,6 @@ import LoadingComponent from "./../components/LoadingComponent"
 import UserHandler from "../res/UserHandler";
 import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen';
 import firebase from "react-native-firebase";
-import RangeSlider from 'react-native-range-slider'
 import RadioForm, {RadioButton, RadioButtonInput, RadioButtonLabel} from 'react-native-simple-radio-button'
 import MultiSlider from "@ptomasroos/react-native-multi-slider/MultiSlider";
 

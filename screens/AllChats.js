@@ -8,10 +8,6 @@ import LoadingComponent from '../components/LoadingComponent'
 function Chat(props) {
     const lastMessageTime = props.getTime(props.item.createdAt)
 
-    const Badge = ()=>(
-        <View style = {styles.circle}></View>
-    );
-
     return(
         <TouchableWithoutFeedback
             onPress={() => props.nav.navigate('SingleChat',

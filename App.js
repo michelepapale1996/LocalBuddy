@@ -1,19 +1,21 @@
-import React from 'react';
-import { createBottomTabNavigator, createAppContainer, createSwitchNavigator, createStackNavigator } from 'react-navigation';
-import {Icon} from 'react-native-elements';
-import ProfileTab from "./screens/ProfileTab";
-import Settings from "./screens/Settings";
-import CityChosen from "./screens/CityChosen";
-import ChooseCity from "./screens/ChooseCity";
-import Loading from "./screens/Loading";
-import Login from "./screens/Login";
-import SignUp from "./screens/SignUp";
+import React from 'react'
+import { createBottomTabNavigator, createAppContainer, createSwitchNavigator, createStackNavigator, createMaterialTopTabNavigator } from 'react-navigation'
+import {Icon} from 'react-native-elements'
+import ProfileTab from "./screens/ProfileTab"
+import Settings from "./screens/Settings"
+import CityChosen from "./screens/CityChosen"
+import ChooseCity from "./screens/ChooseCity"
+import Loading from "./screens/Loading"
+import Login from "./screens/Login"
+import SignUp from "./screens/SignUp"
 import BuddyProfile from "./screens/BuddyProfile"
 import AllChats from "./screens/AllChats"
 import SingleChat from "./screens/SingleChat"
-import ChangePassword from "./screens/ChangePassword";
+import ChangePassword from "./screens/ChangePassword"
 import WhoCanFindMe from "./screens/WhoCanFindMe"
-import CitiesOfBuddy from "./screens/CitiesOfBuddy";
+import CitiesOfBuddy from "./screens/CitiesOfBuddy"
+import FutureMeetings from "./screens/FutureMeetings"
+import PastMeetings from "./screens/PastMeetings"
 
 const SearchTab = createStackNavigator({
     Home: {
@@ -57,6 +59,15 @@ const SettingsTab = createStackNavigator({
     }
 })
 
+const MeetingsTab = createMaterialTopTabNavigator({
+    FutureMeetings:{
+        screen: FutureMeetings
+    },
+    PastMeetings:{
+        screen: PastMeetings
+    }
+})
+
 const TabNavigator = createBottomTabNavigator({
     Search: {
         screen: SearchTab,
@@ -74,6 +85,12 @@ const TabNavigator = createBottomTabNavigator({
         screen: ProfileTab,
         navigationOptions:{
             tabBarIcon:<Icon name="user" type='feather' size={26}/>
+        }
+    },
+    MyMeetings: {
+        screen: MeetingsTab,
+        navigationOptions:{
+            tabBarIcon:<Icon name="organization" type='octicon' size={26}/>
         }
     },
     Settings: {
