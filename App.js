@@ -17,6 +17,7 @@ import CitiesOfBuddy from "./screens/CitiesOfBuddy"
 import FutureMeetings from "./screens/FutureMeetings"
 import PastMeetings from "./screens/PastMeetings"
 import NewMeeting from "./screens/NewMeeting";
+import Feedback from "./screens/Feedback";
 
 const SearchTab = createStackNavigator({
     Home: {
@@ -78,6 +79,9 @@ const FutureMeetingsTabNavigator = createStackNavigator({
     },
     NewMeeting:{
         screen: NewMeeting
+    },
+    Feedback:{
+        screen: Feedback
     }
 })
 

@@ -32,7 +32,7 @@ function NewProposals(props){
                                 source={{uri: item.urlPhoto}}/>
                             <View style={styles.userInfoContainer}>
                                 <Text style={styles.text}>{item.nameAndSurname}</Text>
-                                <Text>{item.Date}</Text>
+                                <Text>{item.date} {item.time}</Text>
                             </View>
                             <Button
                                 containerViewStyle={styles.button}
@@ -78,14 +78,53 @@ function AlreadyFixedMeetings(props){
                                 source={{uri: item.urlPhoto}}/>
                             <View style={styles.userInfoContainer}>
                                 <Text style={styles.text}>{item.nameAndSurname}</Text>
-                                <Text>{item.Date}</Text>
+                                <Text>{item.date} {item.time}</Text>
                             </View>
                             <Button
                                 containerViewStyle={styles.button}
                                 buttonStyle={styles.button}
                                 onPress={() => denyMeeting(item.idOpponent)}
                                 backgroundColor="red"
-                                title="Deny"
+                                title="Delete"
+                            />
+                        </View>
+                    )
+                }
+                keyExtractor={(item, index) => index.toString()}
+                showsVerticalScrollIndicator={false}
+            />
+        </View>
+    )
+}
+
+function PendingMeetings(props){
+    denyMeeting = (idOpponent)=>{
+        MeetingsHandler.denyMeeting(idOpponent).then(()=>{
+            props.deniedMeeting(idOpponent)
+        })
+    }
+
+    return(
+        <View style={styles.container}>
+            <Text style={styles.header}>Pending Meetings</Text>
+            <FlatList
+                data={props.pending}
+                renderItem={
+                    ({item}) => (
+                        <View style={styles.userContainer}>
+                            <Image
+                                style={styles.userPhoto}
+                                source={{uri: item.urlPhoto}}/>
+                            <View style={styles.userInfoContainer}>
+                                <Text style={styles.text}>{item.nameAndSurname}</Text>
+                                <Text>{item.date} {item.time}</Text>
+                            </View>
+                            <Button
+                                containerViewStyle={styles.button}
+                                buttonStyle={styles.button}
+                                onPress={() => denyMeeting(item.idOpponent)}
+                                backgroundColor="red"
+                                title="Delete"
                             />
                         </View>
                     )
@@ -103,12 +142,13 @@ export default class FutureMeetings extends Component{
         this.state = {
             loadingDone: false,
             newMeetings: null,
-            alreadyFixedMeetings: null
+            alreadyFixedMeetings: null,
+            pendingMeetings: null
         }
     }
 
     componentDidMount(){
-        MeetingsHandler.getMeetings().then(meetings => {
+        MeetingsHandler.getFutureMeetings().then(meetings => {
             let promises = meetings.map(meeting => {
                 return UserHandler.getNameAndSurname(meeting.idOpponent)
             })
@@ -132,15 +172,21 @@ export default class FutureMeetings extends Component{
             })
         }).then(meetings=>{
             const newMeetings = meetings.filter(elem => {
-                return elem.isFixed == 0
+                return elem.isFixed == 0 && elem.isPending == 0
             })
             const alreadyFixedMeetings = meetings.filter(elem => {
                 return elem.isFixed == 1
             })
+
+            const pendingMeetings = meetings.filter(elem => {
+                return elem.isPending == 1
+            })
+
             this.setState({
                 loadingDone: true,
                 newMeetings: newMeetings,
-                alreadyFixedMeetings: alreadyFixedMeetings
+                alreadyFixedMeetings: alreadyFixedMeetings,
+                pendingMeetings: pendingMeetings
             })
         })
     }
@@ -173,9 +219,40 @@ export default class FutureMeetings extends Component{
                 return elem.idOpponent != idOpponent
             })
 
+            const alreadyFixedMeetings = prevState.alreadyFixedMeetings.filter(elem => {
+                return elem.idOpponent != idOpponent
+            })
+
+            const pendingMeetings = prevState.pendingMeetings.filter(elem => {
+                return elem.idOpponent != idOpponent
+            })
+
             return {
-                newMeetings: newMeetings
+                newMeetings: newMeetings,
+                alreadyFixedMeetings: alreadyFixedMeetings,
+                pendingMeetings: pendingMeetings
             }
+        })
+    }
+
+    addPendingMeeting = (date, time, opponentId)=>{
+        const promises = [UserHandler.getNameAndSurname(opponentId), UserHandler.getUrlPhoto(opponentId)]
+        Promise.all(promises).then(results => {
+            this.setState((prevState) => {
+                const newPendingMeeting = {
+                    idOpponent: opponentId,
+                    date: date,
+                    time: time,
+                    isFixed: 0,
+                    isPending: 1,
+                    nameAndSurname: results[0],
+                    urlPhoto: results[1]
+                }
+                const pendingMeetings = [...prevState.newMeetings, newPendingMeeting]
+                return {
+                    pendingMeetings: pendingMeetings
+                }
+            })
         })
     }
 
@@ -191,6 +268,9 @@ export default class FutureMeetings extends Component{
                         <AlreadyFixedMeetings
                             fixed={this.state.alreadyFixedMeetings}
                             deniedMeeting={this.deniedMeeting}/>
+                        <PendingMeetings
+                            pending={this.state.pendingMeetings}
+                            deniedMeeting={this.deniedMeeting}/>
                     </ScrollView>
                     <Button
                         icon={{
@@ -198,7 +278,9 @@ export default class FutureMeetings extends Component{
                             size: 30,
                             color: "blue"
                         }}
-                        onPress={() => this.props.navigation.navigate('NewMeeting')}
+                        onPress={() => this.props.navigation.navigate('NewMeeting', {
+                            addPendingMeeting: this.addPendingMeeting
+                        })}
                         buttonStyle={styles.newMeetingButton}
                     />
                 </View>

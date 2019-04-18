@@ -4,13 +4,35 @@ import DatePicker from 'react-native-datepicker'
 import {heightPercentageToDP as hp, widthPercentageToDP as wp} from "react-native-responsive-screen"
 import ChatsHandler from "../res/ChatsHandler"
 import LoadingComponent from '../components/LoadingComponent'
+import RNPickerSelect from 'react-native-picker-select'
+import { Button } from 'react-native-elements'
+import MeetingsHandler from "../res/MeetingsHandler";
 
 export default class NewMeeting extends Component {
-    static navigationOptions = () => {
+    static navigationOptions = ({ navigation }) => {
         return {
-            title: "New Meeting"
+            title: "New Meeting",
+            headerRight: (
+                <Button
+                    onPress={()=>navigation.getParam("saveMeeting", null)()}
+                    buttonStyle={styles.button}
+                    title="Save"
+                    color="#fff"
+                />
+            ),
         };
     };
+
+    saveMeeting = () => {
+        if(this.state.chosenUserId == null) {
+            alert("Please, choose a person.")
+        }else{
+            MeetingsHandler.createMeeting(this.state.date, this.state.time, this.state.chosenUserId).then(()=>{
+                this.props.navigation.getParam("addPendingMeeting", null)(this.state.date, this.state.time, this.state.chosenUserId)
+                this.props.navigation.goBack()
+            })
+        }
+    }
 
     constructor(props) {
         super(props)
@@ -25,21 +47,32 @@ export default class NewMeeting extends Component {
             maxDate: maxDate,
             time: time,
             users: null,
+            chosenUserId: null,
             loadingDone: false
         }
+        this.props.navigation.setParams({
+            saveMeeting: this.saveMeeting
+        })
     }
 
     componentDidMount() {
         ChatsHandler.getChats().then(chats => {
-            const usersWithChat = chats.map(user => {
-                return {
-                    nameAndSurname: user.nameAndSurname,
-                    urlPhoto: user.urlPhotoOther
-                }
+            const promises = chats.map(user => {
+                return ChatsHandler.getUserId(user.CCopponentUserId)
             })
-            this.setState({
-                users: usersWithChat,
-                loadingDone: true
+
+            Promise.all(promises).then(results => {
+                return chats.map((user,index) => {
+                    return {
+                        label: user.nameAndSurname,
+                        value: results[index]
+                    }
+                })
+            }).then(users=>{
+                this.setState({
+                    users: users,
+                    loadingDone: true
+                })
             })
         })
     }
@@ -50,22 +83,20 @@ export default class NewMeeting extends Component {
                 <View style={styles.mainContainer}>
                     <View style={styles.container}>
                         <Text style={styles.text}>Who do you want to meet?</Text>
-                        <FlatList
-                            data={this.state.users}
-                            renderItem={
-                                ({item}) => (
-                                    <View style={styles.userContainer}>
-                                        <Image
-                                            style={styles.userPhoto}
-                                            source={{uri: item.urlPhoto}}/>
-                                        <View style={styles.userInfoContainer}>
-                                            <Text style={styles.text}>{item.nameAndSurname}</Text>
-                                        </View>
-                                    </View>
-                                )
-                            }
-                            keyExtractor={(item, index) => index.toString()}
-                            showsVerticalScrollIndicator={false}
+                        <RNPickerSelect
+                            placeholder={{
+                                label: 'Select a person',
+                                value: null,
+                                color: '#9EA0A4',
+                            }}
+                            items={this.state.users}
+                            onValueChange={value => {
+                                this.setState({
+                                    chosenUserId: value,
+                                });
+                            }}
+                            style={pickerSelectStyles}
+                            useNativeAndroidPickerStyle={false}
                         />
                     </View>
                     <View style={styles.container}>
@@ -177,20 +208,28 @@ const styles = StyleSheet.create({
         marginLeft:0,
         marginRight:0,
         borderRadius: 25
-    },
-    newMeetingButton:{
-        position: 'absolute',
-        bottom: 10,
-        right: 0,
-        left: 300,
-        width: wp("15%"),
-        height: wp("15%"),
-        borderRadius: wp("15%"),
-        borderWidth: 1,
-        borderColor: 'blue',
-        backgroundColor: 'aquamarine',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
     }
+});
+
+const pickerSelectStyles = StyleSheet.create({
+    inputIOS: {
+        fontSize: 16,
+        paddingVertical: 12,
+        paddingHorizontal: 10,
+        borderWidth: 1,
+        borderColor: 'gray',
+        borderRadius: 4,
+        color: 'black',
+        paddingRight: 30, // to ensure the text is never behind the icon
+    },
+    inputAndroid: {
+        fontSize: 16,
+        paddingHorizontal: 10,
+        paddingVertical: 8,
+        borderWidth: 0.5,
+        borderColor: 'transparent',
+        borderRadius: 8,
+        color: 'black',
+        paddingRight: 30, // to ensure the text is never behind the icon
+    },
 });
