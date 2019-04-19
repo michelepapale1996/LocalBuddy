@@ -43,12 +43,27 @@ export default class PastMeetings extends Component{
                 return elem.isFixed == 1
             })
 
-            console.log(meetings)
-
             this.setState({
                 loadingDone: true,
                 pastMeetings: pastMeetings
             })
+        })
+    }
+
+    feedbackGiven = (opponentId) => {
+        let toChange = this.state.pastMeetings.filter(elem => {
+            return elem.idOpponent == opponentId
+        })
+        toChange = toChange[0]
+
+        const notToChange = this.state.pastMeetings.filter(elem => {
+            return elem.idOpponent != opponentId
+        })
+
+        toChange.feedbackAlreadyGiven = 1
+        let pastMeetings = [...notToChange, toChange]
+        this.setState({
+            pastMeetings: pastMeetings
         })
     }
 
@@ -71,13 +86,18 @@ export default class PastMeetings extends Component{
                                                 <Text style={styles.text}>{item.nameAndSurname}</Text>
                                                 <Text>{item.date} {item.time}</Text>
                                             </View>
-                                            <Button
+                                            {!item.feedbackAlreadyGiven && <Button
                                                 containerViewStyle={styles.button}
                                                 buttonStyle={styles.button}
-                                                onPress={() => this.props.navigation.navigate("Feedback")}
+                                                onPress={() => {
+                                                    this.props.navigation.navigate("Feedback",{
+                                                        feedbackedIdUser: item.idOpponent,
+                                                        feedbackGiven: this.feedbackGiven
+                                                    })
+                                                }}
                                                 backgroundColor="blue"
                                                 title="Give feedback"
-                                            />
+                                            />}
                                         </View>
                                     )
                                 }

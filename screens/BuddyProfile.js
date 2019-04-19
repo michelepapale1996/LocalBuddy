@@ -103,7 +103,7 @@ export default class ProfileTab extends Component {
 
     getFeedbacksToDisplay = (feedbacks) => {
         let promises = feedbacks.map((feedback) => {
-            const travelerId = feedback.travelerId
+            const travelerId = feedback.opponentId
             return UserHandler.getUserInfo(travelerId)
         })
 

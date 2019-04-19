@@ -1,8 +1,10 @@
 import React, {Component} from "react";
-import {StyleSheet, Text, View, FlatList, Image} from 'react-native';
+import {StyleSheet, Text, View, TextInput} from 'react-native';
 import {heightPercentageToDP as hp, widthPercentageToDP as wp} from "react-native-responsive-screen"
 import LoadingComponent from '../components/LoadingComponent'
 import { Button } from 'react-native-elements'
+import StarRating from 'react-native-star-rating';
+import UserHandler from "../res/UserHandler";
 
 export default class Feedback extends Component {
     static navigationOptions = ({ navigation }) => {
@@ -20,21 +22,40 @@ export default class Feedback extends Component {
     };
 
     saveFeedback = () => {
-        console.log("TODO")
+        UserHandler.addFeedback(this.state.idOpponent, this.state.starCount, this.state.text).then(()=>{
+            this.props.navigation.getParam("feedbackGiven", null)(this.state.idOpponent)
+            this.props.navigation.goBack()
+        })
     }
 
     constructor(props) {
         super(props)
         this.state = {
-            loadingDone: false
+            loadingDone: false,
+            starCount: 3,
+            text: '',
+            idOpponent: null
         }
         this.props.navigation.setParams({
             saveFeedback: this.saveFeedback
         })
     }
 
-    componentDidMount() {
+    onStarRatingPress(rating) {
+        this.setState({
+            starCount: rating
+        });
+    }
 
+    componentDidMount() {
+        const idOpponent = this.props.navigation.getParam("feedbackedIdUser", null)
+        UserHandler.getNameAndSurname(idOpponent).then(username => {
+            this.setState({
+                loadingDone: true,
+                idOpponent: idOpponent,
+                username: username
+            })
+        })
     }
 
     render() {
@@ -42,7 +63,23 @@ export default class Feedback extends Component {
             return (
                 <View style={styles.mainContainer}>
                     <View style={styles.container}>
-                        <Text style={styles.text}>Who do you want to meet?</Text>
+                        <Text style={styles.text}>Please, rate {this.state.username}</Text>
+                        <StarRating
+                            disabled={false}
+                            maxStars={5}
+                            rating={this.state.starCount}
+                            selectedStar={(rating) => this.onStarRatingPress(rating)}
+                            fullStarColor={'red'}
+                        />
+                        <Text>Your rating is {this.state.starCount}</Text>
+                    </View>
+                    <View style={styles.container}>
+                        <Text style={styles.text}>Please, give a feedback(optional)</Text>
+                        <TextInput
+                            style={{height: 50, borderColor: 'gray', borderWidth: 1}}
+                            onChangeText={(text) => this.setState({text})}
+                            value={this.state.text}
+                        />
                     </View>
                 </View>
             )

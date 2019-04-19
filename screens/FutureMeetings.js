@@ -248,7 +248,7 @@ export default class FutureMeetings extends Component{
                     nameAndSurname: results[0],
                     urlPhoto: results[1]
                 }
-                const pendingMeetings = [...prevState.newMeetings, newPendingMeeting]
+                const pendingMeetings = [...prevState.pendingMeetings, newPendingMeeting]
                 return {
                     pendingMeetings: pendingMeetings
                 }
