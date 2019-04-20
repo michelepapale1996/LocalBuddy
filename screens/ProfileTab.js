@@ -6,18 +6,19 @@ import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-nativ
 import {Icon} from 'react-native-elements';
 import LocalStateHandler from "../res/LocalStateHandler";
 import LoadingComponent from "../components/LoadingComponent";
+import { IconButton, Colors, Surface, Badge} from 'react-native-paper';
 
 function Biography(props){
 
     modifyBiography = ()=>{
-        alert("Da fare")
+        props.nav.navigate("NewBiography")
     }
 
     return(
         <View style={styles.biographyContainer}>
             <View style={styles.biography}>
                 <View style={{flexDirection:"row", justifyContent:"space-between"}}>
-                    <Text style={{fontWeight:"bold"}}>Biografia</Text>
+                    <Text style={{fontWeight:"bold",fontSize:wp("5%")}}>Biography</Text>
                     <Icon onPress={modifyBiography} name='pencil' type='evilicon' size={30}/>
 
                 </View>
@@ -31,10 +32,14 @@ function Biography(props){
     )
 }
 
-function NameAndSurname(props) {
+function UserInfo(props) {
+    const years = 22
     return(
-        <View style={styles.nameAndSurname}>
-            <Text style={styles.infoUser}>{props.name} {props.surname}</Text>
+        <View style={styles.infoUser}>
+            <Text style={styles.nameAndSurnameText}>
+                {props.userInfo.name} {props.userInfo.surname}
+            </Text>
+            <Text style={styles.infoUserText}>{years} years old</Text>
         </View>
     )
 }
@@ -57,9 +62,7 @@ function PhotoProfile(props) {
 
     return(
         <TouchableWithoutFeedback onPress={uploadImg}>
-            <Image
-                style={styles.photoProfile}
-                source={{uri: props.photoPath}}/>
+            <Image style={styles.avatar} source={{uri: props.photoPath}}/>
         </TouchableWithoutFeedback>
     )
 }
@@ -108,7 +111,12 @@ function Feedbacks(props){
     return(
         <View style={styles.biographyContainer}>
             <View style={styles.biography}>
-                <Text style={{fontWeight:"bold"}}>Feedbacks</Text>
+                <Text style={{
+                    fontWeight:"bold",
+                    fontSize:wp("5%")
+                }}>
+                    Feedbacks
+                </Text>
                 {
                     props.feedbacks != ""
                         ? <FeedbacksOverview feedbacks={props.feedbacks}/>
@@ -131,27 +139,41 @@ export default class ProfileTab extends Component {
     }
 
     componentDidMount(){
-        LocalStateHandler.retrieveUserInfo().then(
-            user => {
-                this.setState({
-                    user: user,
-                    loadingDone: true
-                })
-            }
-        )
+        LocalStateHandler.retrieveUserInfo().then(user => {
+            this.setState({
+                user: user,
+                loadingDone: true
+            })
+        })
     }
 
     render() {
         if (this.state.loadingDone){
             return(
                 <ScrollView contentContainerStyle={styles.container}>
-                    <View style={styles.viewContainer}>
-                        <View style={styles.userTop}>
-                            <PhotoProfile photoPath={this.state.user.photoPath} userId={this.state.user.id}/>
-                            <NameAndSurname name={this.state.user.name} surname={this.state.user.surname}/>
+                    <View>
+                        <View style={styles.header}></View>
+                        <IconButton
+                            style={styles.settingsButton}
+                            color={Colors.white}
+                            icon="settings"
+                            size={30}
+                            onPress={() => this.props.navigation.navigate('Settings')}
+                        />
+
+                        <IconButton
+                            icon="add-a-photo"
+                            color={Colors.white}
+                            style={styles.photoButton}
+                            size={30}
+                        />
+                        <PhotoProfile photoPath={this.state.user.photoPath} userId={this.state.user.id}/>
+
+                        <View style={styles.bodyContent}>
+                            <UserInfo userInfo={this.state.user}/>
+                            <Biography bio={this.state.user.bio} nav={this.props.navigation}/>
+                            <Feedbacks feedbacks={this.state.user.feedbacks}/>
                         </View>
-                        <Biography bio={this.state.user.bio}/>
-                        <Feedbacks feedbacks={this.state.user.feedbacks}/>
                     </View>
                 </ScrollView>
             )
@@ -162,13 +184,6 @@ export default class ProfileTab extends Component {
 }
 
 const styles = StyleSheet.create({
-    container: {
-        backgroundColor: '#F5FCFF',
-        alignItems: 'center'
-    },
-    viewContainer:{
-        flex:1
-    },
     biographyContainer: {
         fontSize: hp("30%"),
         textAlign: 'center',
@@ -176,34 +191,75 @@ const styles = StyleSheet.create({
         borderRadius: 7,
         borderWidth: 0.5,
         width: wp("95%"),
-        margin: hp("1%")
+        margin: hp("1%"),
     },
     biography:{
-        margin: wp("3%")
+        margin: wp("4%"),
     },
     infoUser:{
+        flex: 1,
+        width: wp("80%"),
+        fontWeight:'600',
+        borderColor: 'black',
+        borderWidth: 0.5,
+        borderRadius: 7,
+        marginTop: hp("5%"),
+    },
+    nameAndSurnameText:{
         fontSize:wp("7%"),
         flex: 1,
-        flexWrap: 'wrap',
-        marginLeft: 20
+        fontWeight:'600',
+        textAlign:"center"
     },
-    userTop:{
-        flexDirection: 'row',
-        margin: 20,
-        marginTop: 30
+    infoUserText:{
+        fontSize:wp("5%"),
+        flex: 1,
+        fontWeight:'300',
+        marginLeft: 0,
+        textAlign:"center"
     },
     nameAndSurname:{
-        flex:1,
-        margin:hp("3%")
-    },
-    photoProfile:{
-        width: wp("40%"),
-        height: wp("40%"),
-        borderRadius: wp("40%")
+        flex:1
     },
     photoTravelerProfile:{
         width: wp("20%"),
         height: wp("20%"),
         borderRadius: wp("20%")
+    },
+    header:{
+        backgroundColor: "#52c8ff",
+        height:hp("30%"),
+    },
+    bodyContent: {
+        flex: 1,
+        alignItems: 'center',
+        padding:hp("10%"),
+        backgroundColor: "white"
+    },
+    avatar: {
+        width: wp("50%"),
+        height: wp("50%"),
+        borderRadius: wp("40%"),
+        borderWidth: 4,
+        borderColor: "white",
+        alignSelf:'center',
+        position: 'absolute',
+        marginTop:wp("20%"),
+        zIndex:9
+    },
+    settingsButton:{
+        position: 'absolute',
+        marginTop:hp("5%"),
+        marginLeft:wp("85%")
+    },
+    photoButton:{
+        width: wp("10%"),
+        height: wp("10%"),
+        borderRadius: wp("10%"),
+        position: 'absolute',
+        marginTop:hp("20%"),
+        marginLeft:wp("65%"),
+        zIndex:10,
+        backgroundColor:"dodgerblue"
     }
 });

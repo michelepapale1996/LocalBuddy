@@ -18,6 +18,8 @@ import FutureMeetings from "./screens/FutureMeetings"
 import PastMeetings from "./screens/PastMeetings"
 import NewMeeting from "./screens/NewMeeting";
 import Feedback from "./screens/Feedback";
+import NewBiography from "./screens/NewBiography";
+import { Provider as PaperProvider } from 'react-native-paper';
 
 const SearchTab = createStackNavigator({
     Home: {
@@ -85,6 +87,25 @@ const FutureMeetingsTabNavigator = createStackNavigator({
     }
 })
 
+const ProfileTabNavigator = createStackNavigator({
+    Profile:{
+        screen: ProfileTab,
+        navigationOptions: {
+            header: null
+        }
+    },
+    Settings: {
+        screen: SettingsTab,
+        navigationOptions: {
+            title: "Settings"
+        }
+    },
+    NewBiography: {
+        screen: NewBiography
+    }
+})
+
+
 const TabNavigator = createBottomTabNavigator({
     Search: {
         screen: SearchTab,
@@ -99,7 +120,7 @@ const TabNavigator = createBottomTabNavigator({
         }
     },
     Profile: {
-        screen: ProfileTab,
+        screen: ProfileTabNavigator,
         navigationOptions:{
             tabBarIcon:<Icon name="user" type='feather' size={26}/>
         }
@@ -108,12 +129,6 @@ const TabNavigator = createBottomTabNavigator({
         screen: FutureMeetingsTabNavigator,
         navigationOptions:{
             tabBarIcon:<Icon name="organization" type='octicon' size={26}/>
-        }
-    },
-    Settings: {
-        screen: SettingsTab,
-        navigationOptions:{
-            tabBarIcon:<Icon name="settings" size={26}/>
         }
     }
 });
@@ -130,4 +145,15 @@ const App = createSwitchNavigator(
     }
 )
 
-export default createAppContainer(App);
+const AppContainer = createAppContainer(App)
+class Application extends React.Component {
+    render() {
+        return (
+            <PaperProvider>
+                <AppContainer/>
+            </PaperProvider>
+        );
+    }
+}
+
+export default Application;

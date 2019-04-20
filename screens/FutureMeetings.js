@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import {StyleSheet, Text, View, Image, ScrollView, FlatList} from 'react-native';
-import { Button } from 'react-native-elements'
+import { Button, FAB } from 'react-native-paper';
 import LoadingComponent from '../components/LoadingComponent'
 import UserHandler from "../res/UserHandler";
 import {heightPercentageToDP as hp, widthPercentageToDP as wp} from "react-native-responsive-screen"
@@ -18,44 +18,51 @@ function NewProposals(props){
             props.deniedMeeting(idOpponent)
         })
     }
-
-    return(
-        <View style={styles.container}>
-            <Text style={styles.header}>New Proposals</Text>
-            <FlatList
-                data={props.new}
-                renderItem={
-                    ({item}) => (
-                        <View style={styles.userContainer}>
-                            <Image
-                                style={styles.userPhoto}
-                                source={{uri: item.urlPhoto}}/>
-                            <View style={styles.userInfoContainer}>
-                                <Text style={styles.text}>{item.nameAndSurname}</Text>
-                                <Text>{item.date} {item.time}</Text>
+    if(props.new.length != 0){
+        return(
+            <View style={styles.container}>
+                <Text style={styles.header}>New Proposals</Text>
+                <FlatList
+                    data={props.new}
+                    renderItem={
+                        ({item}) => (
+                            <View style={styles.userContainer}>
+                                <Image
+                                    style={styles.userPhoto}
+                                    source={{uri: item.urlPhoto}}/>
+                                <View style={styles.userInfoContainer}>
+                                    <Text style={styles.text}>{item.nameAndSurname}</Text>
+                                    <Text>{item.date} {item.time}</Text>
+                                </View>
+                                <Button
+                                    containerViewStyle={styles.button}
+                                    buttonStyle={styles.button}
+                                    onPress={() => acceptMeeting(item.idOpponent)}
+                                    backgroundColor="blue"
+                                    title="Accept"
+                                />
+                                <Button
+                                    containerViewStyle={styles.button}
+                                    buttonStyle={styles.button}
+                                    onPress={() => denyMeeting(item.idOpponent)}
+                                    backgroundColor="red"
+                                    title="Deny"
+                                />
                             </View>
-                            <Button
-                                containerViewStyle={styles.button}
-                                buttonStyle={styles.button}
-                                onPress={() => acceptMeeting(item.idOpponent)}
-                                backgroundColor="blue"
-                                title="Accept"
-                            />
-                            <Button
-                                containerViewStyle={styles.button}
-                                buttonStyle={styles.button}
-                                onPress={() => denyMeeting(item.idOpponent)}
-                                backgroundColor="red"
-                                title="Deny"
-                            />
-                        </View>
-                    )
-                }
-                keyExtractor={(item, index) => index.toString()}
-                showsVerticalScrollIndicator={false}
-            />
-        </View>
-    )
+                        )
+                    }
+                    keyExtractor={(item, index) => index.toString()}
+                    showsVerticalScrollIndicator={false}
+                />
+            </View>)
+    }else{
+        return(
+            <View style={styles.container}>
+                <Text style={styles.header}>New Proposals</Text>
+                <Text style={styles.text}>You do not have any proposals.</Text>
+            </View>
+        )
+    }
 }
 
 function AlreadyFixedMeetings(props){
@@ -65,36 +72,46 @@ function AlreadyFixedMeetings(props){
         })
     }
 
-    return(
-        <View style={styles.container}>
-            <Text style={styles.header}>Fixed Proposals</Text>
-            <FlatList
-                data={props.fixed}
-                renderItem={
-                    ({item}) => (
-                        <View style={styles.userContainer}>
-                            <Image
-                                style={styles.userPhoto}
-                                source={{uri: item.urlPhoto}}/>
-                            <View style={styles.userInfoContainer}>
-                                <Text style={styles.text}>{item.nameAndSurname}</Text>
-                                <Text>{item.date} {item.time}</Text>
+    if(props.fixed.length != 0){
+        return(
+            <View style={styles.container}>
+                <Text style={styles.header}>Fixed Proposals</Text>
+                <FlatList
+                    data={props.fixed}
+                    renderItem={
+                        ({item}) => (
+                            <View style={styles.userContainer}>
+                                <Image
+                                    style={styles.userPhoto}
+                                    source={{uri: item.urlPhoto}}/>
+                                <View style={styles.userInfoContainer}>
+                                    <Text style={styles.text}>{item.nameAndSurname}</Text>
+                                    <Text>{item.date} {item.time}</Text>
+                                </View>
+                                <Button
+                                    containerViewStyle={styles.button}
+                                    buttonStyle={styles.button}
+                                    onPress={() => denyMeeting(item.idOpponent)}
+                                    backgroundColor="red"
+                                    title="Delete"
+                                />
                             </View>
-                            <Button
-                                containerViewStyle={styles.button}
-                                buttonStyle={styles.button}
-                                onPress={() => denyMeeting(item.idOpponent)}
-                                backgroundColor="red"
-                                title="Delete"
-                            />
-                        </View>
-                    )
-                }
-                keyExtractor={(item, index) => index.toString()}
-                showsVerticalScrollIndicator={false}
-            />
-        </View>
-    )
+                        )
+                    }
+                    keyExtractor={(item, index) => index.toString()}
+                    showsVerticalScrollIndicator={false}
+                />
+            </View>
+        )
+    }else{
+        return(
+            <View style={styles.container}>
+                <Text style={styles.header}>Fixed Proposals</Text>
+                <Text style={styles.text}>You do not have any proposals.</Text>
+            </View>
+        )
+    }
+
 }
 
 function PendingMeetings(props){
@@ -104,36 +121,45 @@ function PendingMeetings(props){
         })
     }
 
-    return(
-        <View style={styles.container}>
-            <Text style={styles.header}>Pending Meetings</Text>
-            <FlatList
-                data={props.pending}
-                renderItem={
-                    ({item}) => (
-                        <View style={styles.userContainer}>
-                            <Image
-                                style={styles.userPhoto}
-                                source={{uri: item.urlPhoto}}/>
-                            <View style={styles.userInfoContainer}>
-                                <Text style={styles.text}>{item.nameAndSurname}</Text>
-                                <Text>{item.date} {item.time}</Text>
+    if(props.pending.length != 0){
+        return(
+            <View style={styles.container}>
+                <Text style={styles.header}>Pending Meetings</Text>
+                <FlatList
+                    data={props.pending}
+                    renderItem={
+                        ({item}) => (
+                            <View style={styles.userContainer}>
+                                <Image
+                                    style={styles.userPhoto}
+                                    source={{uri: item.urlPhoto}}/>
+                                <View style={styles.userInfoContainer}>
+                                    <Text style={styles.text}>{item.nameAndSurname}</Text>
+                                    <Text>{item.date} {item.time}</Text>
+                                </View>
+                                <Button
+                                    containerViewStyle={styles.button}
+                                    buttonStyle={styles.button}
+                                    onPress={() => denyMeeting(item.idOpponent)}
+                                    backgroundColor="red"
+                                    title="Delete"
+                                />
                             </View>
-                            <Button
-                                containerViewStyle={styles.button}
-                                buttonStyle={styles.button}
-                                onPress={() => denyMeeting(item.idOpponent)}
-                                backgroundColor="red"
-                                title="Delete"
-                            />
-                        </View>
-                    )
-                }
-                keyExtractor={(item, index) => index.toString()}
-                showsVerticalScrollIndicator={false}
-            />
-        </View>
-    )
+                        )
+                    }
+                    keyExtractor={(item, index) => index.toString()}
+                    showsVerticalScrollIndicator={false}
+                />
+            </View>
+        )
+    }else{
+        return(
+            <View style={styles.container}>
+                <Text style={styles.header}>Pending Meetings</Text>
+                <Text style={styles.text}>You do not have any pending meeting.</Text>
+            </View>
+        )
+    }
 }
 
 export default class FutureMeetings extends Component{
@@ -272,16 +298,13 @@ export default class FutureMeetings extends Component{
                             pending={this.state.pendingMeetings}
                             deniedMeeting={this.deniedMeeting}/>
                     </ScrollView>
-                    <Button
-                        icon={{
-                            name: "add",
-                            size: 30,
-                            color: "blue"
-                        }}
+                    <FAB
+                        style={styles.fab}
+                        color={"white"}
+                        icon="add"
                         onPress={() => this.props.navigation.navigate('NewMeeting', {
                             addPendingMeeting: this.addPendingMeeting
                         })}
-                        buttonStyle={styles.newMeetingButton}
                     />
                 </View>
             )
@@ -340,19 +363,11 @@ const styles = StyleSheet.create({
         marginRight:0,
         borderRadius: 25
     },
-    newMeetingButton:{
+    fab: {
         position: 'absolute',
-        bottom: 10,
+        margin: 16,
         right: 0,
-        left: 300,
-        width: wp("15%"),
-        height: wp("15%"),
-        borderRadius: wp("15%"),
-        borderWidth: 1,
-        borderColor: 'blue',
-        backgroundColor: 'aquamarine',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-    }
+        bottom: 0,
+        backgroundColor: "#52c8ff"
+    },
 });

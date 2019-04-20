@@ -142,7 +142,7 @@ function LogOut(props) {
 export default class Settings extends Component {
     static navigationOptions = () => {
         return {
-            title: "Settings"
+            header: null
         };
     };
 
