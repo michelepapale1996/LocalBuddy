@@ -1,11 +1,14 @@
 import IP_ADDRESS from '../ip'
 import firebase from "react-native-firebase"
+import LocalStateHandler from "./LocalStateHandler";
+import ConnectyCubeHandler from "./ConnectyCubeHandler";
+import ChatsHandler from "./ChatsHandler";
 
 class AccountHandler {
-    static signUp(idAccount, name, surname, username, isBuddy){
+    static signUp(idAccount, name, surname, username, isBuddy, sex, ccUserId, birthDate){
         //to do request to backend, we have to authenticate the client
         firebase.auth().currentUser.getIdToken(true).then(function(idToken) {
-            return fetch(IP_ADDRESS + "/api/Accounts/" + idAccount, {
+            return fetch(IP_ADDRESS + "/api/users/" + idAccount, {
                 method: "POST",
                 headers: {
                     Accept: 'application/json',
@@ -16,7 +19,10 @@ class AccountHandler {
                     surname: surname,
                     username: username,
                     isBuddy: isBuddy,
-                    idToken: idToken
+                    idToken: idToken,
+                    sex: sex,
+                    ccUserId: ccUserId,
+                    birthDate: birthDate
                 })
             }).catch( err => {
                 console.log("Error", err)
@@ -53,6 +59,39 @@ class AccountHandler {
                     reject(error.toString())
                 })
             }
+        })
+    }
+
+    static deleteAccount = () => {
+        const idUser = firebase.auth().currentUser.uid
+        //to do request to backend, we have to authenticate the client
+        return firebase.auth().currentUser.getIdToken(true).then(function(id) {
+            return fetch(IP_ADDRESS + "/api/users/" + idUser, {
+                method: "DELETE",
+                headers: {
+                    Accept: 'application/json',
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    idToken: id
+                })
+            }).catch( err => {
+                console.log("Error", err)
+                return null
+            })
+        }).then(()=>{
+            //ChatsHandler.deleteChats()
+            ConnectyCubeHandler.deleteUser()
+            return AccountHandler.logOut()
+        }).catch(function(error) {
+            console.log("Error in retrieving idToken from firebase.auth()", error)
+            return null
+        });
+    }
+
+    static logOut = ()=>{
+        return firebase.auth().signOut().then(()=>{
+            //LocalStateHandler.clearStorage()
         })
     }
 }

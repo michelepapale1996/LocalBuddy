@@ -1,10 +1,8 @@
 import React from 'react'
-import { View, Text, ActivityIndicator, StyleSheet, ToastAndroid } from 'react-native'
 import firebase from 'react-native-firebase'
-import LocalStateHandler from "../res/LocalStateHandler";
-import ConnectyCubeHandler from "../res/ConnectyCubeHandler";
-import SingleChatHandler from "../res/SingleChatHandler";
 import LoadingComponent from "../components/LoadingComponent";
+import LoadingHandler from "../res/LoadingHandler";
+import ChatsHandler from "../res/ChatsHandler";
 var PushNotification = require('react-native-push-notification');
 
 export default class Loading extends React.Component {
@@ -90,16 +88,11 @@ export default class Loading extends React.Component {
         firebase.auth().onAuthStateChanged(user => {
             if(!this.authFlag) {
                 this.authFlag = true
-
                 if (user) {
-                    ConnectyCubeHandler.setInstance(user.uid).then(() => {
-
-                        const CCUserId = ConnectyCubeHandler.getCCUserId()
-                        SingleChatHandler.connectToChat(CCUserId, 'LocalBuddy')
-
-                        //current user must have his info in local
-                        return LocalStateHandler.handleLocalState(user.uid)
-                    }).then(() => this.props.navigation.navigate('Home'))
+                    //user is logged
+                    LoadingHandler.initApp(user.uid).then(()=>{
+                        this.props.navigation.navigate('Home')
+                    })
                 } else {
                     this.props.navigation.navigate('Login')
                 }
@@ -113,10 +106,3 @@ export default class Loading extends React.Component {
         )
     }
 }
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-    }
-})

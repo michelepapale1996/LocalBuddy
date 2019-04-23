@@ -1,7 +1,8 @@
 import React, {Component} from 'react';
-import {StyleSheet, Text, View, FlatList, ActivityIndicator} from 'react-native';
+import {StyleSheet, View, FlatList, ActivityIndicator} from 'react-native';
 import CityHandler from "../res/CityHandler";
 import LoadingComponent from "../components/LoadingComponent";
+import { Text } from 'react-native-paper';
 
 export default class CityChosen extends Component {
     cityId = this.props.navigation.getParam('cityId', 'Error');

@@ -15,38 +15,66 @@ class ConnectyCubeHandler{
     static CCinstance = null
     static CCUserId = null
 
+    //called by connectyCube
     static onMessage(userId, message) {
         MessagesUpdatesHandler.updateFromConnectyCube(message, userId)
     }
 
-    static init(userId){
-        return UserHandler.getUsername(userId).then(
-            username => {
-                ConnectyCubeHandler.CCinstance = new cc.ConnectyCube()
-                ConnectyCubeHandler.CCinstance.init(CREDENTIALS,CONFIG);
-                return ConnectyCubeHandler._createSession(username, 'LocalBuddy')
-            }
-        )
-    }
-
-    static _createSession(username, pwd){
-        var userCredentials = {login: username, password: pwd};
-        return new Promise((resolve, reject) => {
-            ConnectyCubeHandler.CCinstance.createSession(userCredentials, function(error, session) {
+    static setInstance(){
+        return new Promise((resolve,reject) =>{
+            ConnectyCubeHandler.CCinstance = new cc.ConnectyCube()
+            ConnectyCubeHandler.CCinstance.init(CREDENTIALS,CONFIG);
+            ConnectyCubeHandler.CCinstance.createSession(function(error, session) {
                 if(error !== null) reject(error)
-                ConnectyCubeHandler.CCinstance.chat.onMessageListener = ConnectyCubeHandler.onMessage;
                 resolve(session)
-            });
+            })
         })
     }
 
-    static setInstance(userId){
-        return ConnectyCubeHandler.init(userId).then(
-            session => {
-                ConnectyCubeHandler.CCUserId = session.user_id
-                return ConnectyCubeHandler.CCinstance
-            }
-        )
+    //create a session for the user (IN CASE OF LOGIN)
+    static createSession(userId){
+        return new Promise((resolve, reject) => {
+            UserHandler.getUsername(userId).then(username => {
+                var userCredentials = {login: username, password: 'LocalBuddy'};
+                ConnectyCubeHandler.CCinstance.createSession(userCredentials, function (error, session) {
+                    if (error !== null) reject(error)
+                    ConnectyCubeHandler.CCUserId = session.user_id
+                    ConnectyCubeHandler.CCinstance.chat.onMessageListener = ConnectyCubeHandler.onMessage;
+                    resolve(session)
+                });
+            })
+        })
+    }
+
+    static signUp(login, id){
+        const userProfile = {
+            'login': login,
+            'password': "LocalBuddy",
+            'custom_data': id
+        }
+
+        return new Promise((resolve, reject) => {
+            ConnectyCubeHandler.CCinstance.users.signup(userProfile, function(error, user){
+                if(error !== null) reject(error)
+                resolve(user)
+            })
+        })
+    }
+
+    //in case of SIGN UP
+    static login(username){
+        return new Promise((resolve, reject) => {
+            ConnectyCubeHandler.CCinstance.login({login: username, password: 'LocalBuddy'}, function(error, user){
+                if(error !== null) reject(error)
+                ConnectyCubeHandler.CCUserId = user.id
+                resolve(user)
+            })
+        })
+    }
+
+    static deleteUser(){
+        ConnectyCubeHandler.CCinstance.users.delete(function(error){
+        });
     }
 
     static getInstance(){

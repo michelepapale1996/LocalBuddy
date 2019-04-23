@@ -1,10 +1,11 @@
 import React, {Component} from 'react';
-import {StyleSheet, Text, View, Image, ScrollView, FlatList} from 'react-native';
+import {StyleSheet, View, Image, ScrollView, FlatList} from 'react-native';
 import { Button, FAB } from 'react-native-paper';
 import LoadingComponent from '../components/LoadingComponent'
 import UserHandler from "../res/UserHandler";
 import {heightPercentageToDP as hp, widthPercentageToDP as wp} from "react-native-responsive-screen"
 import MeetingsHandler from "../res/MeetingsHandler";
+import { Text } from 'react-native-paper';
 
 function NewProposals(props){
     acceptMeeting = (idOpponent)=>{

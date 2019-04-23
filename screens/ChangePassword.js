@@ -1,6 +1,7 @@
 import React from 'react'
-import { View, TextInput, StyleSheet, Text, Button } from 'react-native'
+import { View, StyleSheet, Button } from 'react-native'
 import AccountHandler from "../res/AccountHandler";
+import { Text, TextInput } from 'react-native-paper';
 
 export default class ChangePassword extends React.Component {
     state = { oldPassword: '', newPassword: '', errorMessage: null , repeatNewPassword: ""}

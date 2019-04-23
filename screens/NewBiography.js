@@ -1,8 +1,9 @@
 import React, {Component} from "react";
-import {StyleSheet, Text, View, FlatList, TextInput} from 'react-native';
+import {StyleSheet, View } from 'react-native';
 import {heightPercentageToDP as hp, widthPercentageToDP as wp} from "react-native-responsive-screen"
 import LoadingComponent from '../components/LoadingComponent'
 import { Button } from 'react-native-elements'
+import { TextInput, Text } from 'react-native-paper';
 
 export default class NewBiography extends Component {
     static navigationOptions = ({ navigation }) => {
@@ -48,9 +49,12 @@ export default class NewBiography extends Component {
                     <View style={styles.container}>
                         <Text style={styles.text}>Insert the biography</Text>
                         <TextInput
-                            style={{height: 50, borderColor: 'gray', borderWidth: 1}}
+                            mode={"outlined"}
+                            multiline={true}
                             onChangeText={(text) => this.setState({text})}
                             value={this.state.text}
+                            selectionColor={"black"}
+                            underlineColor={"black"}
                         />
                     </View>
                 </View>

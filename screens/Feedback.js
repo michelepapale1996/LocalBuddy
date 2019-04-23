@@ -1,10 +1,11 @@
 import React, {Component} from "react";
-import {StyleSheet, Text, View, TextInput} from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import {heightPercentageToDP as hp, widthPercentageToDP as wp} from "react-native-responsive-screen"
 import LoadingComponent from '../components/LoadingComponent'
 import { Button } from 'react-native-elements'
 import StarRating from 'react-native-star-rating';
 import UserHandler from "../res/UserHandler";
+import { Text, TextInput} from 'react-native-paper';
 
 export default class Feedback extends Component {
     static navigationOptions = ({ navigation }) => {

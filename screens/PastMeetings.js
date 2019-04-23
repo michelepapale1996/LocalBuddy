@@ -1,10 +1,11 @@
 import React, {Component} from 'react';
-import {StyleSheet, Text, View, Image, ScrollView, FlatList} from 'react-native';
+import {StyleSheet, View, Image, ScrollView, FlatList} from 'react-native';
 import { Button } from 'react-native-elements'
 import LoadingComponent from '../components/LoadingComponent'
 import UserHandler from "../res/UserHandler";
 import {heightPercentageToDP as hp, widthPercentageToDP as wp} from "react-native-responsive-screen"
 import MeetingsHandler from "../res/MeetingsHandler";
+import { Text } from 'react-native-paper';
 
 export default class PastMeetings extends Component{
     constructor(props){

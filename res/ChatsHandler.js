@@ -11,6 +11,8 @@ class ChatsHandler {
 
             ConnectyCubeHandler.getInstance().users.get(searchParams, function(error, res){
                 if(error !== null) reject(error);
+                //if the user is a deleted user
+                if(res.items[0].user == undefined) resolve(null)
                 else resolve(res.items[0].user.custom_data)
             })
         })
@@ -37,12 +39,20 @@ class ChatsHandler {
         }).catch( err => console.log("Errore: ", err))
     }
 
+    //retrieve the list of the chats of the user
     static getChatsAsync(){
         return new Promise((resolve, reject) => {
             ConnectyCubeHandler.getInstance().chat.dialog.list({}, function(error, dialogs) {
                 if (error!==null) reject(error)
-
                 resolve(dialogs.items)
+            })
+        })
+    }
+
+    static deleteChats(){
+        return ChatsHandler.getChatsAsync().then(chats=>{
+            chats.forEach(elem => {
+                ConnectyCubeHandler.getInstance().chat.dialog.delete([elem._id], function(error) {})
             })
         })
     }

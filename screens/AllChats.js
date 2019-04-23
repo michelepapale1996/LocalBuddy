@@ -1,9 +1,10 @@
 import React, {Component} from 'react';
-import {StyleSheet, Text, View, Button, FlatList, ActivityIndicator, Image, TouchableWithoutFeedback} from 'react-native';
+import {StyleSheet, View, Button, FlatList, ActivityIndicator, Image, TouchableWithoutFeedback} from 'react-native';
 import {widthPercentageToDP as wp, heightPercentageToDP as hp} from "react-native-responsive-screen";
 import ChatsHandler from "../res/ChatsHandler";
 import MessagesUpdatesHandler from "../res/MessagesUpdatesHandler";
 import LoadingComponent from '../components/LoadingComponent'
+import { Text } from 'react-native-paper';
 
 function Chat(props) {
     const lastMessageTime = props.getTime(props.item.createdAt)

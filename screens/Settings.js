@@ -1,11 +1,13 @@
 import React, {Component} from 'react';
-import {StyleSheet, Text, View, Alert, ScrollView, TouchableWithoutFeedback} from 'react-native';
+import {StyleSheet, View, Alert, ScrollView, TouchableWithoutFeedback} from 'react-native';
 import firebase from 'react-native-firebase'
 import LocalStateHandler from "../res/LocalStateHandler";
 import UserHandler from "../res/UserHandler";
 import {heightPercentageToDP as hp, widthPercentageToDP as wp} from "react-native-responsive-screen";
 import LoadingComponent from '../components/LoadingComponent'
 import CitiesOfBuddy from "./CitiesOfBuddy";
+import { Text } from 'react-native-paper';
+import AccountHandler from "../res/AccountHandler";
 
 function BuddyComponent(props){
 
@@ -77,7 +79,13 @@ function ChangePassword(props) {
     )
 }
 
-function DeleteAccount() {
+function DeleteAccount(props) {
+    deleteAccount = () =>{
+        AccountHandler.deleteAccount().then(()=>{
+            props.nav.navigate('Loading')
+        })
+    }
+
     deleteAlert = () => {
         Alert.alert(
             'Delete account',
@@ -85,10 +93,9 @@ function DeleteAccount() {
             [
                 {
                     text: 'Cancel',
-                    onPress: () => console.log('Cancel Pressed'),
                     style: 'cancel'
                 },
-                {text: 'OK', onPress: () => console.log('OK Pressed')},
+                {text: 'OK', onPress: () => this.deleteAccount()},
             ],
             {cancelable: true}
         );
@@ -117,11 +124,8 @@ function LogOut(props) {
                 {
                     text: 'OK',
                     onPress: () => {
-                        firebase.auth().signOut().then(() => {
-                            LocalStateHandler.clearStorage()
+                        AccountHandler.logOut().then(() => {
                             props.nav.navigate('Loading')
-                        }).catch(function(error) {
-                            console.log(error)
                         })
                     }
                 },
@@ -142,7 +146,7 @@ function LogOut(props) {
 export default class Settings extends Component {
     static navigationOptions = () => {
         return {
-            header: null
+            title: "Settings"
         };
     };
 
@@ -182,7 +186,7 @@ export default class Settings extends Component {
                         <View style={styles.container}>
                             <Text style={styles.header}>Account</Text>
                             <ChangePassword nav={this.props.navigation}/>
-                            <DeleteAccount/>
+                            <DeleteAccount nav={this.props.navigation}/>
                             <LogOut nav={this.props.navigation}/>
                         </View>
                     </ScrollView>

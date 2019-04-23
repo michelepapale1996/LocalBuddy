@@ -19,7 +19,7 @@ import PastMeetings from "./screens/PastMeetings"
 import NewMeeting from "./screens/NewMeeting";
 import Feedback from "./screens/Feedback";
 import NewBiography from "./screens/NewBiography";
-import { Provider as PaperProvider } from 'react-native-paper';
+import { DefaultTheme, Provider as PaperProvider } from 'react-native-paper';
 
 const SearchTab = createStackNavigator({
     Home: {
@@ -47,21 +47,6 @@ const ChatTab = createStackNavigator({
         screen: BuddyProfile
     }
 });
-
-const SettingsTab = createStackNavigator({
-    Settings:{
-        screen: Settings
-    },
-    ChangePassword:{
-        screen: ChangePassword
-    },
-    WhoCanFindMe:{
-        screen: WhoCanFindMe
-    },
-    CitiesOfBuddy:{
-        screen: CitiesOfBuddy
-    }
-})
 
 const MeetingsTab = createMaterialTopTabNavigator({
     FutureMeetings:{
@@ -94,11 +79,17 @@ const ProfileTabNavigator = createStackNavigator({
             header: null
         }
     },
-    Settings: {
-        screen: SettingsTab,
-        navigationOptions: {
-            title: "Settings"
-        }
+    Settings:{
+        screen: Settings
+    },
+    ChangePassword:{
+        screen: ChangePassword
+    },
+    WhoCanFindMe:{
+        screen: WhoCanFindMe
+    },
+    CitiesOfBuddy:{
+        screen: CitiesOfBuddy
     },
     NewBiography: {
         screen: NewBiography
@@ -119,16 +110,16 @@ const TabNavigator = createBottomTabNavigator({
             tabBarIcon:<Icon name="chat" size={26}/>
         }
     },
+    MyMeetings: {
+    screen: FutureMeetingsTabNavigator,
+        navigationOptions:{
+            tabBarIcon:<Icon name="organization" type='octicon' size={26}/>
+        }
+    },
     Profile: {
         screen: ProfileTabNavigator,
         navigationOptions:{
             tabBarIcon:<Icon name="user" type='feather' size={26}/>
-        }
-    },
-    MyMeetings: {
-        screen: FutureMeetingsTabNavigator,
-        navigationOptions:{
-            tabBarIcon:<Icon name="organization" type='octicon' size={26}/>
         }
     }
 });
@@ -146,10 +137,19 @@ const App = createSwitchNavigator(
 )
 
 const AppContainer = createAppContainer(App)
+const theme = {
+    ...DefaultTheme,
+    roundness: 2,
+    colors: {
+        ...DefaultTheme.colors,
+        primary: '#3498db',
+        accent: '#f1c40f',
+    }
+};
 class Application extends React.Component {
     render() {
         return (
-            <PaperProvider>
+            <PaperProvider theme={theme}>
                 <AppContainer/>
             </PaperProvider>
         );

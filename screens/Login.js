@@ -1,58 +1,20 @@
 import React from 'react'
-import { StyleSheet, Text, TextInput, View, Button } from 'react-native'
+import { StyleSheet, View, Button } from 'react-native'
 import firebase from 'react-native-firebase'
+import { Text, TextInput } from 'react-native-paper'
+import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen'
 import ConnectyCubeHandler from "../res/ConnectyCubeHandler";
-import SingleChatHandler from "../res/SingleChatHandler";
-import LocalStateHandler from "../res/LocalStateHandler";
 
 export default class Login extends React.Component {
     state = { email: '', password: '', errorMessage: null }
 
     handleLogin = () => {
         const { email, password } = this.state;
-        firebase
-            .auth()
-            .signInWithEmailAndPassword(email, password)
-            .then(() => {
-                //push notifications
-                firebase.messaging().hasPermission().then(enabled => {
-                    if (enabled) {
-                        const uid = firebase.auth().currentUser.uid
-                        ConnectyCubeHandler.setInstance(uid).then(() => {
-                            firebase.messaging().getToken().then(token => {
-                                var params = {
-                                    notification_channel: 'gcm',
-                                    device: {
-                                        platform: 'android',
-                                        udid: token
-                                    },
-                                    push_token: {
-                                        environment: 'development',
-                                        client_identification_sequence: token
-                                    }
-                                };
-
-                                ConnectyCubeHandler.getInstance().pushnotifications.subscriptions.create(params, function (error, result) {
-                                });
-
-                            })
-                        })
-                    } else {
-                        firebase.messaging().requestPermission()
-                            .then(() => {
-                                alert("User Now Has Permission")
-                            })
-                            .catch(error => {
-                                console.log(error)
-                                alert("Error", error)
-                                // User has rejected permissions
-                            });
-                    }
-                });
-                this.props.navigation.navigate('Loading')
-            })
-            .catch(error => this.setState({ errorMessage: error.message }))
+        firebase.auth().signInWithEmailAndPassword(email, password).then(() => {
+            this.props.navigation.navigate('Loading')
+        }).catch(error => this.setState({ errorMessage: error.message }))
     }
+
     render() {
         return (
             <View style={styles.container}>
@@ -62,19 +24,19 @@ export default class Login extends React.Component {
                     {this.state.errorMessage}
                 </Text>}
                 <TextInput
-                    style={styles.textInput}
-                    autoCapitalize="none"
-                    placeholder="Email"
+                    mode={"outlined"}
+                    label="Email"
                     onChangeText={email => this.setState({ email })}
                     value={this.state.email}
+                    style={styles.textInput}
                 />
                 <TextInput
+                    mode={"outlined"}
                     secureTextEntry
-                    style={styles.textInput}
-                    autoCapitalize="none"
-                    placeholder="Password"
+                    label="Password"
                     onChangeText={password => this.setState({ password })}
                     value={this.state.password}
+                    style={styles.textInput}
                 />
                 <Button title="Login" onPress={this.handleLogin} />
                 <Button
@@ -92,10 +54,8 @@ const styles = StyleSheet.create({
         alignItems: 'center'
     },
     textInput: {
-        height: 40,
+        height: hp("7%"),
         width: '90%',
-        borderColor: 'gray',
-        borderWidth: 1,
         marginTop: 8
     }
 })

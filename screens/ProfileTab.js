@@ -1,12 +1,12 @@
 import React, {Component} from 'react';
-import {StyleSheet, Text, View, Image, ScrollView, TouchableWithoutFeedback, AsyncStorage,ActivityIndicator} from 'react-native';
+import {StyleSheet, View, Image, ScrollView, TouchableWithoutFeedback} from 'react-native';
 import firebase from "react-native-firebase"
 import ImagePicker from 'react-native-image-picker';
 import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen';
 import {Icon} from 'react-native-elements';
-import LocalStateHandler from "../res/LocalStateHandler";
 import LoadingComponent from "../components/LoadingComponent";
-import { IconButton, Colors, Surface, Badge} from 'react-native-paper';
+import { IconButton, Colors, Text } from 'react-native-paper';
+import UserHandler from "../res/UserHandler";
 
 function Biography(props){
 
@@ -18,13 +18,13 @@ function Biography(props){
         <View style={styles.biographyContainer}>
             <View style={styles.biography}>
                 <View style={{flexDirection:"row", justifyContent:"space-between"}}>
-                    <Text style={{fontWeight:"bold",fontSize:wp("5%")}}>Biography</Text>
+                    <Text style={{fontWeight:"bold",fontSize:wp("6%")}}>Biography</Text>
                     <Icon onPress={modifyBiography} name='pencil' type='evilicon' size={30}/>
 
                 </View>
                 {
                     props.bio != ""
-                        ? <Text>{props.bio}</Text>
+                        ? <Text style={styles.biographyText}>{props.bio}</Text>
                         : <Text>Non hai ancora una biografia!</Text>
                 }
             </View>
@@ -75,15 +75,15 @@ function Feedback(props){
                 source={{uri: props.feedback.url}}/>
             <View style={{margin:5, flex:1}}>
                 <Text>
-                    <Text style={{fontWeight:"bold"}}>Viaggiatore:</Text>
+                    <Text style={{fontWeight:"bold"}}>Viaggiatore: </Text>
                     {props.feedback.name}
                 </Text>
                 <Text>
-                    <Text style={{fontWeight:"bold"}}>Voto:</Text>
+                    <Text style={{fontWeight:"bold"}}>Voto: </Text>
                     {props.feedback.rating}/5
                 </Text>
                 <Text style={{flexWrap: "wrap", }}>
-                    <Text style={{fontWeight:"bold"}}>Commento:</Text>
+                    <Text style={{fontWeight:"bold"}}>Commento: </Text>
                     {props.feedback.text}
                 </Text>
             </View>
@@ -101,7 +101,7 @@ function FeedbacksOverview(props) {
     return(
         <View>
             {props.feedbacks != null && props.feedbacks.map(
-                elem => <Feedback key={elem.travelerId} feedback={elem}/>
+                elem => <Feedback key={elem.opponentId} feedback={elem}/>
             )}
         </View>
     )
@@ -113,14 +113,16 @@ function Feedbacks(props){
             <View style={styles.biography}>
                 <Text style={{
                     fontWeight:"bold",
-                    fontSize:wp("5%")
+                    fontSize:wp("6%")
                 }}>
                     Feedbacks
                 </Text>
                 {
-                    props.feedbacks != ""
+                    props.feedbacks != "" && props.feedbacks != undefined
                         ? <FeedbacksOverview feedbacks={props.feedbacks}/>
-                        : <Text>Non hai ancora alcun feedback!</Text>
+                        : <Text style={styles.biographyText}>
+                            You haven't any feedback yet.
+                        </Text>
                 }
             </View>
         </View>
@@ -139,7 +141,8 @@ export default class ProfileTab extends Component {
     }
 
     componentDidMount(){
-        LocalStateHandler.retrieveUserInfo().then(user => {
+        const id = firebase.auth().currentUser.uid
+        UserHandler.getUserInfo(id).then(user => {
             this.setState({
                 user: user,
                 loadingDone: true
@@ -167,7 +170,7 @@ export default class ProfileTab extends Component {
                             style={styles.photoButton}
                             size={30}
                         />
-                        <PhotoProfile photoPath={this.state.user.photoPath} userId={this.state.user.id}/>
+                        <PhotoProfile photoPath={this.state.user.urlPhoto} userId={this.state.user.id}/>
 
                         <View style={styles.bodyContent}>
                             <UserInfo userInfo={this.state.user}/>
@@ -195,6 +198,10 @@ const styles = StyleSheet.create({
     },
     biography:{
         margin: wp("4%"),
+    },
+    biographyText:{
+        fontSize:wp("5%"),
+        flex: 1,
     },
     infoUser:{
         flex: 1,

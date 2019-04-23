@@ -1,4 +1,4 @@
-import {StyleSheet, Text, View, TextInput, FlatList, ScrollView} from "react-native"
+import {StyleSheet, View, FlatList, ScrollView} from "react-native"
 import React, {Component} from "react";
 import LoadingComponent from "./../components/LoadingComponent"
 import UserHandler from "../res/UserHandler";
@@ -6,6 +6,7 @@ import {Icon} from 'react-native-elements';
 import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen';
 import firebase from "react-native-firebase";
 import CityHandler from "../res/CityHandler";
+import { Text, TextInput } from 'react-native-paper';
 
 export default class CitiesOfBuddy extends Component {
     static navigationOptions = () => {

@@ -35,11 +35,10 @@ class LocalStateHandler {
             result => {
                 if(!result){
                     //download user info and store in local memory
-                    return UserHandler.getUserInfo(userId).then(
-                        userInfo => {
-                            LocalStateHandler.storeUserInfo(userInfo)
-                        }
-                    )
+                    return UserHandler.getUserInfo(userId).then(userInfo => {
+                        console.log("AAAA", userInfo)
+                        LocalStateHandler.storeUserInfo(userInfo)
+                    })
                 }
             }
         )

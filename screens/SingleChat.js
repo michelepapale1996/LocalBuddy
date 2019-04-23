@@ -2,12 +2,17 @@ import React, {Component} from 'react';
 import {StyleSheet, Text, View} from 'react-native';
 import {GiftedChat, Bubble} from 'react-native-gifted-chat'
 import SingleChatHandler from "../res/SingleChatHandler";
-import MessagesUpdatesHandler from "../res/MessagesUpdatesHandler";
-import * as Animatable from "react-native-animatable"
+import MessagesUpdatesHandler from "../res/MessagesUpdatesHandler"
 import firebase from "react-native-firebase";
 import UserHandler from "../res/UserHandler";
 
 export default class SingleChat extends Component {
+    static navigationOptions = ({ navigation }) => {
+        return {
+            title: navigation.state.params.nameAndSurname,
+        };
+    };
+
     constructor(props){
         super(props)
 
@@ -20,12 +25,6 @@ export default class SingleChat extends Component {
             messages: []
         }
     }
-
-    static navigationOptions = ({ navigation }) => {
-        return {
-            title: navigation.state.params.nameAndSurname,
-        };
-    };
 
     componentDidMount() {
         const urlPhotoUser = this.state.urlPhotoUser

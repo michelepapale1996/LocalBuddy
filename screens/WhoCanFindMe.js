@@ -1,23 +1,27 @@
-import {StyleSheet, Text, View, TextInput, FlatList, ScrollView} from "react-native"
+import { StyleSheet, View } from "react-native"
 import React, {Component} from "react";
 import LoadingComponent from "./../components/LoadingComponent"
 import UserHandler from "../res/UserHandler";
 import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen';
 import firebase from "react-native-firebase";
-import RadioForm, {RadioButton, RadioButtonInput, RadioButtonLabel} from 'react-native-simple-radio-button'
 import MultiSlider from "@ptomasroos/react-native-multi-slider/MultiSlider";
-
-var radio_props = [
-    {label: 'onlySameSex', value: 1 },
-    {label: 'all', value: 0 }
-];
+import { Text, Switch, Button } from 'react-native-paper';
 
 export default class Settings extends Component {
-    static navigationOptions = () => {
+    static navigationOptions = ({navigation}) => {
         return {
-            title: "Who can find me"
-        };
-    };
+            title: "Who can find me",
+            headerRight: (
+                <Button
+                    mode={"outlined"}
+                    onPress={()=>navigation.getParam("saveSettings", null)()}
+                    style={styles.button}
+                >
+                    Save
+                </Button>
+            ),
+        }
+    }
 
     constructor(props){
         super(props)
@@ -27,6 +31,16 @@ export default class Settings extends Component {
             upperRangeTouristAge: 100,
             onlySameSex: 0
         }
+
+        this.props.navigation.setParams({
+            saveSettings: this.saveSettings
+        })
+    }
+
+    saveSettings = () => {
+        UserHandler.savePreferences(this.state.lowerRangeTouristAge, this.state.upperRangeTouristAge, this.state.onlySameSex).then(()=>{
+            this.props.navigation.goBack()
+        })
     }
 
     componentDidMount(){
@@ -53,13 +67,15 @@ export default class Settings extends Component {
         if(this.state.loadingDone != false) {
             return(
                 <View style={styles.viewContainer}>
-                    <Text style={styles.text}>Do you want to be found by your same-sex people only?</Text>
-                    <RadioForm
-                        radio_props={radio_props}
-                        initial={this.state.onlySameSex}
-                        onPress={(value) => {this.setState({onlySameSex:value})}}
-                        formHorizontal={true}
+                    <View style={{flexDirection:"row", justifyContent:"space-between"}}>
+                    <Text style={styles.text}>Only from same-sex people</Text>
+                    <Switch
+                        value={this.state.onlySameSex}
+                        onValueChange={() => {
+                            this.setState({ onlySameSex: !this.state.onlySameSex });
+                        }}
                     />
+                    </View>
 
                     <Text style={styles.text}>Range of age</Text>
                     <MultiSlider
@@ -115,5 +131,10 @@ const styles = StyleSheet.create({
         borderWidth: 0.5,
         width: wp("95%"),
         margin: hp("1%")
+    },
+    button:{
+        marginLeft:0,
+        marginRight:0,
+        borderRadius: 25
     }
 })

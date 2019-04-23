@@ -1,12 +1,12 @@
 import React, {Component} from "react";
-import {StyleSheet, Text, View, FlatList, Image} from 'react-native';
+import {StyleSheet, View, FlatList, Image} from 'react-native';
 import DatePicker from 'react-native-datepicker'
 import {heightPercentageToDP as hp, widthPercentageToDP as wp} from "react-native-responsive-screen"
 import ChatsHandler from "../res/ChatsHandler"
 import LoadingComponent from '../components/LoadingComponent'
 import RNPickerSelect from 'react-native-picker-select'
-import { Button } from 'react-native-elements'
 import MeetingsHandler from "../res/MeetingsHandler";
+import { Text, Button } from 'react-native-paper';
 
 export default class NewMeeting extends Component {
     static navigationOptions = ({ navigation }) => {
@@ -14,11 +14,12 @@ export default class NewMeeting extends Component {
             title: "New Meeting",
             headerRight: (
                 <Button
+                    mode={"outlined"}
                     onPress={()=>navigation.getParam("saveMeeting", null)()}
-                    buttonStyle={styles.button}
-                    title="Save"
-                    color="#fff"
-                />
+                    style={styles.button}
+                >
+                    Save
+                </Button>
             ),
         };
     };
@@ -62,11 +63,18 @@ export default class NewMeeting extends Component {
             })
 
             Promise.all(promises).then(results => {
-                return chats.map((user,index) => {
+                return chats.map((user, index) => {
                     return {
                         label: user.nameAndSurname,
                         value: results[index]
                     }
+                })
+            }).then(usersWithChat => {
+                //do not consider users already having a meeting with me
+                return MeetingsHandler.getFutureMeetings().then(meetings => {
+                    return usersWithChat.filter(elem => {
+                        return meetings.filter(m => m.idOpponent == elem.value) == 0
+                    })
                 })
             }).then(users=>{
                 this.setState({
