@@ -36,19 +36,18 @@ function NewProposals(props){
                                     <Text>{item.date} {item.time}</Text>
                                 </View>
                                 <Button
-                                    containerViewStyle={styles.button}
-                                    buttonStyle={styles.button}
+                                    mode={"outlined"}
+                                    style={styles.button}
                                     onPress={() => acceptMeeting(item.idOpponent)}
-                                    backgroundColor="blue"
-                                    title="Accept"
-                                />
+                                >
+                                    Accept
+                                </Button>
                                 <Button
-                                    containerViewStyle={styles.button}
-                                    buttonStyle={styles.button}
+                                    style={styles.button}
                                     onPress={() => denyMeeting(item.idOpponent)}
-                                    backgroundColor="red"
-                                    title="Deny"
-                                />
+                                >
+                                    Decline
+                                </Button>
                             </View>
                         )
                     }
@@ -90,12 +89,11 @@ function AlreadyFixedMeetings(props){
                                     <Text>{item.date} {item.time}</Text>
                                 </View>
                                 <Button
-                                    containerViewStyle={styles.button}
-                                    buttonStyle={styles.button}
+                                    style={styles.button}
                                     onPress={() => denyMeeting(item.idOpponent)}
-                                    backgroundColor="red"
-                                    title="Delete"
-                                />
+                                >
+                                    Delete
+                                </Button>
                             </View>
                         )
                     }
@@ -139,12 +137,12 @@ function PendingMeetings(props){
                                     <Text>{item.date} {item.time}</Text>
                                 </View>
                                 <Button
-                                    containerViewStyle={styles.button}
-                                    buttonStyle={styles.button}
+                                    style={styles.button}
                                     onPress={() => denyMeeting(item.idOpponent)}
                                     backgroundColor="red"
-                                    title="Delete"
-                                />
+                                >
+                                    Delete
+                                </Button>
                             </View>
                         )
                     }

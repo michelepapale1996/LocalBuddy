@@ -11,7 +11,7 @@ import UserHandler from "../res/UserHandler";
 function Biography(props){
 
     modifyBiography = ()=>{
-        props.nav.navigate("NewBiography")
+        props.nav.navigate("NewBiography", {"newBiography": props.newBiography})
     }
 
     return(
@@ -25,7 +25,7 @@ function Biography(props){
                 {
                     props.bio != ""
                         ? <Text style={styles.biographyText}>{props.bio}</Text>
-                        : <Text>Non hai ancora una biografia!</Text>
+                        : <Text style={styles.biographyText}>Non hai ancora una biografia!</Text>
                 }
             </View>
         </View>
@@ -150,6 +150,14 @@ export default class ProfileTab extends Component {
         })
     }
 
+    newBiography = (text) => {
+        this.setState(prevState => {
+            let newState = prevState
+            newState.user.bio = text
+            return newState
+        })
+    }
+
     render() {
         if (this.state.loadingDone){
             return(
@@ -174,7 +182,7 @@ export default class ProfileTab extends Component {
 
                         <View style={styles.bodyContent}>
                             <UserInfo userInfo={this.state.user}/>
-                            <Biography bio={this.state.user.bio} nav={this.props.navigation}/>
+                            <Biography bio={this.state.user.bio} nav={this.props.navigation} newBiography={this.newBiography}/>
                             <Feedbacks feedbacks={this.state.user.feedbacks}/>
                         </View>
                     </View>

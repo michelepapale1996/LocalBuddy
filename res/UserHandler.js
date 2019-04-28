@@ -47,7 +47,7 @@ class UserHandler{
 
     static getUrlPhoto(id) {
         return this.getUserInfo(id).then(user => {
-            return user.photoPath
+            return user.urlPhoto
         })
     }
 
@@ -185,6 +185,30 @@ class UserHandler{
                     lowerRange: lowerRange,
                     upperRange: upperRange,
                     onlySameSex: onlySameSex
+                })
+            }).catch( err => {
+                console.log("Error", err)
+                return null
+            })
+        }).catch(function(error) {
+            console.log("Error in retrieving idToken from firebase.auth()", error)
+            return null
+        });
+    }
+
+    static saveBiography(text){
+        const idUser = firebase.auth().currentUser.uid
+        //to do request to backend, we have to authenticate the client
+        return firebase.auth().currentUser.getIdToken(true).then(function(id) {
+            return fetch(IP_ADDRESS + "/api/users/" + idUser + "/biography", {
+                method: "POST",
+                headers: {
+                    Accept: 'application/json',
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    idToken: id,
+                    text: text
                 })
             }).catch( err => {
                 console.log("Error", err)

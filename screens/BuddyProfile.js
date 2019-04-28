@@ -37,8 +37,8 @@ function UserInfo(props) {
                     {
                         CCopponentUserId: props.userInfo.ccUserId,
                         chatId: props.chatId,
-                        nameAndSurname: props.userInfo.name + " " + props.userInfo.surname,
-                        urlPhotoOther: props.urlPhoto
+                        opponentNameAndSurname: props.userInfo.name + " " + props.userInfo.surname,
+                        urlPhotoOther: props.userInfo.urlPhoto
                     })}/>
         </View>
     )

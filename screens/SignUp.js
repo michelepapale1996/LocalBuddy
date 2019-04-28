@@ -31,7 +31,6 @@ export default class SignUp extends React.Component {
     }
 
     handleDatePicked = date => {
-        console.log("A date has been picked: ", date);
         this.setState({
             birthDate: date
         })

@@ -1,23 +1,21 @@
-import React, {Component} from 'react';
-import {StyleSheet, View, Button, FlatList, ActivityIndicator, Image, TouchableWithoutFeedback} from 'react-native';
-import {widthPercentageToDP as wp, heightPercentageToDP as hp} from "react-native-responsive-screen";
-import ChatsHandler from "../res/ChatsHandler";
-import MessagesUpdatesHandler from "../res/MessagesUpdatesHandler";
+import React, {Component} from 'react'
+import {StyleSheet, View, FlatList, Image, TouchableWithoutFeedback} from 'react-native'
+import {widthPercentageToDP as wp, heightPercentageToDP as hp} from "react-native-responsive-screen"
+import ChatsHandler from "../res/ChatsHandler"
+import MessagesUpdatesHandler from "../res/MessagesUpdatesHandler"
 import LoadingComponent from '../components/LoadingComponent'
-import { Text } from 'react-native-paper';
+import { Text } from 'react-native-paper'
 
 function Chat(props) {
     const lastMessageTime = props.getTime(props.item.createdAt)
-
     return(
         <TouchableWithoutFeedback
             onPress={() => props.nav.navigate('SingleChat',
                 {
                     chatId: props.item.chatId,
-                    nameAndSurname: props.item.nameAndSurname,
+                    opponentNameAndSurname: props.item.nameAndSurname,
                     urlPhotoOther: props.item.urlPhotoOther,
                     CCopponentUserId: props.item.CCopponentUserId,
-                    userName: props.item.nameAndSurname
                 })}>
             <View style={styles.singleChatContainer}>
                 <Image
@@ -84,44 +82,67 @@ export default class AllChats extends Component {
         return lastMessageTime
     }
 
-    onMessageRcvd = (msgRcvd, userId) => {
+    onMessageRcvd = (payload, isLocal)=>{
         this.setState(prevState => {
-            var toUpdate = prevState.chats.filter((elem) => elem.CCopponentUserId == userId)[0]
-            //if the user is starting a new conversation, toUpdate will be null
-            if(toUpdate == null){
-                alert("todo")
-            }
+            if(isLocal) {
+                var toUpdate = prevState.chats.filter((elem) => elem.chatId == payload.chatId)[0]
+                var otherChats = prevState.chats.filter((elem) => elem.CCopponentUserId != payload.ccOpponentUserId)
+                //if the user is starting a new conversation, toUpdate will be null
+                if (toUpdate == null || toUpdate == undefined) {
+                    toUpdate = {
+                        chatId: payload.chatId,
+                        CCopponentUserId: payload.ccOpponentUserId,
+                        nameAndSurname: payload.opponentUsername,
+                        urlPhotoOther: payload.urlPhotoOther
+                    }
+                }
+                toUpdate.lastMessageText = payload.text
+                var time = new Date(payload.createdAt)
+                toUpdate.createdAt = time.toUTCString()
 
-            //we receive two different types of messages depending on the local/remote message
-            if (msgRcvd.isLocal){
-                toUpdate.lastMessageText = msgRcvd.text
-                var time = new Date(msgRcvd.createdAt)
-            }else{
-                toUpdate.lastMessageText = msgRcvd.body
-                var time = new Date(0); // The 0 there is the key, which sets the date to the epoch
-                time.setUTCSeconds(msgRcvd.extension.date_sent);
-            }
-            toUpdate.createdAt = time.toUTCString()
+                var allChats = [toUpdate]
+                //if the user has not other chats
+                if (otherChats.length != 0){
+                    otherChats.forEach(elem => allChats.push(elem))
+                }
+                return ({
+                    chats: allChats
+                })
+            } else {
+                //new message from another user
+                toUpdate = prevState.chats.filter((elem) => elem.chatId == payload.dialog_id)[0]
+                otherChats = prevState.chats.filter((elem) => elem.chatId != payload.dialog_id)
 
-            var otherChats = prevState.chats.filter((elem) => elem.CCopponentUserId != userId)
-            //if the user has not other chats
-            if (otherChats.length == 0) allChats = [toUpdate]
-            else allChats = [toUpdate, otherChats]
-            return ({
-                chats: allChats
-            })
+                //if the user is starting a new conversation, toUpdate will be null
+                if(toUpdate == null || toUpdate == undefined){
+                    ChatsHandler.getChats().then(chats =>{
+                        this.setState({chats})
+                    })
+                } else {
+                    toUpdate.lastMessageText = payload.body
+                    var time = new Date(0); // The 0 there is the key, which sets the date to the epoch
+                    time.setUTCSeconds(payload.extension.date_sent);
+                    var allChats = [toUpdate]
+                    //if the user has not other chats
+                    if (otherChats.length != 0){
+                        otherChats.forEach(elem => allChats.push(elem))
+                    }
+                    return ({
+                        chats: allChats
+                    })
+                }
+            }
         })
     }
 
     componentDidMount(){
         MessagesUpdatesHandler.addListener(this.onMessageRcvd)
         ChatsHandler.getChats().then(chats => {
-                this.setState({
-                    chats: chats,
-                    loadingDone: true
-                })
-            }
-        )
+            this.setState({
+                chats: chats,
+                loadingDone: true
+            })
+        })
     }
 
     render() {

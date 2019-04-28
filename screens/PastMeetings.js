@@ -1,11 +1,10 @@
-import React, {Component} from 'react';
-import {StyleSheet, View, Image, ScrollView, FlatList} from 'react-native';
-import { Button } from 'react-native-elements'
+import React, {Component} from 'react'
+import {StyleSheet, View, Image, ScrollView, FlatList} from 'react-native'
 import LoadingComponent from '../components/LoadingComponent'
-import UserHandler from "../res/UserHandler";
+import UserHandler from "../res/UserHandler"
 import {heightPercentageToDP as hp, widthPercentageToDP as wp} from "react-native-responsive-screen"
-import MeetingsHandler from "../res/MeetingsHandler";
-import { Text } from 'react-native-paper';
+import MeetingsHandler from "../res/MeetingsHandler"
+import { Text, Button } from 'react-native-paper'
 
 export default class PastMeetings extends Component{
     constructor(props){
@@ -75,36 +74,37 @@ export default class PastMeetings extends Component{
                     <ScrollView>
                         <View style={styles.container}>
                             <Text style={styles.header}>Past Meetings</Text>
-                            <FlatList
+                            {this.state.pastMeetings.length > 0 &&
+                                <FlatList
                                 data={this.state.pastMeetings}
                                 renderItem={
-                                    ({item}) => (
-                                        <View style={styles.userContainer}>
-                                            <Image
-                                                style={styles.userPhoto}
-                                                source={{uri: item.urlPhoto}}/>
-                                            <View style={styles.userInfoContainer}>
-                                                <Text style={styles.text}>{item.nameAndSurname}</Text>
-                                                <Text>{item.date} {item.time}</Text>
-                                            </View>
-                                            {!item.feedbackAlreadyGiven && <Button
-                                                containerViewStyle={styles.button}
-                                                buttonStyle={styles.button}
-                                                onPress={() => {
-                                                    this.props.navigation.navigate("Feedback",{
-                                                        feedbackedIdUser: item.idOpponent,
-                                                        feedbackGiven: this.feedbackGiven
-                                                    })
-                                                }}
-                                                backgroundColor="blue"
-                                                title="Give feedback"
-                                            />}
+                                ({item}) => (
+                                    <View style={styles.userContainer}>
+                                        <Image
+                                            style={styles.userPhoto}
+                                            source={{uri: item.urlPhoto}}/>
+                                        <View style={styles.userInfoContainer}>
+                                            <Text style={styles.text}>{item.nameAndSurname}</Text>
+                                            <Text>{item.date} {item.time}</Text>
                                         </View>
-                                    )
-                                }
+                                        {!item.feedbackAlreadyGiven &&
+                                        <Button
+                                            style={styles.button}
+                                            onPress={() => {
+                                                this.props.navigation.navigate("Feedback",{
+                                                    feedbackedIdUser: item.idOpponent,
+                                                    feedbackGiven: this.feedbackGiven
+                                                })
+                                            }}
+                                        >Give feedback</Button>}
+                                    </View>
+                                )}
                                 keyExtractor={(item, index) => index.toString()}
                                 showsVerticalScrollIndicator={false}
-                            />
+                                />
+                            }
+
+                            {this.state.pastMeetings.length == 0 && <Text style={styles.text}>You do not have any past meeting.</Text>}
                         </View>
                     </ScrollView>
                 </View>

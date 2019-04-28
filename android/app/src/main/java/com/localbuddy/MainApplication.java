@@ -3,6 +3,7 @@ package com.localbuddy;
 import android.app.Application;
 
 import com.facebook.react.ReactApplication;
+import com.learnium.RNDeviceInfo.RNDeviceInfo;
 import com.reactnativecommunity.slider.ReactSliderPackage;
 import com.dieam.reactnativepushnotification.ReactNativePushNotificationPackage;
 import com.imagepicker.ImagePickerPackage;
@@ -37,6 +38,7 @@ public class MainApplication extends Application implements ReactApplication{
     protected List<ReactPackage> getPackages() {
       return Arrays.<ReactPackage>asList(
           new MainReactPackage(),
+            new RNDeviceInfo(),
             new ReactSliderPackage(),
             new ReactNativePushNotificationPackage(),
             new ImagePickerPackage(),

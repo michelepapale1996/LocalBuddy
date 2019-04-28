@@ -1,5 +1,6 @@
 import ConnectyCubeHandler from "./ConnectyCubeHandler";
 import ChatsHandler from "./ChatsHandler";
+import AccountHandler from "./AccountHandler";
 
 class SingleChatHandler{
 
@@ -10,7 +11,7 @@ class SingleChatHandler{
         return ChatsHandler.getChatsAsync().then(chats=>{
             const promises = chats.map(chat => {
                 const opponent = chat.occupants_ids.filter(user => user != ConnectyCubeHandler.getCCUserId())[0]
-                return ChatsHandler.getUserId(opponent)
+                return AccountHandler.getUserId(opponent)
             })
 
             return Promise.all(promises).then(results => {
@@ -35,7 +36,7 @@ class SingleChatHandler{
             ConnectyCubeHandler.getInstance().chat.dialog.create(params, function(error, conversation) {
                 if(error != null) reject(error)
                 resolve(conversation)
-            });
+            })
         })
     }
 
@@ -76,37 +77,38 @@ class SingleChatHandler{
         })
     }
 
-    static sendMessage(messageBody, dialogId, opponentId, opponentName, ccOpponentUserId, urlOpponentPhoto){
+    static sendMessage(payload){
         var message = {
             type: 'chat',
-            body: messageBody,
+            body: payload.text,
             extension: {
                 save_to_history: 1,
-                dialog_id: dialogId
+                dialog_id: payload.chatId
             },
             markable: 1
         };
 
-        ConnectyCubeHandler.getInstance().chat.send(opponentId, message);
+        ConnectyCubeHandler.getInstance().chat.send(payload.ccOpponentUserId, message);
 
-        var payload = JSON.stringify({
-            message: messageBody,
-            opponentName: opponentName,
-            title: opponentName,
-            chatId: dialogId,
-            urlPhotoOther: urlOpponentPhoto,
-            CCopponentUserId: ccOpponentUserId
-        });
+        //send notification
+        var notificationBody = JSON.stringify({
+            message: payload.text,
+            opponentName: payload.opponentUsername,
+            title: payload.opponentUsername,
+            chatId: payload.chatId,
+            urlPhotoOther: payload.urlPhotoOther,
+            CCopponentUserId: payload.ccOpponentUserId
+        })
 
         var pushParameters = {
             notification_type: 'push',
-            user: {ids: [opponentId]}, // recipients.
+            user: {ids: [payload.ccOpponentUserId]}, // recipients.
             environment: 'development', // environment, can be 'production'.
-            message: ConnectyCubeHandler.getInstance().pushnotifications.base64Encode(payload)
+            message: ConnectyCubeHandler.getInstance().pushnotifications.base64Encode(notificationBody)
         };
 
         ConnectyCubeHandler.getInstance().pushnotifications.events.create(pushParameters, function(error, result) {
-        });
+        })
     }
 
     static disconnectToChat(){

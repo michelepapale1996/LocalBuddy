@@ -4,6 +4,7 @@ import {heightPercentageToDP as hp, widthPercentageToDP as wp} from "react-nativ
 import LoadingComponent from '../components/LoadingComponent'
 import { Button } from 'react-native-elements'
 import { TextInput, Text } from 'react-native-paper';
+import UserHandler from "../res/UserHandler";
 
 export default class NewBiography extends Component {
     static navigationOptions = ({ navigation }) => {
@@ -21,7 +22,10 @@ export default class NewBiography extends Component {
     };
 
     saveBiography = () => {
-        alert("todo")
+        UserHandler.saveBiography(this.state.text).then(()=>{
+            this.props.navigation.getParam("newBiography", null)(this.state.text)
+            this.props.navigation.goBack()
+        })
     }
 
     constructor(props) {

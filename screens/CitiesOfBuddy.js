@@ -142,8 +142,8 @@ export default class CitiesOfBuddy extends Component {
                             <Text style={styles.text}>Add a new city to start being buddy there!</Text>
                             <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
                                 <TextInput
-                                    placeholder="Insert the city name"
-                                    placeholderTextColor= 'gray'
+                                    mode={"outlined"}
+                                    label="Insert the city name"
                                     onChangeText={(input) => this.getCities(input)}
                                     style={{
                                         borderBottomWidth: 1,

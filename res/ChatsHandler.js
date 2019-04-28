@@ -1,29 +1,15 @@
 import SingleChatHandler from "./SingleChatHandler";
 import ConnectyCubeHandler from "./ConnectyCubeHandler";
 import UserHandler from "./UserHandler";
+import AccountHandler from "./AccountHandler";
 
 class ChatsHandler {
-
-    //from ConnectyCube
-    static getUserId(id){
-        return new Promise((resolve,reject) => {
-            var searchParams = {filter: { field: 'id', param: 'in', value: id }};
-
-            ConnectyCubeHandler.getInstance().users.get(searchParams, function(error, res){
-                if(error !== null) reject(error);
-                //if the user is a deleted user
-                if(res.items[0].user == undefined) resolve(null)
-                else resolve(res.items[0].user.custom_data)
-            })
-        })
-    }
-
-    static getInfoChatWith(id, chat){
-        return ChatsHandler.getUserId(id).then(userId => {
+    static getInfoChatWith(ccUserid, chat){
+        return AccountHandler.getUserId(ccUserid).then(userId => {
             var state = ({
                 chatId: chat._id,
-                CCopponentUserId: id,
-                ccUserId: chat.user_id,
+                CCopponentUserId: ccUserid,
+                //ccUserId: chat.user_id,
                 lastMessageText: chat.last_message,
                 createdAt: chat.last_message_date_sent
             })

@@ -5,6 +5,19 @@ import ConnectyCubeHandler from "./ConnectyCubeHandler";
 import ChatsHandler from "./ChatsHandler";
 
 class AccountHandler {
+    //from ConnectyCube
+    static getUserId(id){
+        return new Promise((resolve,reject) => {
+            var searchParams = {filter: { field: 'id', param: 'in', value: id }};
+            ConnectyCubeHandler.getInstance().users.get(searchParams, function(error, res){
+                if(error !== null) reject(error);
+                //if the user is a deleted user
+                if(res.items[0].user == undefined) resolve(null)
+                else resolve(res.items[0].user.custom_data)
+            })
+        })
+    }
+
     static signUp(idAccount, name, surname, username, isBuddy, sex, ccUserId, birthDate){
         //to do request to backend, we have to authenticate the client
         firebase.auth().currentUser.getIdToken(true).then(function(idToken) {
@@ -92,6 +105,7 @@ class AccountHandler {
     static logOut = ()=>{
         return firebase.auth().signOut().then(()=>{
             //LocalStateHandler.clearStorage()
+            ConnectyCubeHandler.deletePushNotificationSubscription()
         })
     }
 }

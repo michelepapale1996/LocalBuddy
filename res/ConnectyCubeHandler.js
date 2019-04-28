@@ -1,6 +1,7 @@
-import cc from "connectycube-reactnative";
-import UserHandler from "./UserHandler";
-import MessagesUpdatesHandler from "./MessagesUpdatesHandler";
+import cc from "connectycube-reactnative"
+import UserHandler from "./UserHandler"
+import MessagesUpdatesHandler from "./MessagesUpdatesHandler"
+import DeviceInfo from 'react-native-device-info'
 
 const CREDENTIALS = {
     appId: 422,
@@ -72,6 +73,19 @@ class ConnectyCubeHandler{
         })
     }
 
+    static deletePushNotificationSubscription(){
+        const uniqueId = DeviceInfo.getUniqueID()
+        ConnectyCubeHandler.CCinstance.pushnotifications.subscriptions.list(function(error, subscriptions){
+            if (!error) {
+                const toDelete = subscriptions.filter(sub => sub.subscription.device.udid == uniqueId)[0]
+                var subscriptionId = toDelete.subscription.id;
+                ConnectyCubeHandler.CCinstance.pushnotifications.subscriptions.delete(subscriptionId, function(error){
+
+                })
+            }
+        })
+    }
+
     static deleteUser(){
         ConnectyCubeHandler.CCinstance.users.delete(function(error){
         });
@@ -83,6 +97,23 @@ class ConnectyCubeHandler{
 
     static getCCUserId(){
         return ConnectyCubeHandler.CCUserId
+    }
+
+    static createPushNotificationSubscription(token) {
+        const uniqueId = DeviceInfo.getUniqueID()
+        var params = {
+            notification_channel: 'gcm',
+            device: {
+                platform: 'android',
+                udid: uniqueId
+            },
+            push_token: {
+                environment: 'development',
+                client_identification_sequence: token
+            }
+        }
+        return ConnectyCubeHandler.getInstance().pushnotifications.subscriptions.create(params, function (error, result) {
+        })
     }
 }
 ConnectyCubeHandler.shared = new ConnectyCubeHandler()

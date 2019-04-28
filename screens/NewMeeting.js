@@ -6,6 +6,7 @@ import ChatsHandler from "../res/ChatsHandler"
 import LoadingComponent from '../components/LoadingComponent'
 import RNPickerSelect from 'react-native-picker-select'
 import MeetingsHandler from "../res/MeetingsHandler";
+import AccountHandler from "../res/AccountHandler"
 import { Text, Button } from 'react-native-paper';
 
 export default class NewMeeting extends Component {
@@ -59,7 +60,7 @@ export default class NewMeeting extends Component {
     componentDidMount() {
         ChatsHandler.getChats().then(chats => {
             const promises = chats.map(user => {
-                return ChatsHandler.getUserId(user.CCopponentUserId)
+                return AccountHandler.getUserId(user.CCopponentUserId)
             })
 
             Promise.all(promises).then(results => {
@@ -134,6 +135,7 @@ export default class NewMeeting extends Component {
                                 this.setState({date: date})
                             }}
                         />
+                        <Text style={styles.text}>Date chosen: {this.state.date}</Text>
                     </View>
                     <View style={styles.container}>
                         <Text style={styles.text}>Choose time of the meeting:</Text>
