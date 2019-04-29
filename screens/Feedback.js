@@ -2,10 +2,9 @@ import React, {Component} from "react";
 import { StyleSheet, View } from 'react-native';
 import {heightPercentageToDP as hp, widthPercentageToDP as wp} from "react-native-responsive-screen"
 import LoadingComponent from '../components/LoadingComponent'
-import { Button } from 'react-native-elements'
 import StarRating from 'react-native-star-rating';
 import UserHandler from "../res/UserHandler";
-import { Text, TextInput} from 'react-native-paper';
+import { Text, TextInput, Button } from 'react-native-paper';
 
 export default class Feedback extends Component {
     static navigationOptions = ({ navigation }) => {
@@ -13,11 +12,9 @@ export default class Feedback extends Component {
             title: "Feedback",
             headerRight: (
                 <Button
+                    mode={"outlined"}
                     onPress={()=>navigation.getParam("saveFeedback", null)()}
-                    buttonStyle={styles.button}
-                    title="Save"
-                    color="#fff"
-                />
+                >Save</Button>
             ),
         };
     };
@@ -77,7 +74,7 @@ export default class Feedback extends Component {
                     <View style={styles.container}>
                         <Text style={styles.text}>Please, give a feedback(optional)</Text>
                         <TextInput
-                            style={{height: 50, borderColor: 'gray', borderWidth: 1}}
+                            mode={"outlined"}
                             onChangeText={(text) => this.setState({text})}
                             value={this.state.text}
                         />

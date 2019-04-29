@@ -43,6 +43,7 @@ function NewProposals(props){
                                     Accept
                                 </Button>
                                 <Button
+                                    mode={"outlined"}
                                     style={styles.button}
                                     onPress={() => denyMeeting(item.idOpponent)}
                                 >
@@ -89,6 +90,7 @@ function AlreadyFixedMeetings(props){
                                     <Text>{item.date} {item.time}</Text>
                                 </View>
                                 <Button
+                                    mode={"outlined"}
                                     style={styles.button}
                                     onPress={() => denyMeeting(item.idOpponent)}
                                 >
@@ -137,6 +139,7 @@ function PendingMeetings(props){
                                     <Text>{item.date} {item.time}</Text>
                                 </View>
                                 <Button
+                                    mode={"outlined"}
                                     style={styles.button}
                                     onPress={() => denyMeeting(item.idOpponent)}
                                     backgroundColor="red"
@@ -174,6 +177,7 @@ export default class FutureMeetings extends Component{
 
     componentDidMount(){
         MeetingsHandler.getFutureMeetings().then(meetings => {
+            console.log("future:", meetings)
             let promises = meetings.map(meeting => {
                 return UserHandler.getNameAndSurname(meeting.idOpponent)
             })

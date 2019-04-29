@@ -1,13 +1,14 @@
-import React, {Component} from "react";
-import {StyleSheet, View, FlatList, Image} from 'react-native';
-import DatePicker from 'react-native-datepicker'
-import {heightPercentageToDP as hp, widthPercentageToDP as wp} from "react-native-responsive-screen"
+import React, { Component } from "react"
+import { StyleSheet, View } from 'react-native'
+import DateTimePicker from "react-native-modal-datetime-picker"
+import { heightPercentageToDP as hp, widthPercentageToDP as wp } from "react-native-responsive-screen"
 import ChatsHandler from "../res/ChatsHandler"
 import LoadingComponent from '../components/LoadingComponent'
 import RNPickerSelect from 'react-native-picker-select'
-import MeetingsHandler from "../res/MeetingsHandler";
+import MeetingsHandler from "../res/MeetingsHandler"
 import AccountHandler from "../res/AccountHandler"
-import { Text, Button } from 'react-native-paper';
+import { Text, Button } from 'react-native-paper'
+import DateHandler from "../res/DateHandler";
 
 export default class NewMeeting extends Component {
     static navigationOptions = ({ navigation }) => {
@@ -50,11 +51,39 @@ export default class NewMeeting extends Component {
             time: time,
             users: null,
             chosenUserId: null,
-            loadingDone: false
+            loadingDone: false,
+            isDatePickerVisible: false,
+            isTimePickerVisible: false
         }
         this.props.navigation.setParams({
             saveMeeting: this.saveMeeting
         })
+    }
+
+    showDatePicker = () => {
+        this.setState({ isDatePickerVisible: true });
+    }
+
+    hideDatePicker = () => {
+        this.setState({ isDatePickerVisible: false });
+    }
+
+    handleDatePicked = date => {
+        this.setState({date: date.getFullYear() + "-" + date.getMonth() + "-" + date.getDate()})
+        this.hideDatePicker();
+    }
+
+    showTimePicker = () => {
+        this.setState({ isTimePickerVisible: true });
+    }
+
+    hideTimePicker = () => {
+        this.setState({ isTimePickerVisible: false });
+    }
+
+    handleTimePicked = time => {
+        this.setState({time: time.getHours() + ":" + time.getMinutes()})
+        this.hideTimePicker();
     }
 
     componentDidMount() {
@@ -110,58 +139,24 @@ export default class NewMeeting extends Component {
                     </View>
                     <View style={styles.container}>
                         <Text style={styles.text}>Choose the date of the meeting:</Text>
-                        <DatePicker
-                            style={{width: wp("70%")}}
-                            date={this.state.date}
-                            mode="date"
-                            placeholder="select date"
-                            format="YYYY-MM-DD"
-                            minDate={this.state.today}
-                            maxDate={this.state.maxDate}
-                            confirmBtnText="Confirm"
-                            cancelBtnText="Cancel"
-                            customStyles={{
-                                dateIcon: {
-                                    position: 'absolute',
-                                    left: 0,
-                                    top: 4,
-                                    marginLeft: wp("20%")
-                                },
-                                dateInput: {
-                                    marginLeft: wp("30%")
-                                }
-                            }}
-                            onDateChange={(date) => {
-                                this.setState({date: date})
-                            }}
+                        <Button onPress={this.showDatePicker}>Show DatePicker</Button>
+                        <DateTimePicker
+                            isVisible={this.state.isDatePickerVisible}
+                            onConfirm={this.handleDatePicked}
+                            onCancel={this.hideDatePicker}
                         />
                         <Text style={styles.text}>Date chosen: {this.state.date}</Text>
                     </View>
                     <View style={styles.container}>
                         <Text style={styles.text}>Choose time of the meeting:</Text>
-                        <DatePicker
-                            style={{width: wp("70%")}}
-                            date={this.state.time}
-                            mode="time"
-                            format="HH:mm"
-                            confirmBtnText="Confirm"
-                            cancelBtnText="Cancel"
-                            minuteInterval={10}
-                            customStyles={{
-                                dateIcon: {
-                                    position: 'absolute',
-                                    left: 0,
-                                    top: 4,
-                                    marginLeft: wp("20%")
-                                },
-                                dateInput: {
-                                    marginLeft: wp("30%")
-                                }
-                            }}
-                            onDateChange={(time) => {
-                                this.setState({time: time});
-                            }}
+                        <Button onPress={this.showTimePicker}>Show TimePicker</Button>
+                        <DateTimePicker
+                            mode={"time"}
+                            isVisible={this.state.isTimePickerVisible}
+                            onConfirm={this.handleTimePicked}
+                            onCancel={this.hideTimePicker}
                         />
+                        <Text style={styles.text}>Time chosen: {this.state.time}</Text>
                     </View>
                 </View>
             )

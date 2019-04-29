@@ -15,7 +15,6 @@ class MeetingsHandler {
     static getPastMeetings(){
         const idUser = firebase.auth().currentUser.uid
         return UserHandler.getPastMeetings(idUser).then(meetings => {
-            console.log(meetings)
             //user maybe hasn't meetings
             if(meetings == null) return []
             return meetings

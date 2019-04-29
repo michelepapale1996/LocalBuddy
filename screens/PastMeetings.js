@@ -17,6 +17,7 @@ export default class PastMeetings extends Component{
 
     componentDidMount(){
         MeetingsHandler.getPastMeetings().then(meetings => {
+            console.log("past:", meetings)
             let promises = meetings.map(meeting => {
                 return UserHandler.getNameAndSurname(meeting.idOpponent)
             })
@@ -89,6 +90,7 @@ export default class PastMeetings extends Component{
                                         </View>
                                         {!item.feedbackAlreadyGiven &&
                                         <Button
+                                            mode={"outlined"}
                                             style={styles.button}
                                             onPress={() => {
                                                 this.props.navigation.navigate("Feedback",{
