@@ -2,8 +2,7 @@ import React, {Component} from "react";
 import {StyleSheet, View } from 'react-native';
 import {heightPercentageToDP as hp, widthPercentageToDP as wp} from "react-native-responsive-screen"
 import LoadingComponent from '../components/LoadingComponent'
-import { Button } from 'react-native-elements'
-import { TextInput, Text } from 'react-native-paper';
+import { TextInput, Text, Button } from 'react-native-paper';
 import UserHandler from "../res/UserHandler";
 
 export default class NewBiography extends Component {
@@ -13,10 +12,11 @@ export default class NewBiography extends Component {
             headerRight: (
                 <Button
                     onPress={()=>navigation.getParam("saveBiography", null)()}
-                    buttonStyle={styles.button}
-                    title="Save"
-                    color="#fff"
-                />
+                    style={styles.button}
+                    mode={"outlined"}
+                >
+                    Save
+                </Button>
             ),
         };
     };
@@ -117,27 +117,4 @@ const styles = StyleSheet.create({
         marginRight:0,
         borderRadius: 25
     }
-});
-
-const pickerSelectStyles = StyleSheet.create({
-    inputIOS: {
-        fontSize: 16,
-        paddingVertical: 12,
-        paddingHorizontal: 10,
-        borderWidth: 1,
-        borderColor: 'gray',
-        borderRadius: 4,
-        color: 'black',
-        paddingRight: 30, // to ensure the text is never behind the icon
-    },
-    inputAndroid: {
-        fontSize: 16,
-        paddingHorizontal: 10,
-        paddingVertical: 8,
-        borderWidth: 0.5,
-        borderColor: 'transparent',
-        borderRadius: 8,
-        color: 'black',
-        paddingRight: 30, // to ensure the text is never behind the icon
-    },
-});
+})

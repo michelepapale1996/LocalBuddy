@@ -1,15 +1,28 @@
 import React, {Component} from 'react'
+import {StyleSheet, View} from "react-native"
 import { GiftedChat } from 'react-native-gifted-chat'
 import SingleChatHandler from "../res/SingleChatHandler"
 import MessagesUpdatesHandler from "../res/MessagesUpdatesHandler"
 import AccountHandler from "../res/AccountHandler"
+import { Text, TouchableRipple } from 'react-native-paper'
+import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen'
 
 export default class SingleChat extends Component {
     static navigationOptions = ({ navigation }) => {
         return {
-            title: navigation.state.params.opponentNameAndSurname,
-        };
-    };
+            headerTitle:
+                <TouchableRipple
+                    onPress={() => {
+                        navigation.navigate('BuddyProfile', {idUser: navigation.getParam("buddyId", null)})
+                    }}
+                    rippleColor="rgba(0, 0, 0, .32)"
+                >
+                    <View style={styles.header}>
+                        <Text style={styles.title}>{navigation.state.params.opponentNameAndSurname}</Text>
+                    </View>
+                </TouchableRipple>
+        }
+    }
 
     constructor(props){
         super(props)
@@ -27,7 +40,10 @@ export default class SingleChat extends Component {
     componentDidMount() {
         const urlPhotoOther = this.state.urlPhotoOther
 
-        AccountHandler.getUserId(this.state.CCopponentUserId).then(opponentId => this.setState({opponentId}))
+        AccountHandler.getUserId(this.state.CCopponentUserId).then(opponentId => {
+            this.setState({opponentId})
+            this.props.navigation.setParams({buddyId: this.state.opponentId})
+        })
 
         if(this.state.chatId != null){
             SingleChatHandler.retrieveChatHistory(this.state.chatId, 100, null, urlPhotoOther).then(messages => this.setState({messages: messages}))
@@ -96,3 +112,15 @@ export default class SingleChat extends Component {
         )
     }
 }
+
+const styles = StyleSheet.create({
+    header: {
+        flex: 1,
+        justifyContent: 'center',
+        width: wp("80%")
+    },
+    title: {
+        fontSize: 20,
+        fontWeight: "bold"
+    },
+})

@@ -18,14 +18,14 @@ function Biography(props){
         <View style={styles.biographyContainer}>
             <View style={styles.biography}>
                 <View style={{flexDirection:"row", justifyContent:"space-between"}}>
-                    <Text style={{fontWeight:"bold",fontSize:wp("6%")}}>Biography</Text>
+                    <Text style={{fontWeight:"bold",fontSize:wp("5%")}}>Biography</Text>
                     <Icon onPress={modifyBiography} name='pencil' type='evilicon' size={30}/>
 
                 </View>
                 {
                     props.bio != ""
                         ? <Text style={styles.biographyText}>{props.bio}</Text>
-                        : <Text style={styles.biographyText}>Non hai ancora una biografia!</Text>
+                        : <Text style={styles.biographyText}>You do not have any biography yet. Tap to modify!</Text>
                 }
             </View>
         </View>
@@ -33,7 +33,8 @@ function Biography(props){
 }
 
 function UserInfo(props) {
-    const years = 22
+    const birthdate = new Date(props.userInfo.birthDate)
+    const years = new Date().getFullYear() - birthdate.getFullYear()
     return(
         <View style={styles.infoUser}>
             <Text style={styles.nameAndSurnameText}>
@@ -75,16 +76,16 @@ function Feedback(props){
                 source={{uri: props.feedback.url}}/>
             <View style={{margin:5, flex:1}}>
                 <Text>
-                    <Text style={{fontWeight:"bold"}}>Viaggiatore: </Text>
-                    {props.feedback.name}
+                    <Text style={{fontWeight:"bold",fontSize:wp("5%")}}>Viaggiatore: </Text>
+                    <Text style={{fontSize:wp("4%")}}>{props.feedback.name}</Text>
                 </Text>
                 <Text>
-                    <Text style={{fontWeight:"bold"}}>Voto: </Text>
-                    {props.feedback.rating}/5
+                    <Text style={{fontWeight:"bold",fontSize:wp("5%")}}>Voto: </Text>
+                    <Text style={{fontSize:wp("4%")}}>{props.feedback.rating}/5</Text>
                 </Text>
                 <Text style={{flexWrap: "wrap", }}>
-                    <Text style={{fontWeight:"bold"}}>Commento: </Text>
-                    {props.feedback.text}
+                    <Text style={{fontWeight:"bold",fontSize:wp("5%")}}>Commento: </Text>
+                    <Text style={{fontSize:wp("4%")}}>{props.feedback.text}</Text>
                 </Text>
             </View>
         </View>
@@ -121,7 +122,7 @@ function Feedbacks(props){
                     props.feedbacks != "" && props.feedbacks != undefined
                         ? <FeedbacksOverview feedbacks={props.feedbacks}/>
                         : <Text style={styles.biographyText}>
-                            You haven't any feedback yet.
+                            You do not have any feedback yet.
                         </Text>
                 }
             </View>
@@ -208,16 +209,13 @@ const styles = StyleSheet.create({
         margin: wp("4%"),
     },
     biographyText:{
-        fontSize:wp("5%"),
+        fontSize:wp("4%"),
         flex: 1,
     },
     infoUser:{
         flex: 1,
         width: wp("80%"),
         fontWeight:'600',
-        borderColor: 'black',
-        borderWidth: 0.5,
-        borderRadius: 7,
         marginTop: hp("5%"),
     },
     nameAndSurnameText:{
@@ -242,7 +240,7 @@ const styles = StyleSheet.create({
         borderRadius: wp("20%")
     },
     header:{
-        backgroundColor: "#52c8ff",
+        backgroundColor: "#2fa1ff",
         height:hp("30%"),
     },
     bodyContent: {

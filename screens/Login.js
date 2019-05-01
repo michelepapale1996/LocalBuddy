@@ -1,9 +1,8 @@
 import React from 'react'
-import { StyleSheet, View, Button } from 'react-native'
+import { StyleSheet, View } from 'react-native'
 import firebase from 'react-native-firebase'
-import { Text, TextInput } from 'react-native-paper'
+import { Text, TextInput, Button } from 'react-native-paper'
 import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen'
-import ConnectyCubeHandler from "../res/ConnectyCubeHandler";
 
 export default class Login extends React.Component {
     state = { email: '', password: '', errorMessage: null }
@@ -18,7 +17,7 @@ export default class Login extends React.Component {
     render() {
         return (
             <View style={styles.container}>
-                <Text>Login</Text>
+                <Text style={styles.title}>Login</Text>
                 {this.state.errorMessage &&
                 <Text style={{ color: 'red' }}>
                     {this.state.errorMessage}
@@ -38,11 +37,19 @@ export default class Login extends React.Component {
                     value={this.state.password}
                     style={styles.textInput}
                 />
-                <Button title="Login" onPress={this.handleLogin} />
                 <Button
-                    title="Don't have an account? Sign Up"
+                    mode={"outlined"}
+                    style={styles.button}
+                    onPress={this.handleLogin}>
+                    Login
+                </Button>
+                <Button
+                    mode={"outlined"}
+                    style={styles.button}
                     onPress={() => this.props.navigation.navigate('SignUp')}
-                />
+                >
+                    Don't have an account? Sign Up
+                </Button>
             </View>
         )
     }
@@ -57,5 +64,14 @@ const styles = StyleSheet.create({
         height: hp("7%"),
         width: '90%',
         marginTop: 8
-    }
+    },
+    button:{
+        marginLeft:0,
+        marginRight:0,
+        borderRadius: 25
+    },
+    title:{
+        fontSize: 20,
+        fontWeight: "bold"
+    },
 })

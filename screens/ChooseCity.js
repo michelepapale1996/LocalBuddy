@@ -1,7 +1,6 @@
 import React, {Component} from 'react';
-import {StyleSheet, View, FlatList} from 'react-native';
-import {Icon} from 'react-native-elements';
-import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen';
+import {StyleSheet, View, FlatList} from 'react-native'
+import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen'
 import { Searchbar, Text } from 'react-native-paper';
 
 export default class ChooseCity extends Component {
@@ -54,11 +53,15 @@ export default class ChooseCity extends Component {
         return (
             <View style={styles.container}>
                 <Searchbar
-                    placeholder="Search"
+                    placeholderTextColor={'white'}
+                    inputStyle={{color:"white", fontSize:18, fontWeight: "bold"}}
+                    placeholder="Search a city..."
                     onChangeText={query => {
                         this.getCities(query)
                         this.setState({query: query})
                     }}
+                    iconColor={"white"}
+                    style={styles.searchBar}
                     value={this.state.query}
                 />
                 <FlatList
@@ -90,5 +93,9 @@ const styles = StyleSheet.create({
         fontSize: 20,
         textAlign: 'center',
         margin: 10,
+    },
+    searchBar:{
+        backgroundColor:"#2fa1ff",
+        height:hp("8%")
     }
-});
+})

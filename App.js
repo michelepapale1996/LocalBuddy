@@ -16,10 +16,11 @@ import WhoCanFindMe from "./screens/WhoCanFindMe"
 import CitiesOfBuddy from "./screens/CitiesOfBuddy"
 import FutureMeetings from "./screens/FutureMeetings"
 import PastMeetings from "./screens/PastMeetings"
-import NewMeeting from "./screens/NewMeeting";
-import Feedback from "./screens/Feedback";
+import NewMeeting from "./screens/NewMeeting"
+import Feedback from "./screens/Feedback"
 import NewBiography from "./screens/NewBiography";
-import { DefaultTheme, Provider as PaperProvider } from 'react-native-paper';
+import { DefaultTheme, Provider as PaperProvider } from 'react-native-paper'
+import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen'
 
 const SearchTab = createStackNavigator({
     Home: {
@@ -50,7 +51,7 @@ const ChatTab = createStackNavigator({
 
 const MeetingsTab = createMaterialTopTabNavigator({
     FutureMeetings:{
-        screen: FutureMeetings
+        screen: FutureMeetings,
     },
     PastMeetings:{
         screen: PastMeetings
@@ -120,6 +121,12 @@ const TabNavigator = createBottomTabNavigator({
         screen: ProfileTabNavigator,
         navigationOptions:{
             tabBarIcon:<Icon name="user" type='feather' size={26}/>
+        }
+    }
+},{
+    tabBarOptions: {
+        style: {
+            height: hp("8%"),
         }
     }
 });

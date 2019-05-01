@@ -89,7 +89,7 @@ function DeleteAccount(props) {
     deleteAlert = () => {
         Alert.alert(
             'Delete account',
-            'Sei sicuro di voler eliminare l\'account? L\'azione sarà irreversibile.',
+            'Are you sure you want to delete your account? The action will not be reversible.',
             [
                 {
                     text: 'Cancel',
@@ -113,24 +113,9 @@ function DeleteAccount(props) {
 
 function LogOut(props) {
     logOutAlert = (props) => {
-        Alert.alert(
-            'Vuoi procedere al logout da LocalBuddy?',
-            '',
-            [
-                {
-                    text: 'Cancel',
-                    style: 'cancel'
-                },
-                {
-                    text: 'OK',
-                    onPress: () => {
-                        AccountHandler.logOut().then(() => {
-                            props.nav.navigate('Loading')
-                        })
-                    }
-                },
-            ]
-        )
+        AccountHandler.logOut().then(() => {
+            props.nav.navigate('Loading')
+        })
     }
 
     return(
@@ -144,10 +129,15 @@ function LogOut(props) {
 }
 
 export default class Settings extends Component {
-    static navigationOptions = () => {
-        return {
-            title: "Settings"
-        };
+    static navigationOptions = {
+        title: "Settings",
+        headerTintColor: 'white',
+        headerStyle: {
+            backgroundColor: '#2fa1ff'
+        },
+        headerTitleStyle: {
+            color: 'white'
+        }
     };
 
     constructor(props){

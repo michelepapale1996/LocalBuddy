@@ -22,9 +22,9 @@ export default class NewMeeting extends Component {
                 >
                     Save
                 </Button>
-            ),
-        };
-    };
+            )
+        }
+    }
 
     saveMeeting = () => {
         if(this.state.chosenUserId == null) {

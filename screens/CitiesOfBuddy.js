@@ -11,7 +11,14 @@ import { Text, TextInput } from 'react-native-paper';
 export default class CitiesOfBuddy extends Component {
     static navigationOptions = () => {
         return {
-            title: "Your cities"
+            title: "Your cities",
+            headerTintColor: 'white',
+            headerStyle: {
+                backgroundColor: '#2fa1ff'
+            },
+            headerTitleStyle: {
+                color: 'white'
+            }
         };
     };
 
@@ -78,14 +85,18 @@ export default class CitiesOfBuddy extends Component {
     }
 
     addCity = (cityId, cityName) => {
-        UserHandler.addCity(cityId, cityName)
         this.setState((prevState) => {
             //city is the first one -> initialize the array
             if (prevState.cities == undefined) {
+                UserHandler.addCity(cityId, cityName)
                 return {cities: [{cityName: cityName, cityId: cityId}]}
             } else {
-                const cities = [...prevState.cities, {cityName: cityName, cityId: cityId}]
-                return {cities: cities}
+                const toCheck = prevState.cities.filter(elem=>elem.cityName == cityName)
+                if(toCheck.length == 0){
+                    UserHandler.addCity(cityId, cityName)
+                    const cities = [...prevState.cities, {cityName: cityName, cityId: cityId}]
+                    return {cities: cities}
+                }
             }
         })
     }
@@ -110,7 +121,7 @@ export default class CitiesOfBuddy extends Component {
             if(this.state.cities != undefined && this.state.cities.length > 0){
                 citiesWhereIsAlreadyBuddy =
                     <View style={styles.viewContainer}>
-                        <Text style={styles.text}>Your cities:</Text>
+                        <Text style={styles.text}>Your current cities:</Text>
                         <FlatList
                             data={this.state.cities}
                             renderItem={({item}) =>

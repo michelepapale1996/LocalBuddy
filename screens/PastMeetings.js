@@ -15,6 +15,10 @@ export default class PastMeetings extends Component{
         }
     }
 
+    static navigationOptions ={
+        tabBarLabel: <View style={{height:hp("6%")}}><Text style={{fontSize: 18, fontWeight: "bold", color: "white"}}>Past Meetings</Text></View>
+    }
+
     componentDidMount(){
         MeetingsHandler.getPastMeetings().then(meetings => {
             console.log("past:", meetings)

@@ -175,6 +175,10 @@ export default class FutureMeetings extends Component{
         }
     }
 
+    static navigationOptions ={
+        tabBarLabel: <View style={{height:hp("6%")}}><Text style={{fontSize: 18, fontWeight: "bold", color: "white"}}>Future Meetings</Text></View>
+    }
+
     componentDidMount(){
         MeetingsHandler.getFutureMeetings().then(meetings => {
             console.log("future:", meetings)

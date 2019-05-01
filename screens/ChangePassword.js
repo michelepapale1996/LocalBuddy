@@ -1,14 +1,22 @@
 import React from 'react'
-import { View, StyleSheet, Button } from 'react-native'
-import AccountHandler from "../res/AccountHandler";
-import { Text, TextInput } from 'react-native-paper';
+import { View, StyleSheet } from 'react-native'
+import AccountHandler from "../res/AccountHandler"
+import { Text, TextInput, Button } from 'react-native-paper'
+import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen'
 
 export default class ChangePassword extends React.Component {
     state = { oldPassword: '', newPassword: '', errorMessage: null , repeatNewPassword: ""}
 
     static navigationOptions = () => {
         return {
-            title: "Cambia password"
+            title: "Change password",
+            headerTintColor: 'white',
+            headerStyle: {
+                backgroundColor: '#2fa1ff'
+            },
+            headerTitleStyle: {
+                color: 'white'
+            }
         };
     };
 
@@ -28,7 +36,8 @@ export default class ChangePassword extends React.Component {
                 </Text>}
                 <TextInput
                     secureTextEntry
-                    placeholder="Vecchia password"
+                    mode={"outlined"}
+                    label="Old password"
                     autoCapitalize="none"
                     style={styles.textInput}
                     onChangeText={oldPassword => this.setState({ oldPassword })}
@@ -36,7 +45,8 @@ export default class ChangePassword extends React.Component {
                 />
                 <TextInput
                     secureTextEntry
-                    placeholder="Nuova password"
+                    mode={"outlined"}
+                    label="New password"
                     autoCapitalize="none"
                     style={styles.textInput}
                     onChangeText={newPassword => this.setState({ newPassword })}
@@ -44,13 +54,14 @@ export default class ChangePassword extends React.Component {
                 />
                 <TextInput
                     secureTextEntry
-                    placeholder="Ripeti la nuova password"
+                    mode={"outlined"}
+                    label="Repeat new password"
                     autoCapitalize="none"
                     style={styles.textInput}
                     onChangeText={repeatNewPassword => this.setState({ repeatNewPassword })}
                     value={this.state.repeatNewPassword}
                 />
-                <Button title="Change password" onPress={this.handleChangePassword} />
+                <Button mode={"outlined"} onPress={this.handleChangePassword} >Change password</Button>
             </View>
         )
     }
@@ -62,10 +73,8 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     textInput: {
-        height: 40,
-        width: '90%',
-        borderColor: 'gray',
-        borderWidth: 1,
+        height: hp("7%"),
+        width: wp('90%'),
         marginTop: 8
     }
 })

@@ -40,6 +40,13 @@ export default class CityChosen extends Component {
     static navigationOptions = ({ navigation }) => {
         return {
             title: navigation.state.params.title,
+            headerTintColor: 'white',
+            headerStyle: {
+                backgroundColor: '#2fa1ff'
+            },
+            headerTitleStyle: {
+                color: 'white'
+            }
         };
     };
 

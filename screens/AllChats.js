@@ -1,15 +1,15 @@
 import React, {Component} from 'react'
-import {StyleSheet, View, FlatList, Image, TouchableWithoutFeedback} from 'react-native'
+import {StyleSheet, View, FlatList, Image } from 'react-native'
 import {widthPercentageToDP as wp, heightPercentageToDP as hp} from "react-native-responsive-screen"
 import ChatsHandler from "../res/ChatsHandler"
 import MessagesUpdatesHandler from "../res/MessagesUpdatesHandler"
 import LoadingComponent from '../components/LoadingComponent'
-import { Text } from 'react-native-paper'
+import { Text, TouchableRipple } from 'react-native-paper'
 
 function Chat(props) {
     const lastMessageTime = props.getTime(props.item.createdAt)
     return(
-        <TouchableWithoutFeedback
+        <TouchableRipple
             onPress={() => props.nav.navigate('SingleChat',
                 {
                     chatId: props.item.chatId,
@@ -37,7 +37,7 @@ function Chat(props) {
                     </View>
                 </View>
             </View>
-        </TouchableWithoutFeedback>
+        </TouchableRipple>
     )
 }
 
@@ -51,10 +51,14 @@ export default class AllChats extends Component {
         }
     }
 
-    static navigationOptions = () => {
-        return {
-            title: "Chat"
-        };
+    static navigationOptions = {
+        title: "Chat",
+        headerStyle: {
+            backgroundColor: '#2fa1ff'
+        },
+        headerTitleStyle: {
+            color: 'white'
+        }
     };
 
     componentWillUnmount(){
@@ -180,11 +184,6 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         backgroundColor: '#F5FCFF',
-    },
-    welcome: {
-        fontSize: 20,
-        textAlign: 'center',
-        margin: 10,
     },
     text: {
         fontSize: 20,
