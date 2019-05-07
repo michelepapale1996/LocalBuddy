@@ -2,13 +2,13 @@ import React, { Component } from "react"
 import { StyleSheet, View } from 'react-native'
 import DateTimePicker from "react-native-modal-datetime-picker"
 import { heightPercentageToDP as hp, widthPercentageToDP as wp } from "react-native-responsive-screen"
-import ChatsHandler from "../res/ChatsHandler"
+import ChatsHandler from "../handler/ChatsHandler"
 import LoadingComponent from '../components/LoadingComponent'
 import RNPickerSelect from 'react-native-picker-select'
-import MeetingsHandler from "../res/MeetingsHandler"
-import AccountHandler from "../res/AccountHandler"
+import MeetingsHandler from "../handler/MeetingsHandler"
+import AccountHandler from "../handler/AccountHandler"
 import { Text, Button } from 'react-native-paper'
-import DateHandler from "../res/DateHandler";
+import DateHandler from "../handler/DateHandler";
 
 export default class NewMeeting extends Component {
     static navigationOptions = ({ navigation }) => {
@@ -40,14 +40,12 @@ export default class NewMeeting extends Component {
     constructor(props) {
         super(props)
         const date = new Date()
-        const today = date.getFullYear() + "-" + date.getMonth() + "-" + date.getDate()
-        const maxDate = (date.getFullYear() + 2) + "-" + date.getMonth() + "-" + date.getDate()
-        const time = date.getHours() + ":" + date.getMinutes()
+        const today = DateHandler.dateToString(date)
+        const time = DateHandler.timeToString(date)
 
         this.state = {
             date: today,
             today: today,
-            maxDate: maxDate,
             time: time,
             users: null,
             chosenUserId: null,
@@ -69,7 +67,8 @@ export default class NewMeeting extends Component {
     }
 
     handleDatePicked = date => {
-        this.setState({date: date.getFullYear() + "-" + date.getMonth() + "-" + date.getDate()})
+
+        this.setState({date: DateHandler.dateToString(date)})
         this.hideDatePicker();
     }
 
@@ -82,7 +81,7 @@ export default class NewMeeting extends Component {
     }
 
     handleTimePicked = time => {
-        this.setState({time: time.getHours() + ":" + time.getMinutes()})
+        this.setState({time: DateHandler.timeToString(time)})
         this.hideTimePicker();
     }
 
@@ -144,6 +143,7 @@ export default class NewMeeting extends Component {
                             isVisible={this.state.isDatePickerVisible}
                             onConfirm={this.handleDatePicked}
                             onCancel={this.hideDatePicker}
+                            minimumDate={new Date()}
                         />
                         <Text style={styles.text}>Date chosen: {this.state.date}</Text>
                     </View>

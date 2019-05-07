@@ -3,7 +3,7 @@ import {StyleSheet, View } from 'react-native';
 import {heightPercentageToDP as hp, widthPercentageToDP as wp} from "react-native-responsive-screen"
 import LoadingComponent from '../components/LoadingComponent'
 import { TextInput, Text, Button } from 'react-native-paper';
-import UserHandler from "../res/UserHandler";
+import UserHandler from "../handler/UserHandler";
 
 export default class NewBiography extends Component {
     static navigationOptions = ({ navigation }) => {

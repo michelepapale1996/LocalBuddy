@@ -1,13 +1,13 @@
 import React, {Component} from 'react';
 import {StyleSheet, View, Alert, ScrollView, TouchableWithoutFeedback} from 'react-native';
 import firebase from 'react-native-firebase'
-import LocalStateHandler from "../res/LocalStateHandler";
-import UserHandler from "../res/UserHandler";
+import LocalStateHandler from "../handler/LocalStateHandler";
+import UserHandler from "../handler/UserHandler";
 import {heightPercentageToDP as hp, widthPercentageToDP as wp} from "react-native-responsive-screen";
 import LoadingComponent from '../components/LoadingComponent'
 import CitiesOfBuddy from "./CitiesOfBuddy";
 import { Text } from 'react-native-paper';
-import AccountHandler from "../res/AccountHandler";
+import AccountHandler from "../handler/AccountHandler";
 
 function BuddyComponent(props){
 

@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import {StyleSheet, View, FlatList, ActivityIndicator} from 'react-native';
-import CityHandler from "../res/CityHandler";
+import CityHandler from "../handler/CityHandler";
 import LoadingComponent from "../components/LoadingComponent";
 import { Text } from 'react-native-paper';
 

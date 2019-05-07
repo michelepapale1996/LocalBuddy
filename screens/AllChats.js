@@ -1,8 +1,8 @@
 import React, {Component} from 'react'
 import {StyleSheet, View, FlatList, Image } from 'react-native'
 import {widthPercentageToDP as wp, heightPercentageToDP as hp} from "react-native-responsive-screen"
-import ChatsHandler from "../res/ChatsHandler"
-import MessagesUpdatesHandler from "../res/MessagesUpdatesHandler"
+import ChatsHandler from "../handler/ChatsHandler"
+import MessagesUpdatesHandler from "../handler/MessagesUpdatesHandler"
 import LoadingComponent from '../components/LoadingComponent'
 import { Text, TouchableRipple } from 'react-native-paper'
 

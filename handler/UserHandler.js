@@ -1,5 +1,6 @@
 import IP_ADDRESS from "../ip"
 import firebase from "react-native-firebase";
+import DeviceInfo from "react-native-device-info/deviceinfo";
 
 class UserHandler{
     //status 404 if user does not exist
@@ -235,6 +236,32 @@ class UserHandler{
                     starCount: starCount,
                     text: text,
                     opponentId: idUser
+                })
+            }).catch( err => {
+                console.log("Error", err)
+                return null
+            })
+        }).catch(function(error) {
+            console.log("Error in retrieving idToken from firebase.auth()", error)
+            return null
+        });
+    }
+
+    static createPushNotificationSubscription(token){
+        const uniqueDeviceId = DeviceInfo.getUniqueID()
+        const idUser = firebase.auth().currentUser.uid
+        //to do request to backend, we have to authenticate the client
+        return firebase.auth().currentUser.getIdToken(true).then(function(id) {
+            return fetch(IP_ADDRESS + "/api/users/" + idUser + "/pushNotificationToken", {
+                method: "POST",
+                headers: {
+                    Accept: 'application/json',
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    idToken: id,
+                    pushNotificationToken: token,
+                    uniqueDeviceId: uniqueDeviceId
                 })
             }).catch( err => {
                 console.log("Error", err)

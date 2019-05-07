@@ -1,6 +1,7 @@
 import firebase from "react-native-firebase"
 import SingleChatHandler from "./SingleChatHandler"
 import ConnectyCubeHandler from "./ConnectyCubeHandler"
+import UserHandler from "./UserHandler";
 
 class LoadingHandler{
     static initApp(userId){
@@ -16,6 +17,7 @@ class LoadingHandler{
                             SingleChatHandler.connectToChat(CCUserId, 'LocalBuddy')
                             return firebase.messaging().getToken().then(token => {
                                 ConnectyCubeHandler.createPushNotificationSubscription(token)
+                                UserHandler.createPushNotificationSubscription(token)
                             })
                         })
                     })

@@ -21,6 +21,8 @@ import Feedback from "./screens/Feedback"
 import NewBiography from "./screens/NewBiography";
 import { DefaultTheme, Provider as PaperProvider } from 'react-native-paper'
 import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen'
+import MeetingsNotificationsHandler from "./handler/MeetingsNotificationsHandler";
+import MessagesNotificationsHandler from "./handler/MessagesNotificationsHandler";
 
 const SearchTab = createStackNavigator({
     Home: {
@@ -154,10 +156,27 @@ const theme = {
     }
 };
 class Application extends React.Component {
+    // gets the current screen from navigation state
+    getActiveRouteName = (navigationState)=> {
+        if (!navigationState) {
+            return null;
+        }
+        const route = navigationState.routes[navigationState.index];
+        // dive into nested navigators
+        if (route.routes) {
+            return this.getActiveRouteName(route);
+        }
+        return route.routeName;
+    }
+
     render() {
         return (
             <PaperProvider theme={theme}>
-                <AppContainer/>
+                <AppContainer onNavigationStateChange={(prevState, currentState) => {
+                    var currentScreen = this.getActiveRouteName(currentState)
+                    MeetingsNotificationsHandler.setScreen(currentState)
+                    MessagesNotificationsHandler.setScreen(currentScreen)
+                }}/>
             </PaperProvider>
         );
     }

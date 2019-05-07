@@ -6,7 +6,7 @@ import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-nativ
 import {Icon} from 'react-native-elements';
 import LoadingComponent from "../components/LoadingComponent";
 import { IconButton, Colors, Text } from 'react-native-paper';
-import UserHandler from "../res/UserHandler";
+import UserHandler from "../handler/UserHandler";
 
 function Biography(props){
 

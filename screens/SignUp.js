@@ -1,10 +1,10 @@
 import React from 'react'
 import { StyleSheet, View, ScrollView } from 'react-native'
 import firebase from 'react-native-firebase'
-import AccountHandler from "../res/AccountHandler";
+import AccountHandler from "../handler/AccountHandler";
 import { Text, TextInput, RadioButton, Button } from 'react-native-paper';
 import DateTimePicker from "react-native-modal-datetime-picker";
-import ConnectyCubeHandler from "../res/ConnectyCubeHandler"
+import ConnectyCubeHandler from "../handler/ConnectyCubeHandler"
 import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen'
 
 export default class SignUp extends React.Component {

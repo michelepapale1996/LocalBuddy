@@ -1,9 +1,9 @@
 import React, {Component} from 'react'
 import {StyleSheet, View} from "react-native"
 import { GiftedChat } from 'react-native-gifted-chat'
-import SingleChatHandler from "../res/SingleChatHandler"
-import MessagesUpdatesHandler from "../res/MessagesUpdatesHandler"
-import AccountHandler from "../res/AccountHandler"
+import SingleChatHandler from "../handler/SingleChatHandler"
+import MessagesUpdatesHandler from "../handler/MessagesUpdatesHandler"
+import AccountHandler from "../handler/AccountHandler"
 import { Text, TouchableRipple } from 'react-native-paper'
 import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen'
 

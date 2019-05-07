@@ -1,9 +1,9 @@
 import React, {Component} from 'react'
 import {StyleSheet, View, Image, ScrollView, FlatList} from 'react-native'
 import LoadingComponent from '../components/LoadingComponent'
-import UserHandler from "../res/UserHandler"
+import UserHandler from "../handler/UserHandler"
 import {heightPercentageToDP as hp, widthPercentageToDP as wp} from "react-native-responsive-screen"
-import MeetingsHandler from "../res/MeetingsHandler"
+import MeetingsHandler from "../handler/MeetingsHandler"
 import { Text, Button } from 'react-native-paper'
 
 export default class PastMeetings extends Component{
@@ -73,6 +73,8 @@ export default class PastMeetings extends Component{
     }
 
     render() {
+        console.log("AAA", this.state.pastMeetings)
+
         if(this.state.loadingDone != false) {
             return (
                 <View style={styles.mainContainer}>

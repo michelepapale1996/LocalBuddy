@@ -1,11 +1,12 @@
-import React, {Component} from 'react';
-import {StyleSheet, View, Image, ScrollView, FlatList} from 'react-native';
-import { Button, FAB } from 'react-native-paper';
+import React, {Component} from 'react'
+import {StyleSheet, View, Image, ScrollView, FlatList} from 'react-native'
+import { Button, FAB } from 'react-native-paper'
 import LoadingComponent from '../components/LoadingComponent'
-import UserHandler from "../res/UserHandler";
+import UserHandler from "../handler/UserHandler"
 import {heightPercentageToDP as hp, widthPercentageToDP as wp} from "react-native-responsive-screen"
-import MeetingsHandler from "../res/MeetingsHandler";
-import { Text } from 'react-native-paper';
+import MeetingsHandler from "../handler/MeetingsHandler"
+import { Text } from 'react-native-paper'
+import MeetingsUpdatesHandler from "../handler/MeetingsUpdatesHandler"
 
 function NewProposals(props){
     acceptMeeting = (idOpponent)=>{
@@ -19,12 +20,17 @@ function NewProposals(props){
             props.deniedMeeting(idOpponent)
         })
     }
-    if(props.new.length != 0){
+
+    const newMeetings = props.meetings.filter(elem => {
+        return elem.isFixed == 0 && elem.isPending == 0
+    })
+
+    if(newMeetings.length != 0){
         return(
             <View style={styles.container}>
                 <Text style={styles.header}>New Proposals</Text>
                 <FlatList
-                    data={props.new}
+                    data={newMeetings}
                     renderItem={
                         ({item}) => (
                             <View style={styles.userContainer}>
@@ -73,12 +79,16 @@ function AlreadyFixedMeetings(props){
         })
     }
 
-    if(props.fixed.length != 0){
+    const fixed = props.meetings.filter(elem => {
+        return elem.isFixed == 1
+    })
+
+    if(fixed.length != 0){
         return(
             <View style={styles.container}>
                 <Text style={styles.header}>Fixed Proposals</Text>
                 <FlatList
-                    data={props.fixed}
+                    data={fixed}
                     renderItem={
                         ({item}) => (
                             <View style={styles.userContainer}>
@@ -122,12 +132,16 @@ function PendingMeetings(props){
         })
     }
 
-    if(props.pending.length != 0){
+    const pending = props.meetings.filter(elem => {
+        return elem.isPending == 1
+    })
+
+    if(pending.length != 0){
         return(
             <View style={styles.container}>
                 <Text style={styles.header}>Pending Meetings</Text>
                 <FlatList
-                    data={props.pending}
+                    data={pending}
                     renderItem={
                         ({item}) => (
                             <View style={styles.userContainer}>
@@ -169,9 +183,7 @@ export default class FutureMeetings extends Component{
         super(props)
         this.state = {
             loadingDone: false,
-            newMeetings: null,
-            alreadyFixedMeetings: null,
-            pendingMeetings: null
+            meetings: null
         }
     }
 
@@ -179,9 +191,19 @@ export default class FutureMeetings extends Component{
         tabBarLabel: <View style={{height:hp("6%")}}><Text style={{fontSize: 18, fontWeight: "bold", color: "white"}}>Future Meetings</Text></View>
     }
 
+    componentWillUnmount(){
+        MeetingsUpdatesHandler.removeAcceptedMeetingListener()
+        MeetingsUpdatesHandler.removeDeniedMeetingListener()
+        MeetingsUpdatesHandler.removeNewMeetingListener()
+    }
+
     componentDidMount(){
+        MeetingsUpdatesHandler.setAcceptedMeetingListener(this.acceptedMeeting)
+        MeetingsUpdatesHandler.setDeniedMeetingListener(this.deniedMeeting)
+        MeetingsUpdatesHandler.setNewMeetingListener(this.newMeeting)
+
+
         MeetingsHandler.getFutureMeetings().then(meetings => {
-            console.log("future:", meetings)
             let promises = meetings.map(meeting => {
                 return UserHandler.getNameAndSurname(meeting.idOpponent)
             })
@@ -204,66 +226,38 @@ export default class FutureMeetings extends Component{
                 return meetings
             })
         }).then(meetings=>{
-            const newMeetings = meetings.filter(elem => {
-                return elem.isFixed == 0 && elem.isPending == 0
-            })
-            const alreadyFixedMeetings = meetings.filter(elem => {
-                return elem.isFixed == 1
-            })
-
-            const pendingMeetings = meetings.filter(elem => {
-                return elem.isPending == 1
-            })
-
             this.setState({
                 loadingDone: true,
-                newMeetings: newMeetings,
-                alreadyFixedMeetings: alreadyFixedMeetings,
-                pendingMeetings: pendingMeetings
+                meetings: meetings
             })
         })
     }
 
     acceptedMeeting = (idOpponent) => {
         this.setState((prevState) => {
-            let selectedMeeting = prevState.newMeetings.filter(elem => {
-                return elem.idOpponent == idOpponent
-            })
-            selectedMeeting = selectedMeeting[0]
-
-            //change isFixed of the selected Meeting
-            selectedMeeting.isFixed = 1
-
-            const newMeetings = prevState.newMeetings.filter(elem => {
-                return elem.idOpponent != idOpponent
+            let meetings = prevState.meetings.filter(elem => {
+                if (elem.idOpponent == idOpponent){
+                    elem.isFixed = 1
+                    elem.isPending = 0
+                }
+                return elem
             })
 
-            const alreadyFixedMeetings = [...prevState.alreadyFixedMeetings, selectedMeeting]
             return {
-                newMeetings: newMeetings,
-                alreadyFixedMeetings: alreadyFixedMeetings
+                meetings: meetings
             }
         })
     }
 
     deniedMeeting = (idOpponent) => {
         this.setState((prevState) => {
-            const newMeetings = prevState.newMeetings.filter(elem => {
-                return elem.idOpponent != idOpponent
-            })
-
-            const alreadyFixedMeetings = prevState.alreadyFixedMeetings.filter(elem => {
-                return elem.idOpponent != idOpponent
-            })
-
-            const pendingMeetings = prevState.pendingMeetings.filter(elem => {
+            console.log(prevState.meetings)
+            const meetings = prevState.meetings.filter(elem => {
                 return elem.idOpponent != idOpponent
             })
 
             return {
-                newMeetings: newMeetings,
-                alreadyFixedMeetings: alreadyFixedMeetings,
-                pendingMeetings: pendingMeetings
+                meetings: meetings
             }
         })
     }
@@ -272,7 +266,7 @@ export default class FutureMeetings extends Component{
         const promises = [UserHandler.getNameAndSurname(opponentId), UserHandler.getUrlPhoto(opponentId)]
         Promise.all(promises).then(results => {
             this.setState((prevState) => {
-                const newPendingMeeting = {
+                const meeting = {
                     idOpponent: opponentId,
                     date: date,
                     time: time,
@@ -281,9 +275,30 @@ export default class FutureMeetings extends Component{
                     nameAndSurname: results[0],
                     urlPhoto: results[1]
                 }
-                const pendingMeetings = [...prevState.pendingMeetings, newPendingMeeting]
+                const meetings = [...prevState.meetings, meeting]
                 return {
-                    pendingMeetings: pendingMeetings
+                    meetings: meetings
+                }
+            })
+        })
+    }
+
+    newMeeting = (date, time, opponentId) => {
+        const promises = [UserHandler.getNameAndSurname(opponentId), UserHandler.getUrlPhoto(opponentId)]
+        Promise.all(promises).then(results => {
+            this.setState((prevState) => {
+                const newMeeting = {
+                    idOpponent: opponentId,
+                    date: date,
+                    time: time,
+                    isFixed: 0,
+                    isPending: 0,
+                    nameAndSurname: results[0],
+                    urlPhoto: results[1]
+                }
+                const meetings = [...prevState.meetings, newMeeting]
+                return {
+                    meetings: meetings
                 }
             })
         })
@@ -295,14 +310,14 @@ export default class FutureMeetings extends Component{
                 <View style={styles.mainContainer}>
                     <ScrollView>
                         <NewProposals
-                            new={this.state.newMeetings}
+                            meetings={this.state.meetings}
                             acceptedMeeting={this.acceptedMeeting}
                             deniedMeeting={this.deniedMeeting}/>
                         <AlreadyFixedMeetings
-                            fixed={this.state.alreadyFixedMeetings}
+                            meetings={this.state.meetings}
                             deniedMeeting={this.deniedMeeting}/>
                         <PendingMeetings
-                            pending={this.state.pendingMeetings}
+                            meetings={this.state.meetings}
                             deniedMeeting={this.deniedMeeting}/>
                     </ScrollView>
                     <FAB

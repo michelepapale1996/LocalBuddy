@@ -1,6 +1,6 @@
 import React from 'react'
 import { View, StyleSheet } from 'react-native'
-import AccountHandler from "../res/AccountHandler"
+import AccountHandler from "../handler/AccountHandler"
 import { Text, TextInput, Button } from 'react-native-paper'
 import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen'
 

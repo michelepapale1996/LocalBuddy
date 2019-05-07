@@ -1,8 +1,10 @@
 import React from 'react'
 import firebase from 'react-native-firebase'
 import LoadingComponent from "../components/LoadingComponent";
-import LoadingHandler from "../res/LoadingHandler";
-import ChatsHandler from "../res/ChatsHandler";
+import LoadingHandler from "../handler/LoadingHandler";
+import MessagesNotificationsHandler from "../handler/MessagesNotificationsHandler";
+import MeetingsUpdatesHandler from "../handler/MeetingsUpdatesHandler";
+import MeetingsNotificationsHandler from "../handler/MeetingsNotificationsHandler";
 var PushNotification = require('react-native-push-notification');
 
 export default class Loading extends React.Component {
@@ -15,45 +17,12 @@ export default class Loading extends React.Component {
     }
 
     onNotification = (notification) =>{
-        const click = notification.userInteraction
-        const appInForeground = notification.foreground
-
-        if(appInForeground){
-            PushNotification.localNotification({
-                /* Android Only Properties */
-                ticker: "My Notification Ticker", // (optional)
-                autoCancel: true, // (optional) default: true
-                largeIcon: "ic_launcher", // (optional) default: "ic_launcher"
-                smallIcon: "ic_notification", // (optional) default: "ic_notification" with fallback for "ic_launcher"
-                vibrate: true, // (optional) default: true
-                vibration: 300, // vibration length in milliseconds, ignored if vibrate=false, default: 1000
-                group: "group", // (optional) add group to message
-
-                /* iOS and Android properties */
-                title: notification.title, // (optional)
-                message: notification.message, // (required)
-                //custom data
-                chatId: notification.chatId,
-                nameAndSurname: notification.opponentName,
-                urlPhotoOther: notification.urlPhotoOther,
-                CCopponentUserId: notification.CCopponentUserId,
-                userName: notification.opponentName
-            })
+        console.log(notification)
+        if(notification.type == "meeting"){
+            MeetingsNotificationsHandler.newNotification(notification, this.props.navigation)
+        }else{
+            MessagesNotificationsHandler.newNotification(notification, this.props.navigation)
         }
-
-        //if user tapped on notification
-        if(click){
-            //app in background and user clicked on notification -> go to singleChat
-            this.props.navigation.navigate('SingleChat',
-                {
-                    chatId: notification.chatId,
-                    nameAndSurname: notification.opponentName,
-                    urlPhotoOther: notification.urlPhotoOther,
-                    CCopponentUserId: notification.CCopponentUserId,
-                    userName: notification.opponentName
-                })
-        }
-
     }
 
     configure(onNotification){

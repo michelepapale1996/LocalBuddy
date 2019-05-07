@@ -3,7 +3,7 @@ import { StyleSheet, View } from 'react-native';
 import {heightPercentageToDP as hp, widthPercentageToDP as wp} from "react-native-responsive-screen"
 import LoadingComponent from '../components/LoadingComponent'
 import StarRating from 'react-native-star-rating';
-import UserHandler from "../res/UserHandler";
+import UserHandler from "../handler/UserHandler";
 import { Text, TextInput, Button } from 'react-native-paper';
 
 export default class Feedback extends Component {

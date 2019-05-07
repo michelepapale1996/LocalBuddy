@@ -1,8 +1,8 @@
 import React, {Component} from 'react';
 import {StyleSheet, View, Button, Image, ScrollView, TouchableWithoutFeedback, ActivityIndicator, FlatList} from 'react-native';
 import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen';
-import UserHandler from "../res/UserHandler";
-import SingleChatHandler from "../res/SingleChatHandler";
+import UserHandler from "../handler/UserHandler";
+import SingleChatHandler from "../handler/SingleChatHandler";
 import LoadingComponent from "../components/LoadingComponent";
 import { IconButton, Text, Colors } from 'react-native-paper';
 import firebase from "react-native-firebase";
@@ -154,6 +154,13 @@ export default class ProfileTab extends Component {
     static navigationOptions = ({ navigation }) => {
         return {
             title: navigation.state.params.nameBuddy,
+            headerTintColor: 'white',
+            headerStyle: {
+                backgroundColor: '#2fa1ff'
+            },
+            headerTitleStyle: {
+                color: 'white'
+            }
         };
     };
 

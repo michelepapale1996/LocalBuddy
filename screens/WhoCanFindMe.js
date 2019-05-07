@@ -1,7 +1,7 @@
 import { StyleSheet, View } from "react-native"
 import React, {Component} from "react";
 import LoadingComponent from "./../components/LoadingComponent"
-import UserHandler from "../res/UserHandler";
+import UserHandler from "../handler/UserHandler";
 import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen';
 import firebase from "react-native-firebase";
 import MultiSlider from "@ptomasroos/react-native-multi-slider/MultiSlider";
