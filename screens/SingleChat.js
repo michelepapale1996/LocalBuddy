@@ -64,7 +64,7 @@ export default class SingleChat extends Component {
             id = 2
             message = payload.body
         }
-        const message = {
+        const msg = {
             _id: id,
             text: message,
             createdAt: new Date().getTime(),
@@ -74,7 +74,7 @@ export default class SingleChat extends Component {
             }
         }
         this.setState(previousState => ({
-            messages: GiftedChat.append(previousState.messages, message),
+            messages: GiftedChat.append(previousState.messages, msg),
         }))
     }
 
