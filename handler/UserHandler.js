@@ -272,6 +272,32 @@ class UserHandler{
             return null
         });
     }
+
+    static deletePushNotificationSubscription(){
+        const uniqueDeviceId = DeviceInfo.getUniqueID()
+        const idUser = firebase.auth().currentUser.uid
+
+        //to do request to backend, we have to authenticate the client
+        return firebase.auth().currentUser.getIdToken(true).then(function(id) {
+            return fetch(IP_ADDRESS + "/api/users/" + idUser + "/pushNotificationToken", {
+                method: "DELETE",
+                headers: {
+                    Accept: 'application/json',
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    idToken: id,
+                    uniqueDeviceId: uniqueDeviceId
+                })
+            }).catch( err => {
+                console.log("Error", err)
+                return null
+            })
+        }).catch(function(error) {
+            console.log("Error in retrieving idToken from firebase.auth()", error)
+            return null
+        });
+    }
 }
 
 UserHandler.shared = new UserHandler()

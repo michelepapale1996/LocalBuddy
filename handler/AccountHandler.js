@@ -3,6 +3,7 @@ import firebase from "react-native-firebase"
 import LocalStateHandler from "./LocalStateHandler";
 import ConnectyCubeHandler from "./ConnectyCubeHandler";
 import ChatsHandler from "./ChatsHandler";
+import UserHandler from "./UserHandler";
 
 class AccountHandler {
     //from ConnectyCube
@@ -95,6 +96,8 @@ class AccountHandler {
         }).then(()=>{
             //ChatsHandler.deleteChats()
             ConnectyCubeHandler.deleteUser()
+            return UserHandler.deletePushNotificationSubscription()
+        }).then(()=>{
             return AccountHandler.logOut()
         }).catch(function(error) {
             console.log("Error in retrieving idToken from firebase.auth()", error)
@@ -103,9 +106,10 @@ class AccountHandler {
     }
 
     static logOut = ()=>{
-        return firebase.auth().signOut().then(()=>{
+        return UserHandler.deletePushNotificationSubscription().then(()=>{
             //LocalStateHandler.clearStorage()
             ConnectyCubeHandler.deletePushNotificationSubscription()
+            return firebase.auth().signOut()
         })
     }
 }
