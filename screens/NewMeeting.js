@@ -22,7 +22,14 @@ export default class NewMeeting extends Component {
                 >
                     Save
                 </Button>
-            )
+            ),
+            headerTintColor: 'white',
+            headerStyle: {
+                backgroundColor: '#2fa1ff'
+            },
+            headerTitleStyle: {
+                color: 'white'
+            }
         }
     }
 

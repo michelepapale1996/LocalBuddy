@@ -10,6 +10,13 @@ import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-nativ
 export default class SingleChat extends Component {
     static navigationOptions = ({ navigation }) => {
         return {
+            headerTintColor: 'white',
+            headerStyle: {
+                backgroundColor: '#2fa1ff'
+            },
+            headerTitleStyle: {
+                color: 'white'
+            },
             headerTitle:
                 <TouchableRipple
                     onPress={() => {
@@ -121,6 +128,7 @@ const styles = StyleSheet.create({
     },
     title: {
         fontSize: 20,
-        fontWeight: "bold"
+        fontWeight: "bold",
+        color:"white"
     },
 })
