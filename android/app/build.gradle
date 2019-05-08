@@ -149,12 +149,10 @@ android {
 
 dependencies {
     compile project(':react-native-device-info')
-    compile project(':@react-native-community_slider')
     compile project(':react-native-push-notification')
     compile project(':react-native-image-picker')
     compile project(':react-native-vector-icons')
     compile project(':react-native-gesture-handler')
-    compile project(':react-native-firebase')
     compile project(':react-native-fetch-blob')
     implementation project(':react-native-firebase')
     implementation project(':react-native-gesture-handler')
@@ -164,12 +162,12 @@ dependencies {
     implementation "com.facebook.react:react-native:+"  // From node_modules
 
     // Firebase dependencies
-      implementation "com.google.android.gms:play-services-base:16.0.1"
-      implementation "com.google.firebase:firebase-core:16.0.4"
-      implementation "com.google.firebase:firebase-auth:16.0.5"
+      implementation "com.google.android.gms:play-services-base:16.1.0"
+      implementation "com.google.firebase:firebase-core:16.0.8"
+      implementation "com.google.firebase:firebase-auth:17.0.0"
       implementation "com.google.firebase:firebase-database:16.0.4"
-      implementation "com.google.firebase:firebase-storage:16.0.4"
-      implementation "com.google.firebase:firebase-messaging:17.3.4"
+      implementation "com.google.firebase:firebase-storage:16.1.0"
+      implementation "com.google.firebase:firebase-messaging:17.5.0"
       implementation 'me.leolin:ShortcutBadger:1.1.21@aar' // <-- Add this line if you wish to use badge on Android
 }
 
@@ -181,4 +179,4 @@ task copyDownloadableDepsToLibs(type: Copy) {
 }
 
 apply plugin: 'com.google.gms.google-services'
-com.google.gms.googleservices.GoogleServicesPlugin.config.disableVersionCheck = true
+//com.google.gms.googleservices.GoogleServicesPlugin.config.disableVersionCheck = true
