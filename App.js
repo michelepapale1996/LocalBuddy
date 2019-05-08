@@ -58,6 +58,12 @@ const MeetingsTab = createMaterialTopTabNavigator({
     PastMeetings:{
         screen: PastMeetings
     }
+},{
+    tabBarOptions: {
+        indicatorStyle:{
+            backgroundColor:'white'
+        },
+    }
 })
 
 const FutureMeetingsTabNavigator = createStackNavigator({
@@ -104,31 +110,36 @@ const TabNavigator = createBottomTabNavigator({
     Search: {
         screen: SearchTab,
         navigationOptions:{
-            tabBarIcon:<Icon name="search" size={26}/>
+            tabBarIcon: ({tintColor}) => <Icon name="search" size={35} color={tintColor}/>
         }
     },
     Chat: {
         screen: ChatTab,
         navigationOptions:{
-            tabBarIcon:<Icon name="chat" size={26}/>
+            tabBarIcon: ({tintColor}) =>  <Icon name="chat" size={35} color={tintColor}/>
         }
     },
     MyMeetings: {
-    screen: FutureMeetingsTabNavigator,
+        screen: FutureMeetingsTabNavigator,
         navigationOptions:{
-            tabBarIcon:<Icon name="organization" type='octicon' size={26}/>
+            tabBarIcon: ({tintColor}) => <Icon name="event" size={35} color={tintColor}/>
         }
     },
     Profile: {
         screen: ProfileTabNavigator,
         navigationOptions:{
-            tabBarIcon:<Icon name="user" type='feather' size={26}/>
+            tabBarIcon: ({tintColor}) => <Icon name="person" size={35} color={tintColor}/>
         }
     }
 },{
     tabBarOptions: {
+        labelStyle: {
+            fontSize: hp("2%"),
+        },
+        activeTintColor:'#3498db',
+        inactiveTintColor: "#343a40",
         style: {
-            height: hp("8%"),
+            height: hp("9%"),
         }
     }
 });
@@ -151,8 +162,9 @@ const theme = {
     roundness: 2,
     colors: {
         ...DefaultTheme.colors,
+        text: "#2c3e50",
         primary: '#3498db',
-        accent: '#f1c40f',
+        accent: '#2980b9',
     }
 };
 class Application extends React.Component {

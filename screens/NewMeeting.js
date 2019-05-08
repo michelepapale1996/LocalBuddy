@@ -138,7 +138,7 @@ export default class NewMeeting extends Component {
                     </View>
                     <View style={styles.container}>
                         <Text style={styles.text}>Choose the date of the meeting:</Text>
-                        <Button onPress={this.showDatePicker}>Show DatePicker</Button>
+                        <Button onPress={this.showDatePicker}>Select a date</Button>
                         <DateTimePicker
                             isVisible={this.state.isDatePickerVisible}
                             onConfirm={this.handleDatePicked}
@@ -149,7 +149,7 @@ export default class NewMeeting extends Component {
                     </View>
                     <View style={styles.container}>
                         <Text style={styles.text}>Choose time of the meeting:</Text>
-                        <Button onPress={this.showTimePicker}>Show TimePicker</Button>
+                        <Button onPress={this.showTimePicker}>Select time</Button>
                         <DateTimePicker
                             mode={"time"}
                             isVisible={this.state.isTimePickerVisible}
