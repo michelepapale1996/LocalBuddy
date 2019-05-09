@@ -202,7 +202,6 @@ export default class FutureMeetings extends Component{
         MeetingsUpdatesHandler.setDeniedMeetingListener(this.deniedMeeting)
         MeetingsUpdatesHandler.setNewMeetingListener(this.newMeeting)
 
-
         MeetingsHandler.getFutureMeetings().then(meetings => {
             let promises = meetings.map(meeting => {
                 return UserHandler.getNameAndSurname(meeting.idOpponent)

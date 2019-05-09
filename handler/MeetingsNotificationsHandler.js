@@ -31,12 +31,15 @@ class MeetingsNotificationsHandler{
             })
         }
 
-
         //update
         if(notification.title == "New meeting"){
             MeetingsUpdatesHandler.newMeeting(notification.date, notification.time, notification.idOpponent)
-        }else if(notification.title == "Meeting accepted"){
+        }else if(notification.title == "Meeting accepted") {
             MeetingsUpdatesHandler.acceptedMeeting(notification.idOpponent)
+        }else if(notification.title == "It's meeting time!"){
+            //it deletes the meeting from futureMeetings
+            MeetingsUpdatesHandler.deniedMeeting(notification.idOpponent)
+            MeetingsUpdatesHandler.fromFutureToPastMeeting(notification.date, notification.time, notification.idOpponent)
         }else{
             MeetingsUpdatesHandler.deniedMeeting(notification.idOpponent)
         }

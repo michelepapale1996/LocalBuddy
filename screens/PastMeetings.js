@@ -5,6 +5,7 @@ import UserHandler from "../handler/UserHandler"
 import {heightPercentageToDP as hp, widthPercentageToDP as wp} from "react-native-responsive-screen"
 import MeetingsHandler from "../handler/MeetingsHandler"
 import { Text, Button } from 'react-native-paper'
+import MeetingsUpdatesHandler from "../handler/MeetingsUpdatesHandler";
 
 export default class PastMeetings extends Component{
     constructor(props){
@@ -19,7 +20,34 @@ export default class PastMeetings extends Component{
         tabBarLabel: <View style={{height:hp("6%")}}><Text style={{fontSize: 18, fontWeight: "bold", color: "white"}}>Past Meetings</Text></View>
     }
 
+    addMeeting = (date, time, opponentId) => {
+        const promises = [UserHandler.getNameAndSurname(opponentId), UserHandler.getUrlPhoto(opponentId)]
+        Promise.all(promises).then(results => {
+            this.setState((prevState) => {
+                const newMeeting = {
+                    idOpponent: opponentId,
+                    date: date,
+                    time: time,
+                    isFixed: 1,
+                    isPending: 0,
+                    nameAndSurname: results[0],
+                    urlPhoto: results[1]
+                }
+                const meetings = [...prevState.pastMeetings, newMeeting]
+                return {
+                    pastMeetings: meetings
+                }
+            })
+        })
+    }
+
+    componentWillUnmount(){
+        MeetingsUpdatesHandler.removeFromFutureToPastMeetingListener()
+    }
+
     componentDidMount(){
+        MeetingsUpdatesHandler.setFromFutureToPastMeeting(this.addMeeting)
+
         MeetingsHandler.getPastMeetings().then(meetings => {
             console.log("past:", meetings)
             let promises = meetings.map(meeting => {
@@ -73,8 +101,6 @@ export default class PastMeetings extends Component{
     }
 
     render() {
-        console.log("AAA", this.state.pastMeetings)
-
         if(this.state.loadingDone != false) {
             return (
                 <View style={styles.mainContainer}>
