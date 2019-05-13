@@ -121,10 +121,14 @@ class SingleChatHandler{
             password: pwd
         };
 
-        ConnectyCubeHandler.getInstance().chat.connect(userCredentials,
-            function(error, contactList) {
-            }
-        );
+        return new Promise((resolve, reject)=>{
+            ConnectyCubeHandler.getInstance().chat.connect(userCredentials,
+                function(error, contactList) {
+                    if(error !== null) reject(error)
+                    resolve(contactList)
+                }
+            )
+        })
     }
 }
 SingleChatHandler.shared = new SingleChatHandler()

@@ -73,7 +73,7 @@ class ConnectyCubeHandler{
         })
     }
 
-    static deletePushNotificationSubscription(){
+    static deletePushNotificationSubscriptionForThisDevice(){
         const uniqueId = DeviceInfo.getUniqueID()
         ConnectyCubeHandler.CCinstance.pushnotifications.subscriptions.list(function(error, subscriptions){
             if (!error) {
@@ -81,6 +81,18 @@ class ConnectyCubeHandler{
                 var subscriptionId = toDelete.subscription.id;
                 ConnectyCubeHandler.CCinstance.pushnotifications.subscriptions.delete(subscriptionId, function(error){
 
+                })
+            }
+        })
+    }
+
+    static deleteAllSubscriptions(){
+        ConnectyCubeHandler.CCinstance.pushnotifications.subscriptions.list(function(error, subscriptions){
+            if (!error) {
+                subscriptions.forEach(elem => {
+                    ConnectyCubeHandler.CCinstance.pushnotifications.subscriptions.delete(elem.subscription.id, function(error){
+
+                    })
                 })
             }
         })

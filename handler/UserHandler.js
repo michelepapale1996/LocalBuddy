@@ -46,6 +46,29 @@ class UserHandler{
         })
     }
 
+    static setUrlPhoto(url) {
+        const idUser = firebase.auth().currentUser.uid
+        firebase.auth().currentUser.getIdToken(true).then(function(id) {
+            return fetch(IP_ADDRESS + "/api/users/" + idUser + "/photoProfile", {
+                method: "POST",
+                headers: {
+                    Accept: 'application/json',
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    idToken: id,
+                    url: url
+                })
+            }).catch( err => {
+                console.log("Error", err)
+                return null
+            })
+        }).catch(function(error) {
+            console.log("Error in retrieving idToken from firebase.auth()", error)
+            return null
+        });
+    }
+
     static getUrlPhoto(id) {
         return this.getUserInfo(id).then(user => {
             return user.urlPhoto
@@ -273,7 +296,7 @@ class UserHandler{
         });
     }
 
-    static deletePushNotificationSubscription(){
+    static deletePushNotificationSubscriptionForThisDevice(){
         const uniqueDeviceId = DeviceInfo.getUniqueID()
         const idUser = firebase.auth().currentUser.uid
 

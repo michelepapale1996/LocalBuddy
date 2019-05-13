@@ -1,6 +1,6 @@
 import React, {Component} from 'react'
 import {StyleSheet, View} from "react-native"
-import { GiftedChat } from 'react-native-gifted-chat'
+import { GiftedChat, InputToolbar } from 'react-native-gifted-chat'
 import SingleChatHandler from "../handler/SingleChatHandler"
 import MessagesUpdatesHandler from "../handler/MessagesUpdatesHandler"
 import AccountHandler from "../handler/AccountHandler"
@@ -20,7 +20,10 @@ export default class SingleChat extends Component {
             headerTitle:
                 <TouchableRipple
                     onPress={() => {
-                        navigation.navigate('BuddyProfile', {idUser: navigation.getParam("buddyId", null)})
+                        const name = navigation.getParam("opponentNameAndSurname", "Error")
+                        if(name != "Account Deleted"){
+                            navigation.navigate('BuddyProfile', {idUser: navigation.getParam("buddyId", null)})
+                        }
                     }}
                     rippleColor="rgba(0, 0, 0, .32)"
                 >
@@ -86,25 +89,27 @@ export default class SingleChat extends Component {
     }
 
     async onSend(messages){
-        var chatID = this.state.chatId
-        //check if the chat exists
-        if(this.state.chatId == null){
-            //create the conversation and set the chatId
-            chatID = await SingleChatHandler.createConversation(this.state.CCopponentUserId).then(chat => {
-                return chat._id
-            })
+        if(this.state.opponentNameAndSurname != "Account Deleted") {
+            var chatID = this.state.chatId
+            //check if the chat exists
+            if (this.state.chatId == null) {
+                //create the conversation and set the chatId
+                chatID = await SingleChatHandler.createConversation(this.state.CCopponentUserId).then(chat => {
+                    return chat._id
+                })
+            }
+            const payload = {
+                text: messages[0].text,
+                chatId: chatID,
+                opponentId: this.state.opponentId,
+                ccOpponentUserId: this.state.CCopponentUserId,
+                opponentUsername: this.state.opponentNameAndSurname,
+                urlPhotoOther: this.state.urlPhotoOther,
+                createdAt: new Date()
+            }
+            SingleChatHandler.sendMessage(payload)
+            MessagesUpdatesHandler.updateBecauseLocalSending(payload)
         }
-        const payload = {
-            text: messages[0].text,
-            chatId: chatID,
-            opponentId: this.state.opponentId,
-            ccOpponentUserId: this.state.CCopponentUserId,
-            opponentUsername: this.state.opponentNameAndSurname,
-            urlPhotoOther: this.state.urlPhotoOther,
-            createdAt: new Date()
-        }
-        SingleChatHandler.sendMessage(payload)
-        MessagesUpdatesHandler.updateBecauseLocalSending(payload)
     }
 
     render() {
