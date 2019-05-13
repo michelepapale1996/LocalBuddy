@@ -11,10 +11,16 @@ class AccountHandler {
         return new Promise((resolve,reject) => {
             var searchParams = {filter: { field: 'id', param: 'in', value: id }};
             ConnectyCubeHandler.getInstance().users.get(searchParams, function(error, res){
-                if(error !== null) reject(error);
+                if(error !== null){
+                    reject(error);
+                }
+
                 //if the user is a deleted user
-                if(res.items[0].user == undefined) resolve(null)
-                else resolve(res.items[0].user.custom_data)
+                if(res.items[0].user === undefined){
+                    reject()
+                } else {
+                    resolve(res.items[0].user.custom_data)
+                }
             })
         })
     }
@@ -94,11 +100,13 @@ class AccountHandler {
                 return null
             })
         }).then(()=>{
+            //the user cannot be deleted from connectycube, otherwise it is not possbile to retrieve old dialogs
+            //ConnectyCubeHandler.deleteUser()
             //ChatsHandler.deleteChats()
-            ConnectyCubeHandler.deleteUser()
-            return UserHandler.deletePushNotificationSubscription()
+        }).then(()=> {
+            ConnectyCubeHandler.deleteAllSubscriptions()
         }).then(()=>{
-            return AccountHandler.logOut()
+            return firebase.auth().signOut()
         }).catch(function(error) {
             console.log("Error in retrieving idToken from firebase.auth()", error)
             return null
@@ -106,9 +114,9 @@ class AccountHandler {
     }
 
     static logOut = ()=>{
-        return UserHandler.deletePushNotificationSubscription().then(()=>{
+        return UserHandler.deletePushNotificationSubscriptionForThisDevice().then(()=>{
             //LocalStateHandler.clearStorage()
-            ConnectyCubeHandler.deletePushNotificationSubscription()
+            ConnectyCubeHandler.deletePushNotificationSubscriptionForThisDevice()
             return firebase.auth().signOut()
         })
     }

@@ -5,7 +5,9 @@ import AccountHandler from "../handler/AccountHandler";
 import { Text, TextInput, RadioButton, Button } from 'react-native-paper';
 import DateTimePicker from "react-native-modal-datetime-picker";
 import ConnectyCubeHandler from "../handler/ConnectyCubeHandler"
+import LoadingComponent from "../components/LoadingComponent";
 import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen'
+import LoadingHandler from "../handler/LoadingHandler";
 
 export default class SignUp extends React.Component {
     constructor(props){
@@ -18,7 +20,8 @@ export default class SignUp extends React.Component {
             surname: "",
             sex: "M",
             isDateTimePickerVisible: false,
-            birthDate:null
+            birthDate:null,
+            buttonClicked:false
         }
     }
 
@@ -47,6 +50,7 @@ export default class SignUp extends React.Component {
             this.setState({errorMessage: "Make sure you have filled all the fields."})
         }else{
             firebase.auth().createUserWithEmailAndPassword(this.state.email, this.state.password).then(() => {
+                this.setState({buttonClicked: true})
                 const userId = firebase.auth().currentUser.uid
                 ConnectyCubeHandler.setInstance().then(() => {
                     return ConnectyCubeHandler.signUp(userId, userId).then(session => {
@@ -61,107 +65,116 @@ export default class SignUp extends React.Component {
                             this.state.birthDate)
                     }).then(()=>{
                         return ConnectyCubeHandler.login(userId)
-                    }).then(() => this.props.navigation.navigate('Loading'))
-                        .catch(error => this.setState({errorMessage: error.message}))
+                    }).then(() => {
+                        LoadingHandler.initApp(userId).then(()=>{
+                            this.props.navigation.navigate('Home')
+                        })
+                    }).catch(error => this.setState({errorMessage: error.message}))
                 })
+
             }).catch(error => this.setState({errorMessage: error.message}))
         }
     }
 
     render() {
-        return (
-            <ScrollView>
-            <View style={styles.container}>
-                <View style={styles.header}>
-                    {this.state.errorMessage &&
-                    <Text style={{ color: 'red' }}>
-                        {this.state.errorMessage}
-                    </Text>}
-                    <Text style={styles.title}>SignUp</Text>
-                    <TextInput
-                        label="Name"
-                        mode={"outlined"}
-                        autoCapitalize="none"
-                        style={styles.textInput}
-                        onChangeText={name => this.setState({ name })}
-                        value={this.state.name}
-                    />
-                    <TextInput
-                        label="Surname"
-                        mode={"outlined"}
-                        autoCapitalize="none"
-                        style={styles.textInput}
-                        onChangeText={surname => this.setState({ surname })}
-                        value={this.state.surname}
-                    />
-                    <TextInput
-                        label="Email"
-                        mode={"outlined"}
-                        autoCapitalize="none"
-                        style={styles.textInput}
-                        onChangeText={email => this.setState({ email })}
-                        value={this.state.email}
-                    />
-                    <TextInput
-                        secureTextEntry
-                        mode={"outlined"}
-                        label="Password"
-                        autoCapitalize="none"
-                        style={styles.textInput}
-                        onChangeText={password => this.setState({ password })}
-                        value={this.state.password}
-                    />
-                    <View  style={{flexDirection:"row"}}>
-                        <Text style={styles.text}>Select your sex:</Text>
-                        <RadioButton.Group
-                            onValueChange={value => this.setState({ sex: value })}
-                            value={this.state.sex}
-                        >
-                            <View>
-                                <Text>Male</Text>
-                                <RadioButton value="M" />
+        if(!this.state.buttonClicked){
+            return (
+                <ScrollView>
+                    <View style={styles.container}>
+                        <View style={styles.header}>
+                            {this.state.errorMessage &&
+                            <Text style={{ color: 'red' }}>
+                                {this.state.errorMessage}
+                            </Text>}
+                            <Text style={styles.title}>SignUp</Text>
+                            <TextInput
+                                label="Name"
+                                mode={"outlined"}
+                                autoCapitalize="none"
+                                style={styles.textInput}
+                                onChangeText={name => this.setState({ name })}
+                                value={this.state.name}
+                            />
+                            <TextInput
+                                label="Surname"
+                                mode={"outlined"}
+                                autoCapitalize="none"
+                                style={styles.textInput}
+                                onChangeText={surname => this.setState({ surname })}
+                                value={this.state.surname}
+                            />
+                            <TextInput
+                                label="Email"
+                                mode={"outlined"}
+                                autoCapitalize="none"
+                                style={styles.textInput}
+                                onChangeText={email => this.setState({ email })}
+                                value={this.state.email}
+                            />
+                            <TextInput
+                                secureTextEntry
+                                mode={"outlined"}
+                                label="Password"
+                                autoCapitalize="none"
+                                style={styles.textInput}
+                                onChangeText={password => this.setState({ password })}
+                                value={this.state.password}
+                            />
+                            <View  style={{flexDirection:"row"}}>
+                                <Text style={styles.text}>Select your sex:</Text>
+                                <RadioButton.Group
+                                    onValueChange={value => this.setState({ sex: value })}
+                                    value={this.state.sex}
+                                >
+                                    <View>
+                                        <Text>Male</Text>
+                                        <RadioButton value="M" />
+                                    </View>
+                                    <View>
+                                        <Text>Female</Text>
+                                        <RadioButton value="F" />
+                                    </View>
+                                </RadioButton.Group>
                             </View>
-                            <View>
-                                <Text>Female</Text>
-                                <RadioButton value="F" />
-                            </View>
-                        </RadioButton.Group>
+
+                            <Button
+                                style={styles.button}
+                                mode={"outlined"}
+                                onPress={this.showDateTimePicker}>
+                                Select your birthdate
+                            </Button>
+                            <DateTimePicker
+                                mode={"date"}
+                                isVisible={this.state.isDateTimePickerVisible}
+                                onConfirm={this.handleDatePicked}
+                                onCancel={this.hideDateTimePicker}
+                                maximumDate={new Date()}
+                            />
+                        </View>
+
+                        <View>
+                            <Button
+                                style={styles.button}
+                                mode={"outlined"}
+                                onPress={this.handleSignUp}>
+                                SignUp
+                            </Button>
+                            <Button
+                                style={styles.button}
+                                mode={"outlined"}
+                                onPress={() => this.props.navigation.navigate('Login')}
+                            >
+                                Already have an account? Login
+                            </Button>
+                        </View>
                     </View>
-
-                    <Button
-                        style={styles.button}
-                        mode={"outlined"}
-                        onPress={this.showDateTimePicker}>
-                        Select your birthdate
-                    </Button>
-                    <DateTimePicker
-                        mode={"date"}
-                        isVisible={this.state.isDateTimePickerVisible}
-                        onConfirm={this.handleDatePicked}
-                        onCancel={this.hideDateTimePicker}
-                        maximumDate={new Date()}
-                    />
-                </View>
-
-                <View>
-                    <Button
-                        style={styles.button}
-                        mode={"outlined"}
-                        onPress={this.handleSignUp}>
-                        SignUp
-                    </Button>
-                    <Button
-                        style={styles.button}
-                        mode={"outlined"}
-                        onPress={() => this.props.navigation.navigate('Login')}
-                    >
-                        Already have an account? Login
-                    </Button>
-                </View>
-            </View>
-            </ScrollView>
-        )
+                </ScrollView>
+            )
+        } else {
+            return <LoadingComponent/>
+        }
     }
+
 }
 const styles = StyleSheet.create({
     container: {

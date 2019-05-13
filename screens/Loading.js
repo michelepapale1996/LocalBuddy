@@ -3,8 +3,8 @@ import firebase from 'react-native-firebase'
 import LoadingComponent from "../components/LoadingComponent";
 import LoadingHandler from "../handler/LoadingHandler";
 import MessagesNotificationsHandler from "../handler/MessagesNotificationsHandler";
-import MeetingsUpdatesHandler from "../handler/MeetingsUpdatesHandler";
 import MeetingsNotificationsHandler from "../handler/MeetingsNotificationsHandler";
+import UserHandler from "../handler/UserHandler";
 var PushNotification = require('react-native-push-notification');
 
 export default class Loading extends React.Component {
@@ -17,7 +17,6 @@ export default class Loading extends React.Component {
     }
 
     onNotification = (notification) =>{
-        console.log(notification)
         if(notification.type == "meeting"){
             MeetingsNotificationsHandler.newNotification(notification, this.props.navigation)
         }else{
@@ -49,8 +48,8 @@ export default class Loading extends React.Component {
              * - Specified if permissions (ios) and token (android and ios) will requested or not,
              * - if not, you must call PushNotificationsHandler.requestPermissions() later
              */
-            requestPermissions: true,
-        });
+            requestPermissions: true
+        })
     }
 
     componentDidMount() {
@@ -58,10 +57,18 @@ export default class Loading extends React.Component {
             if(!this.authFlag) {
                 this.authFlag = true
                 if (user) {
-                    //user is logged
-                    LoadingHandler.initApp(user.uid).then(()=>{
-                        this.props.navigation.navigate('Home')
+                    //check if the user exists
+                    UserHandler.getUserInfo(user.uid).then(userInfo => {
+                        if (userInfo) {
+                            //user is logged
+                            LoadingHandler.initApp(user.uid).then(() => {
+                                this.props.navigation.navigate('Home')
+                            })
+                        } else {
+                            this.props.navigation.navigate('Login')
+                        }
                     })
+
                 } else {
                     this.props.navigation.navigate('Login')
                 }

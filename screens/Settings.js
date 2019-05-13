@@ -211,7 +211,6 @@ const styles = StyleSheet.create({
     header:{
         height: hp("5%"),
         fontSize: 20,
-        color: "green",
         fontWeight:"bold"
     }
 });
