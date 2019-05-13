@@ -16,10 +16,18 @@ export default class Settings extends Component {
                     mode={"outlined"}
                     onPress={()=>navigation.getParam("saveSettings", null)()}
                     style={styles.button}
+                    color={"white"}
                 >
                     Save
                 </Button>
             ),
+            headerTintColor: 'white',
+            headerStyle: {
+                backgroundColor: '#2fa1ff'
+            },
+            headerTitleStyle: {
+                color: 'white'
+            }
         }
     }
 
@@ -46,7 +54,6 @@ export default class Settings extends Component {
     componentDidMount(){
         const idUser = firebase.auth().currentUser.uid
         UserHandler.getPreferences(idUser).then(preferences => {
-            console.log(preferences)
             this.setState({
                 lowerRangeTouristAge: preferences.lowerRangeTouristAge,
                 upperRangeTouristAge: preferences.upperRangeTouristAge,
@@ -135,6 +142,7 @@ const styles = StyleSheet.create({
     button:{
         marginLeft:0,
         marginRight:0,
-        borderRadius: 25
+        borderRadius: 20,
+        borderColor: "white"
     }
 })

@@ -250,7 +250,6 @@ export default class FutureMeetings extends Component{
 
     deniedMeeting = (idOpponent) => {
         this.setState((prevState) => {
-            console.log(prevState.meetings)
             const meetings = prevState.meetings.filter(elem => {
                 return elem.idOpponent != idOpponent
             })
@@ -355,12 +354,10 @@ const styles = StyleSheet.create({
     },
     text: {
         fontSize: 20,
-        fontWeight: "bold"
     },
     header:{
         height: hp("5%"),
         fontSize: 20,
-        color: "green",
         fontWeight:"bold"
     },
     userPhoto: {

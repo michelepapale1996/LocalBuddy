@@ -14,10 +14,18 @@ export default class Feedback extends Component {
                 <Button
                     mode={"outlined"}
                     onPress={()=>navigation.getParam("saveFeedback", null)()}
+                    color={"white"}
                 >Save</Button>
             ),
-        };
-    };
+            headerTintColor: 'white',
+            headerStyle: {
+                backgroundColor: '#2fa1ff'
+            },
+            headerTitleStyle: {
+                color: 'white'
+            }
+        }
+    }
 
     saveFeedback = () => {
         UserHandler.addFeedback(this.state.idOpponent, this.state.starCount, this.state.text).then(()=>{
@@ -133,6 +141,7 @@ const styles = StyleSheet.create({
     button:{
         marginLeft:0,
         marginRight:0,
-        borderRadius: 25
+        borderRadius: 20,
+        borderColor: "white"
     }
 });

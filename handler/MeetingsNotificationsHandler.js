@@ -9,8 +9,6 @@ class MeetingsNotificationsHandler{
     }
 
     static newNotification(notification, navigation) {
-        console.log(notification)
-        console.log(navigation)
         const click = notification.userInteraction
         const appInForeground = notification.foreground
         if (appInForeground && MeetingsNotificationsHandler.currentScreen != "FutureMeetings") {

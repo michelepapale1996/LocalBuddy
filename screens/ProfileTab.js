@@ -5,8 +5,9 @@ import ImagePicker from 'react-native-image-picker';
 import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen';
 import {Icon} from 'react-native-elements';
 import LoadingComponent from "../components/LoadingComponent";
-import { IconButton, Colors, Text } from 'react-native-paper';
+import { IconButton, Colors, Text, Surface } from 'react-native-paper';
 import UserHandler from "../handler/UserHandler";
+import StarRating from 'react-native-star-rating';
 
 function Biography(props){
 
@@ -14,14 +15,16 @@ function Biography(props){
         props.nav.navigate("NewBiography", {"newBiography": props.newBiography})
     }
 
+    /*<Text style={{fontWeight:"bold", fontSize:wp("5%"), textAlign:"center"}}>Biography</Text>*/
+
     return(
         <View style={styles.biographyContainer}>
             <View style={styles.biography}>
-                <View style={{flexDirection:"row", justifyContent:"space-between"}}>
-                    <Text style={{fontWeight:"bold",fontSize:wp("5%")}}>Biography</Text>
+                <View style={{flexDirection:"row", flex: 1, justifyContent: 'flex-end',}}>
                     <Icon onPress={modifyBiography} name='pencil' type='evilicon' size={30}/>
 
                 </View>
+
                 {
                     props.bio != ""
                         ? <Text style={styles.biographyText}>{props.bio}</Text>
@@ -56,7 +59,12 @@ function PhotoProfile(props) {
                 console.log('User tapped custom button: ', response.customButton);
             } else {
                 const source = response.uri
-                firebase.storage().ref("/PhotosProfile/" + props.userId).putFile(source)
+                console.log(source)
+                firebase.storage().ref("/PhotosProfile/" + props.userId).putFile(source).then(()=>{
+                    firebase.storage().ref("/PhotosProfile/" + props.userId).getDownloadURL().then(url=>{
+                        UserHandler.setUrlPhoto(url)
+                    })
+                })
             }
         })
     }
@@ -75,57 +83,40 @@ function Feedback(props){
                 style={styles.photoTravelerProfile}
                 source={{uri: props.feedback.url}}/>
             <View style={{margin:5, flex:1}}>
-                <Text>
-                    <Text style={{fontWeight:"bold",fontSize:wp("5%")}}>Viaggiatore: </Text>
-                    <Text style={{fontSize:wp("4%")}}>{props.feedback.name}</Text>
-                </Text>
-                <Text>
-                    <Text style={{fontWeight:"bold",fontSize:wp("5%")}}>Voto: </Text>
-                    <Text style={{fontSize:wp("4%")}}>{props.feedback.rating}/5</Text>
-                </Text>
-                <Text style={{flexWrap: "wrap", }}>
-                    <Text style={{fontWeight:"bold",fontSize:wp("5%")}}>Commento: </Text>
-                    <Text style={{fontSize:wp("4%")}}>{props.feedback.text}</Text>
-                </Text>
+
+                <View style={{flexDirection:"row", justifyContent:"space-between", flexWrap: "wrap" }}>
+                    <Text style={{fontWeight:"bold",fontSize:wp("5%")}}>{props.feedback.name}</Text>
+                    <StarRating
+                        disabled={true}
+                        maxStars={5}
+                        starSize={20}
+                        rating={props.feedback.rating}
+                        emptyStarColor={'#f1c40f'}
+                        fullStarColor={'#f1c40f'}
+                    />
+                </View>
+
+                <Text style={{fontSize:wp("4%")}}>{props.feedback.text}</Text>
             </View>
-        </View>
-    )
-}
-
-function FeedbacksOverview(props) {
-    getNumber = (rating) => {
-        return props.feedbacks.filter(
-            elem => elem.rating == rating
-        ).length
-    }
-
-    return(
-        <View>
-            {props.feedbacks != null && props.feedbacks.map(
-                elem => <Feedback key={elem.opponentId} feedback={elem}/>
-            )}
         </View>
     )
 }
 
 function Feedbacks(props){
     return(
-        <View style={styles.biographyContainer}>
-            <View style={styles.biography}>
-                <Text style={{
-                    fontWeight:"bold",
-                    fontSize:wp("6%")
-                }}>
-                    Feedbacks
-                </Text>
+        <View style={styles.feedbacksContainer}>
+            <Text style={{fontWeight:"bold", fontSize:wp("6%"), marginLeft:wp("5%")}}>Feedbacks</Text>
+            <Surface style={styles.feedbacks}>
                 {
                     props.feedbacks != "" && props.feedbacks != undefined
-                        ? <FeedbacksOverview feedbacks={props.feedbacks}/>
+                        ? props.feedbacks != null && props.feedbacks.map(
+                            elem => <Feedback key={elem.opponentId} feedback={elem}/>
+                        )
                         : <Text style={styles.biographyText}>
                             You do not have any feedback yet.
                         </Text>
                 }
-            </View>
+            </Surface>
         </View>
     )
 }
@@ -198,10 +189,11 @@ export default class ProfileTab extends Component {
 const styles = StyleSheet.create({
     biographyContainer: {
         fontSize: hp("30%"),
-        textAlign: 'center',
-        borderColor: 'black',
-        borderRadius: 7,
-        borderWidth: 0.5,
+        width: wp("95%"),
+        margin: hp("1%"),
+    },
+    feedbacksContainer: {
+        fontSize: hp("30%"),
         width: wp("95%"),
         margin: hp("1%"),
     },
@@ -209,8 +201,14 @@ const styles = StyleSheet.create({
         margin: wp("4%"),
     },
     biographyText:{
+        textAlign: "center",
         fontSize:wp("4%"),
         flex: 1,
+    },
+    feedbacks:{
+        margin: wp("2%"),
+        borderRadius: 10,
+        elevation:4
     },
     infoUser:{
         flex: 1,

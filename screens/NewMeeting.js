@@ -19,6 +19,7 @@ export default class NewMeeting extends Component {
                     mode={"outlined"}
                     onPress={()=>navigation.getParam("saveMeeting", null)()}
                     style={styles.button}
+                    color={"white"}
                 >
                     Save
                 </Button>
@@ -219,7 +220,8 @@ const styles = StyleSheet.create({
     button:{
         marginLeft:0,
         marginRight:0,
-        borderRadius: 25
+        borderRadius: 20,
+        borderColor: "white"
     }
 });
 

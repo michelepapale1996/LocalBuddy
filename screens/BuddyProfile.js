@@ -1,21 +1,21 @@
 import React, {Component} from 'react';
-import {StyleSheet, View, Button, Image, ScrollView, TouchableWithoutFeedback, ActivityIndicator, FlatList} from 'react-native';
+import {StyleSheet, View, Image, ScrollView, TouchableWithoutFeedback, ActivityIndicator, FlatList} from 'react-native';
 import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen';
 import UserHandler from "../handler/UserHandler";
 import SingleChatHandler from "../handler/SingleChatHandler";
 import LoadingComponent from "../components/LoadingComponent";
-import { IconButton, Text, Colors } from 'react-native-paper';
+import { FAB, Text, Surface, Button } from 'react-native-paper';
 import firebase from "react-native-firebase";
+import StarRating from 'react-native-star-rating';
 
 function Biography(props){
     return(
         <View style={styles.biographyContainer}>
             <View style={styles.biography}>
-                <Text style={{fontWeight:"bold"}}>Biografia</Text>
                 {
                     props.bio != ""
-                        ? <Text>{props.bio}</Text>
-                        : <Text>Non ha ancora una biografia!</Text>
+                        ? <Text style={styles.biographyText}>{props.bio}</Text>
+                        : <Text style={styles.biographyText}>The buddy does not have any biography yet.</Text>
                 }
             </View>
         </View>
@@ -24,22 +24,14 @@ function Biography(props){
 
 
 function UserInfo(props) {
-    const years = 22
+    const birthdate = new Date(props.userInfo.birthDate)
+    const years = new Date().getFullYear() - birthdate.getFullYear()
     return(
         <View style={styles.infoUser}>
             <Text style={styles.nameAndSurnameText}>
                 {props.userInfo.name} {props.userInfo.surname}
             </Text>
             <Text style={styles.infoUserText}>{years} years old</Text>
-            <Button
-                title="Send a message"
-                onPress={() => props.nav.navigate('SingleChat',
-                    {
-                        CCopponentUserId: props.userInfo.ccUserId,
-                        chatId: props.chatId,
-                        opponentNameAndSurname: props.userInfo.name + " " + props.userInfo.surname,
-                        urlPhotoOther: props.userInfo.urlPhoto
-                    })}/>
         </View>
     )
 }
@@ -59,57 +51,40 @@ function Feedback(props){
                 style={styles.photoTravelerProfile}
                 source={{uri: props.feedback.url}}/>
             <View style={{margin:5, flex:1}}>
-                <Text>
-                    <Text style={{fontWeight:"bold"}}>Viaggiatore: </Text>
-                    {props.feedback.name}
-                </Text>
-                <Text>
-                    <Text style={{fontWeight:"bold"}}>Voto: </Text>
-                    {props.feedback.rating}/5
-                </Text>
-                <Text style={{flexWrap: "wrap", }}>
-                    <Text style={{fontWeight:"bold"}}>Commento: </Text>
-                    {props.feedback.text}
-                </Text>
+
+                <View style={{flexDirection:"row", justifyContent:"space-between", flexWrap: "wrap" }}>
+                    <Text style={{fontWeight:"bold",fontSize:wp("5%")}}>{props.feedback.name}</Text>
+                    <StarRating
+                        disabled={true}
+                        maxStars={5}
+                        starSize={20}
+                        rating={props.feedback.rating}
+                        emptyStarColor={'#f1c40f'}
+                        fullStarColor={'#f1c40f'}
+                    />
+                </View>
+
+                <Text style={{fontSize:wp("4%")}}>{props.feedback.text}</Text>
             </View>
-        </View>
-    )
-}
-
-function FeedbacksOverview(props) {
-    getNumber = (rating) => {
-        return props.feedbacks.filter(
-            elem => elem.rating == rating
-        ).length
-    }
-
-    return(
-        <View>
-            {props.feedbacks != null && props.feedbacks.map(
-                elem => <Feedback key={elem.opponentId} feedback={elem}/>
-            )}
         </View>
     )
 }
 
 function Feedbacks(props){
     return(
-        <View style={styles.biographyContainer}>
-            <View style={styles.biography}>
-                <Text style={{
-                    fontWeight:"bold",
-                    fontSize:wp("6%")
-                }}>
-                    Feedbacks
-                </Text>
+        <View style={styles.feedbacksContainer}>
+            <Text style={{fontWeight:"bold", fontSize:wp("6%"), marginLeft:wp("5%")}}>Feedbacks</Text>
+            <Surface style={styles.feedbacks}>
                 {
                     props.feedbacks != "" && props.feedbacks != undefined
-                        ? <FeedbacksOverview feedbacks={props.feedbacks}/>
+                        ? props.feedbacks != null && props.feedbacks.map(
+                        elem => <Feedback key={elem.opponentId} feedback={elem}/>
+                    )
                         : <Text style={styles.biographyText}>
-                            He has not any feedback yet.
+                            You do not have any feedback yet.
                         </Text>
                 }
-            </View>
+            </Surface>
         </View>
     )
 }
@@ -167,22 +142,34 @@ export default class ProfileTab extends Component {
     render() {
         if (this.state.loadingDone){
             return(
-                <ScrollView contentContainerStyle={styles.container}>
-                    <View>
-                        <View style={styles.header}></View>
-                        <PhotoProfile photoPath={this.state.user.urlPhoto} chatId={this.state.chatId} userId={this.state.user.id}/>
+                <View>
+                    <ScrollView contentContainerStyle={styles.container}>
+                            <View style={styles.header}></View>
+                            <PhotoProfile photoPath={this.state.user.urlPhoto} chatId={this.state.chatId} userId={this.state.user.id}/>
 
-                        <View style={styles.bodyContent}>
-                            <UserInfo
-                                chatId={this.state.chatId}
-                                nav={this.props.navigation}
-                                userInfo={this.state.user}
-                            />
-                            <Biography bio={this.state.user.bio} nav={this.props.navigation}/>
-                            <Feedbacks feedbacks={this.state.user.feedbacks}/>
-                        </View>
-                    </View>
-                </ScrollView>
+                            <View style={styles.bodyContent}>
+                                <UserInfo
+                                    chatId={this.state.chatId}
+                                    nav={this.props.navigation}
+                                    userInfo={this.state.user}
+                                />
+                                <Biography bio={this.state.user.bio} nav={this.props.navigation}/>
+                                <Feedbacks feedbacks={this.state.user.feedbacks}/>
+                            </View>
+                    </ScrollView>
+                    <FAB
+                        style={styles.fab}
+                        color={"white"}
+                        icon="send"
+                        onPress={() => this.props.navigation.navigate('SingleChat',
+                            {
+                                CCopponentUserId: this.state.user.ccUserId,
+                                chatId: this.state.user.chatId,
+                                opponentNameAndSurname: this.state.user.name + " " + this.state.user.surname,
+                                urlPhotoOther: this.state.user.urlPhoto
+                            })}
+                    />
+                </View>
             )
         }else{
             return(<LoadingComponent/>)
@@ -193,27 +180,31 @@ export default class ProfileTab extends Component {
 const styles = StyleSheet.create({
     biographyContainer: {
         fontSize: hp("30%"),
-        textAlign: 'center',
-        borderColor: 'black',
-        borderRadius: 7,
-        borderWidth: 0.5,
+        width: wp("95%"),
+        margin: hp("1%"),
+    },
+    feedbacksContainer: {
+        fontSize: hp("30%"),
         width: wp("95%"),
         margin: hp("1%"),
     },
     biography:{
         margin: wp("4%"),
     },
+    feedbacks:{
+        margin: wp("2%"),
+        borderRadius: 10,
+        elevation:4
+    },
     biographyText:{
-        fontSize:wp("5%"),
+        textAlign: "center",
+        fontSize:wp("4%"),
         flex: 1,
     },
     infoUser:{
         flex: 1,
         width: wp("80%"),
         fontWeight:'600',
-        borderColor: 'black',
-        borderWidth: 0.5,
-        borderRadius: 7,
         marginTop: hp("5%"),
     },
     nameAndSurnameText:{
@@ -272,5 +263,11 @@ const styles = StyleSheet.create({
         marginLeft:wp("65%"),
         zIndex:10,
         backgroundColor:"dodgerblue"
-    }
+    },
+    fab: {
+        position: 'absolute',
+        right: wp("3%"),
+        top: hp("70%"),
+        backgroundColor: "#52c8ff"
+    },
 });

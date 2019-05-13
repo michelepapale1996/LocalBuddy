@@ -49,7 +49,6 @@ export default class PastMeetings extends Component{
         MeetingsUpdatesHandler.setFromFutureToPastMeeting(this.addMeeting)
 
         MeetingsHandler.getPastMeetings().then(meetings => {
-            console.log("past:", meetings)
             let promises = meetings.map(meeting => {
                 return UserHandler.getNameAndSurname(meeting.idOpponent)
             })
@@ -169,12 +168,10 @@ const styles = StyleSheet.create({
     },
     text: {
         fontSize: 20,
-        fontWeight: "bold"
     },
     header:{
         height: hp("5%"),
         fontSize: 20,
-        color: "green",
         fontWeight:"bold"
     },
     userPhoto: {
@@ -212,5 +209,12 @@ const styles = StyleSheet.create({
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-    }
+    },
+    fab: {
+        position: 'absolute',
+        margin: 16,
+        right: 0,
+        bottom: 0,
+        backgroundColor: "#52c8ff"
+    },
 });

@@ -14,12 +14,20 @@ export default class NewBiography extends Component {
                     onPress={()=>navigation.getParam("saveBiography", null)()}
                     style={styles.button}
                     mode={"outlined"}
+                    color={"white"}
                 >
                     Save
                 </Button>
             ),
-        };
-    };
+            headerTintColor: 'white',
+            headerStyle: {
+                backgroundColor: '#2fa1ff'
+            },
+            headerTitleStyle: {
+                color: 'white'
+            }
+        }
+    }
 
     saveBiography = () => {
         UserHandler.saveBiography(this.state.text).then(()=>{
@@ -115,6 +123,7 @@ const styles = StyleSheet.create({
     button:{
         marginLeft:0,
         marginRight:0,
-        borderRadius: 25
+        borderRadius: 20,
+        borderColor: "white"
     }
 })
