@@ -167,8 +167,8 @@ export default class AllChats extends Component {
                 )
             }else{
                 return(
-                    <View>
-                        <Text>Non hai ancora alcuna chat!</Text>
+                    <View style={styles.container}>
+                        <Text>You do not have any chat yet!</Text>
                     </View>
                 )
             }

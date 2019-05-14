@@ -30,22 +30,18 @@ export default class ChooseCity extends Component {
                 +input+"&key="+ApiKey+"&sessiontoken="+sessionToken+"&types=(cities)"
                 +"&language=it"
 
-            fetch(queryGoogle)
-                .then(response => {
-                    response.json().then(json => {
-                        let cities = json.predictions.map(
-                            prediction => {
-                                return {name : prediction.description, cityId: prediction.place_id}
-                            }
-                        )
-                        this.setState({
-                            cities: cities
-                        })
+            fetch(queryGoogle).then(response => {
+                response.json().then(json => {
+                    let cities = json.predictions.map(
+                        prediction => {
+                            return {name : prediction.description, cityId: prediction.place_id}
+                        }
+                    )
+                    this.setState({
+                        cities: cities
                     })
                 })
-                .catch(
-                    err => console.log(err)
-                )
+            }).catch(err => console.log(err))
         }
     }
 
@@ -64,19 +60,24 @@ export default class ChooseCity extends Component {
                     style={styles.searchBar}
                     value={this.state.query}
                 />
-                <FlatList
-                    data={this.state.cities}
-                    renderItem={({item}) =>
-                        <Text
-                            style={styles.text}
-                            onPress={() => this.props.navigation.navigate('CityChosen', {cityId: item.cityId})}
-                        >
-                            {item.name}
-                        </Text>}
-                    keyExtractor={(item, index) => index.toString()}
-                    extraData={this.state}
-                    showsVerticalScrollIndicator={false}
-                />
+                {
+                    this.state.cities.length != 0 ?
+                        <FlatList
+                            data={this.state.cities}
+                            renderItem={({item}) =>
+                                <Text
+                                    style={styles.text}
+                                    onPress={() => this.props.navigation.navigate('CityChosen', {cityId: item.cityId})}
+                                >
+                                    {item.name}
+                                </Text>}
+                            keyExtractor={(item, index) => index.toString()}
+                            extraData={this.state}
+                            showsVerticalScrollIndicator={false}
+                        /> : <View style={{justifyContent:"center", textAlign:"center"}}>
+                            <Text style={styles.text}>To start, search a city where you want to find a buddy!</Text>
+                            </View>
+                }
             </View>
         );
     }
@@ -85,7 +86,6 @@ export default class ChooseCity extends Component {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        justifyContent: 'center',
         alignItems: 'center',
         backgroundColor: '#F5FCFF',
     },

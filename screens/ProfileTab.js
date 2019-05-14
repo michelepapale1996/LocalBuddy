@@ -78,7 +78,7 @@ function PhotoProfile(props) {
 
 function Feedback(props){
     return(
-        <View style={{borderBottomWidth:1, flexDirection:"row", margin:10}}>
+        <View style={{flexDirection:"row", margin:10}}>
             <Image
                 style={styles.photoTravelerProfile}
                 source={{uri: props.feedback.url}}/>
