@@ -29,20 +29,18 @@ class MessagesNotificationsHandler{
                 chatId: notification.chatId,
                 nameAndSurname: notification.opponentName,
                 urlPhotoOther: notification.urlPhotoOther,
-                CCopponentUserId: notification.CCopponentUserId,
-                userName: notification.opponentName
+                CCopponentUserId: notification.CCopponentUserId
             })
         }
 
         //if user tapped on notification
         if(click){
             //app in background and user clicked on notification -> go to singleChat
-            navigation.navigate('SingleChat', {
+            navigation.navigate('AllChats', {
                 chatId: notification.chatId,
-                nameAndSurname: notification.opponentName,
+                opponentNameAndSurname: notification.opponentName,
                 urlPhotoOther: notification.urlPhotoOther,
-                CCopponentUserId: notification.CCopponentUserId,
-                userName: notification.opponentName
+                CCopponentUserId: notification.CCopponentUserId
             })
         }
     }

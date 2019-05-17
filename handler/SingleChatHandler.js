@@ -93,8 +93,8 @@ class SingleChatHandler{
         //send notification
         var notificationBody = JSON.stringify({
             message: payload.text,
-            opponentName: payload.opponentUsername,
-            title: payload.opponentUsername,
+            opponentName: payload.nameAndSurname,
+            title: payload.nameAndSurname,
             chatId: payload.chatId,
             urlPhotoOther: payload.urlPhotoOther,
             CCopponentUserId: payload.ccOpponentUserId

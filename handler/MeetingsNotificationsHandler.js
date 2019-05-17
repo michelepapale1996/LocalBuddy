@@ -26,6 +26,7 @@ class MeetingsNotificationsHandler{
                 /* iOS and Android properties */
                 title: notification.title, // (optional)
                 message: notification.message, // (required)
+                type: "meeting"
             })
         }
 

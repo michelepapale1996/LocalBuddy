@@ -7,16 +7,18 @@ import LoadingComponent from '../components/LoadingComponent'
 import { Text, TouchableRipple } from 'react-native-paper'
 
 function Chat(props) {
+    console.log("AAAAAAAAA" + props.item)
     const lastMessageTime = props.getTime(props.item.createdAt)
     return(
         <TouchableRipple
-            onPress={() => props.nav.navigate('SingleChat',
-                {
+            onPress={() => props.nav.navigate({routeName: 'SingleChat',
+                key:props.item.chatId,
+                params:{
                     chatId: props.item.chatId,
                     opponentNameAndSurname: props.item.nameAndSurname,
                     urlPhotoOther: props.item.urlPhotoOther,
                     CCopponentUserId: props.item.CCopponentUserId,
-                })}>
+                }})}>
             <View style={styles.singleChatContainer}>
                 <Image
                     style={styles.userPhoto}
@@ -183,7 +185,7 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: '#F5FCFF',
+        backgroundColor: 'white',
     },
     text: {
         fontSize: 20,

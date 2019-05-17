@@ -6,6 +6,8 @@ import MessagesUpdatesHandler from "../handler/MessagesUpdatesHandler"
 import AccountHandler from "../handler/AccountHandler"
 import { Text, TouchableRipple } from 'react-native-paper'
 import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen'
+import UserHandler from "../handler/UserHandler";
+import firebase from 'react-native-firebase'
 
 export default class SingleChat extends Component {
     static navigationOptions = ({ navigation }) => {
@@ -36,7 +38,6 @@ export default class SingleChat extends Component {
 
     constructor(props){
         super(props)
-
         this.state = {
             CCopponentUserId: props.navigation.getParam('CCopponentUserId', 'Error'),
             chatId : props.navigation.getParam('chatId', 'Error'),
@@ -49,10 +50,14 @@ export default class SingleChat extends Component {
 
     componentDidMount() {
         const urlPhotoOther = this.state.urlPhotoOther
+        const userId = firebase.auth().currentUser.uid
 
         AccountHandler.getUserId(this.state.CCopponentUserId).then(opponentId => {
             this.setState({opponentId})
             this.props.navigation.setParams({buddyId: this.state.opponentId})
+        })
+        UserHandler.getNameAndSurname(userId).then(nameAndSurname => {
+            this.setState({nameAndSurname: nameAndSurname})
         })
 
         if(this.state.chatId != null){
@@ -75,7 +80,7 @@ export default class SingleChat extends Component {
             message = payload.body
         }
         const msg = {
-            _id: id,
+            _id: Math.floor(Math.random() * 10000),
             text: message,
             createdAt: new Date().getTime(),
             user: {
@@ -104,6 +109,7 @@ export default class SingleChat extends Component {
                 opponentId: this.state.opponentId,
                 ccOpponentUserId: this.state.CCopponentUserId,
                 opponentUsername: this.state.opponentNameAndSurname,
+                nameAndSurname: this.state.nameAndSurname,
                 urlPhotoOther: this.state.urlPhotoOther,
                 createdAt: new Date()
             }
