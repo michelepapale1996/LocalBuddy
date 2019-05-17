@@ -74,9 +74,7 @@ export default class ChooseCity extends Component {
                             keyExtractor={(item, index) => index.toString()}
                             extraData={this.state}
                             showsVerticalScrollIndicator={false}
-                        /> : <View style={{justifyContent:"center", textAlign:"center"}}>
-                            <Text style={styles.text}>To start, search a city where you want to find a buddy!</Text>
-                            </View>
+                        /> : <Text style={styles.text}>To start, search a city where you want to find a buddy!</Text>
                 }
             </View>
         );
@@ -85,9 +83,7 @@ export default class ChooseCity extends Component {
 
 const styles = StyleSheet.create({
     container: {
-        flex: 1,
-        alignItems: 'center',
-        backgroundColor: '#F5FCFF',
+        flex: 1
     },
     text: {
         fontSize: 20,

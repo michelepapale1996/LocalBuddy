@@ -192,7 +192,7 @@ const styles = StyleSheet.create({
     mainContainer: {
         margin: hp("0%"),
         flex: 1,
-        backgroundColor: '#F5FCFF',
+        backgroundColor: 'white',
     },
     container:{
         flex:1,

@@ -58,7 +58,7 @@ function PhotoProfile(props) {
             } else if (response.customButton) {
                 console.log('User tapped custom button: ', response.customButton);
             } else {
-                const source = response.uri
+                var source = response.uri
                 console.log(source)
                 firebase.storage().ref("/PhotosProfile/" + props.userId).putFile(source).then(()=>{
                     firebase.storage().ref("/PhotosProfile/" + props.userId).getDownloadURL().then(url=>{
@@ -153,8 +153,9 @@ export default class ProfileTab extends Component {
     render() {
         if (this.state.loadingDone){
             return(
-                <ScrollView contentContainerStyle={styles.container}>
-                    <View>
+                <View elevation={5} style={styles.container}>
+                    <ScrollView>
+
                         <View style={styles.header}></View>
                         <IconButton
                             style={styles.settingsButton}
@@ -177,8 +178,8 @@ export default class ProfileTab extends Component {
                             <Biography bio={this.state.user.bio} nav={this.props.navigation} newBiography={this.newBiography}/>
                             <Feedbacks feedbacks={this.state.user.feedbacks}/>
                         </View>
-                    </View>
-                </ScrollView>
+                    </ScrollView>
+                </View>
             )
         }else{
             return(<LoadingComponent/>)
@@ -187,6 +188,17 @@ export default class ProfileTab extends Component {
 }
 
 const styles = StyleSheet.create({
+    container:{
+        backgroundColor: 'white',
+        marginBottom:2,
+        shadowColor: "#000000",
+        shadowOpacity: 0.8,
+        shadowRadius: 2,
+        shadowOffset: {
+            height: 1,
+            width: 1
+        }
+    },
     biographyContainer: {
         fontSize: hp("30%"),
         width: wp("95%"),

@@ -188,10 +188,12 @@ export default class CitiesOfBuddy extends Component {
 }
 const styles = StyleSheet.create({
     container: {
-        alignItems: 'center'
+        alignItems: 'center',
+        backgroundColor: 'white',
     },
     viewContainer:{
-        flex:1
+        flex:1,
+        backgroundColor: 'white',
     },
     text: {
         fontSize: 20,

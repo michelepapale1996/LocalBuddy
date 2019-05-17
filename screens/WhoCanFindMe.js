@@ -107,7 +107,8 @@ export default class Settings extends Component {
 }
 const styles = StyleSheet.create({
     container: {
-        alignItems: 'center'
+        alignItems: 'center',
+        backgroundColor: 'white',
     },
     viewContainer:{
         flex:1,
