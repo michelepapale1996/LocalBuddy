@@ -1,17 +1,27 @@
 import MeetingsNotificationsHandler from "./MeetingsNotificationsHandler";
-
 var PushNotification = require('react-native-push-notification');
+import { StackActions, NavigationActions } from 'react-navigation';
+import NavigationService from "./NavigationService";
+
 class MessagesNotificationsHandler{
+    //it is an object containing {routeName:"", key:""}
     static currentScreen;
 
     static setScreen(screen) {
         MeetingsNotificationsHandler.currentScreen = screen
+        if (screen.routeName == "AllChats") PushNotification.cancelAllLocalNotifications()
     }
+
 
     static newNotification(notification, navigation){
         const click = notification.userInteraction
         const appInForeground = notification.foreground
-        if(appInForeground && MeetingsNotificationsHandler.currentScreen != "AllChats" && MeetingsNotificationsHandler.currentScreen != "SingleChat"){
+        if(appInForeground &&
+            MeetingsNotificationsHandler.currentScreen.routeName != "AllChats" &&
+            (
+                MeetingsNotificationsHandler.currentScreen.routeName != "SingleChat" ||
+                (MeetingsNotificationsHandler.currentScreen.routeName == "SingleChat" && MeetingsNotificationsHandler.currentScreen.key != notification.chatId))
+        ){
             PushNotification.localNotification({
                 /* Android Only Properties */
                 ticker: "My Notification Ticker", // (optional)
@@ -27,21 +37,15 @@ class MessagesNotificationsHandler{
                 message: notification.message, // (required)
                 //custom data
                 chatId: notification.chatId,
-                nameAndSurname: notification.opponentName,
+                opponentName: notification.opponentName,
                 urlPhotoOther: notification.urlPhotoOther,
                 CCopponentUserId: notification.CCopponentUserId
             })
         }
-
         //if user tapped on notification
         if(click){
             //app in background and user clicked on notification -> go to singleChat
-            navigation.navigate('AllChats', {
-                chatId: notification.chatId,
-                opponentNameAndSurname: notification.opponentName,
-                urlPhotoOther: notification.urlPhotoOther,
-                CCopponentUserId: notification.CCopponentUserId
-            })
+            NavigationService.notificationOpened(notification)
         }
     }
 }

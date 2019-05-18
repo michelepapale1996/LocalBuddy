@@ -43,19 +43,17 @@ export default class SingleChat extends Component {
             chatId : props.navigation.getParam('chatId', 'Error'),
             urlPhotoOther: props.navigation.getParam("urlPhotoOther", "Error"),
             opponentNameAndSurname: props.navigation.getParam("opponentNameAndSurname", "Error"),
-            opponentId: null,
+            opponentId: props.navigation.getParam("opponentUserId", "Error"),
             messages: []
         }
+        this.props.navigation.setParams({buddyId: this.state.opponentId})
     }
 
     componentDidMount() {
         const urlPhotoOther = this.state.urlPhotoOther
         const userId = firebase.auth().currentUser.uid
 
-        AccountHandler.getUserId(this.state.CCopponentUserId).then(opponentId => {
-            this.setState({opponentId})
-            this.props.navigation.setParams({buddyId: this.state.opponentId})
-        })
+        //used for the notification
         UserHandler.getNameAndSurname(userId).then(nameAndSurname => {
             this.setState({nameAndSurname: nameAndSurname})
         })
@@ -72,25 +70,32 @@ export default class SingleChat extends Component {
 
     //local parameter is a bool that is true if the msg is sent from the loggedUser
     onMessageRcvd = (payload, local)=>{
+        console.log(payload)
+
         var id = 1
         //depending on the message (local/remote), the message is in text or body
         var message = payload.text
+        var chatId = payload.chatId
         if(!local){
             id = 2
             message = payload.body
+            chatId = payload.dialog_id
         }
-        const msg = {
-            _id: Math.floor(Math.random() * 10000),
-            text: message,
-            createdAt: new Date().getTime(),
-            user: {
-                _id: id,
-                avatar: this.state.urlPhotoOther
+
+        if(chatId == this.state.chatId){
+            const msg = {
+                _id: Math.floor(Math.random() * 10000),
+                text: message,
+                createdAt: new Date().getTime(),
+                user: {
+                    _id: id,
+                    avatar: this.state.urlPhotoOther
+                }
             }
+            this.setState(previousState => ({
+                messages: GiftedChat.append(previousState.messages, msg),
+            }))
         }
-        this.setState(previousState => ({
-            messages: GiftedChat.append(previousState.messages, msg),
-        }))
     }
 
     async onSend(messages){
@@ -102,6 +107,7 @@ export default class SingleChat extends Component {
                 chatID = await SingleChatHandler.createConversation(this.state.CCopponentUserId).then(chat => {
                     return chat._id
                 })
+                this.setState({chatId: chatID})
             }
             const payload = {
                 text: messages[0].text,

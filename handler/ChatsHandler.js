@@ -18,6 +18,7 @@ class ChatsHandler {
             return Promise.all(promises).then((res) => {
                 state.nameAndSurname = res[0]
                 state.urlPhotoOther = res[1]
+                state.opponentUserId = userId
                 return state
             })
         }).catch(()=>{

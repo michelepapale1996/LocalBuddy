@@ -101,8 +101,7 @@ export default class ProfileTab extends Component {
     }
 
     componentDidMount(){
-        const id = firebase.auth().currentUser.uid
-        UserHandler.getUserInfo(id).then(user => {
+        UserHandler.getUserInfo(idUser).then(user => {
             this.setState({
                 user: user,
                 chatId: null,
@@ -115,7 +114,7 @@ export default class ProfileTab extends Component {
         const idBuddy = this.props.navigation.getParam('idUser', 'Error')
         UserHandler.getUserInfo(idBuddy).then(buddy => {
             //check if it exists already a chat between the logged user and the buddy
-            SingleChatHandler.getChatId(idBuddy).then( connectyCubeChatId => {
+            SingleChatHandler.getChatId(idBuddy).then(connectyCubeChatId => {
                 this.props.navigation.setParams({nameBuddy: buddy.name + " " + buddy.surname})
                 this.setState({
                     user: buddy,
@@ -161,13 +160,17 @@ export default class ProfileTab extends Component {
                         style={styles.fab}
                         color={"white"}
                         icon="send"
-                        onPress={() => this.props.navigation.navigate('SingleChat',
-                            {
+                        onPress={() => this.props.navigation.navigate({
+                            routeName: 'SingleChat',
+                            key: this.state.chatId,
+                            params: {
                                 CCopponentUserId: this.state.user.ccUserId,
-                                chatId: this.state.user.chatId,
+                                chatId: this.state.chatId,
                                 opponentNameAndSurname: this.state.user.name + " " + this.state.user.surname,
-                                urlPhotoOther: this.state.user.urlPhoto
-                            })}
+                                urlPhotoOther: this.state.user.urlPhoto,
+                                opponentUserId: this.props.navigation.getParam('idUser', 'Error')
+                            }
+                        })}
                     />
                 </View>
             )

@@ -46,7 +46,6 @@ export default class CitiesOfBuddy extends Component {
                         cityId: cityIds[index]
                     }
                 })
-                console.log(toShow)
                 this.setState({
                     cities: toShow,
                     loadingDone: true

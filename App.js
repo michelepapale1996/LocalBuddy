@@ -23,6 +23,7 @@ import { DefaultTheme, Provider as PaperProvider } from 'react-native-paper'
 import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen'
 import MeetingsNotificationsHandler from "./handler/MeetingsNotificationsHandler";
 import MessagesNotificationsHandler from "./handler/MessagesNotificationsHandler";
+import NavigationService from "./handler/NavigationService"
 
 const SearchTab = createStackNavigator({
     Home: {
@@ -33,9 +34,6 @@ const SearchTab = createStackNavigator({
     },
     BuddyProfile: {
         screen: BuddyProfile
-    },
-    SingleChat: {
-        screen: SingleChat
     }
 });
 
@@ -178,17 +176,23 @@ class Application extends React.Component {
         if (route.routes) {
             return this.getActiveRouteName(route);
         }
-        return route.routeName;
+        return route;
     }
 
     render() {
         return (
             <PaperProvider theme={theme}>
-                <AppContainer onNavigationStateChange={(prevState, currentState) => {
-                    var currentScreen = this.getActiveRouteName(currentState)
-                    MeetingsNotificationsHandler.setScreen(currentState)
-                    MessagesNotificationsHandler.setScreen(currentScreen)
-                }}/>
+                <AppContainer
+                    onNavigationStateChange={(prevState, currentState) => {
+                        var currentScreen = this.getActiveRouteName(currentState)
+                        MeetingsNotificationsHandler.setScreen(currentState)
+                        MessagesNotificationsHandler.setScreen(currentScreen)
+                        }}
+
+                    ref={ navigatorRef => {
+                        NavigationService.setTopLevelNavigator(navigatorRef);
+                    }}
+                />
             </PaperProvider>
         );
     }

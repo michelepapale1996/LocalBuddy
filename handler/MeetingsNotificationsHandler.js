@@ -29,7 +29,6 @@ class MeetingsNotificationsHandler{
                 type: "meeting"
             })
         }
-
         //update
         if(notification.title == "New meeting"){
             MeetingsUpdatesHandler.newMeeting(notification.date, notification.time, notification.idOpponent)
@@ -46,8 +45,7 @@ class MeetingsNotificationsHandler{
         //if user tapped on notification
         if(click){
             //app in background and user clicked on notification -> go to singleChat
-            navigation.navigate('FutureMeetings', {
-            })
+            navigation.navigate('FutureMeetings')
         }
     }
 }

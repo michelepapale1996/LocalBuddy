@@ -96,6 +96,7 @@ class SingleChatHandler{
             opponentName: payload.nameAndSurname,
             title: payload.nameAndSurname,
             chatId: payload.chatId,
+            opponentId: payload.opponentId,
             urlPhotoOther: payload.urlPhotoOther,
             CCopponentUserId: payload.ccOpponentUserId
         })
