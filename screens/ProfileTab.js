@@ -59,10 +59,10 @@ function PhotoProfile(props) {
                 console.log('User tapped custom button: ', response.customButton);
             } else {
                 var source = response.uri
-                console.log(source)
                 firebase.storage().ref("/PhotosProfile/" + props.userId).putFile(source).then(()=>{
                     firebase.storage().ref("/PhotosProfile/" + props.userId).getDownloadURL().then(url=>{
                         UserHandler.setUrlPhoto(url)
+                        props.updatePhoto(url)
                     })
                 })
             }
@@ -132,6 +132,14 @@ export default class ProfileTab extends Component {
         }
     }
 
+    updateUserPhoto = (url) => {
+        this.setState(prevState => {
+            let newState = prevState
+            newState.user.urlPhoto = url
+            return newState
+        })
+    }
+
     componentDidMount(){
         const id = firebase.auth().currentUser.uid
         UserHandler.getUserInfo(id).then(user => {
@@ -171,7 +179,7 @@ export default class ProfileTab extends Component {
                             style={styles.photoButton}
                             size={30}
                         />
-                        <PhotoProfile photoPath={this.state.user.urlPhoto} userId={this.state.user.id}/>
+                        <PhotoProfile photoPath={this.state.user.urlPhoto} updatePhoto={this.updateUserPhoto} userId={this.state.user.id}/>
 
                         <View style={styles.bodyContent}>
                             <UserInfo userInfo={this.state.user}/>

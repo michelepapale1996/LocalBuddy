@@ -5,6 +5,7 @@ import { Text, TextInput, Button } from 'react-native-paper'
 import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen'
 import LoadingHandler from "../handler/LoadingHandler";
 import LoadingComponent from "../components/LoadingComponent";
+import { AccessToken, LoginManager } from 'react-native-fbsdk';
 
 export default class Login extends React.Component {
     state = {
@@ -23,6 +24,30 @@ export default class Login extends React.Component {
                 this.props.navigation.navigate('Home')
             })
         }).catch(error => this.setState({errorMessage: error.message}))
+    }
+
+    handleFacebookLogin = async () => {
+        const result = await LoginManager.logInWithReadPermissions(['public_profile', 'email']);
+        if (result.isCancelled) {
+            // handle this however suites the flow of your app
+            throw new Error('User cancelled request');
+        }
+        // get the access token
+        const data = await AccessToken.getCurrentAccessToken();
+        if (!data) {
+            // handle this however suites the flow of your app
+            throw new Error('Something went wrong obtaining the users access token');
+        }
+        // create a new firebase credential with the token
+        const credential = firebase.auth.FacebookAuthProvider.credential(data.accessToken);
+        // login with credential
+        const firebaseUserCredential = await firebase.auth().signInWithCredential(credential);
+
+        this.setState({buttonClicked: true})
+        const userId = firebaseUserCredential.uid
+        LoadingHandler.initApp(userId).then(() => {
+            this.props.navigation.navigate('Home')
+        })
     }
 
     render() {
@@ -54,6 +79,12 @@ export default class Login extends React.Component {
                         style={styles.button}
                         onPress={this.handleLogin}>
                         Login
+                    </Button>
+                    <Button
+                        mode={"outlined"}
+                        style={styles.button}
+                        onPress={this.handleFacebookLogin}>
+                        Login with Facebook
                     </Button>
                     <Button
                         mode={"outlined"}

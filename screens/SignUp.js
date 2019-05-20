@@ -2,12 +2,13 @@ import React from 'react'
 import { StyleSheet, View, ScrollView } from 'react-native'
 import firebase from 'react-native-firebase'
 import AccountHandler from "../handler/AccountHandler";
-import { Text, TextInput, RadioButton, Button } from 'react-native-paper';
+import { Text, TextInput, RadioButton, Button, Paragraph, Dialog, Portal } from 'react-native-paper';
 import DateTimePicker from "react-native-modal-datetime-picker";
 import ConnectyCubeHandler from "../handler/ConnectyCubeHandler"
 import LoadingComponent from "../components/LoadingComponent";
 import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen'
 import LoadingHandler from "../handler/LoadingHandler";
+import { AccessToken, LoginManager, GraphRequest, GraphRequestManager } from 'react-native-fbsdk';
 
 export default class SignUp extends React.Component {
     constructor(props){
@@ -33,6 +34,7 @@ export default class SignUp extends React.Component {
         this.setState({ isDateTimePickerVisible: false });
     }
 
+
     handleDatePicked = date => {
         this.setState({
             birthDate: date
@@ -55,7 +57,7 @@ export default class SignUp extends React.Component {
                 ConnectyCubeHandler.setInstance().then(() => {
                     return ConnectyCubeHandler.signUp(userId, userId).then(session => {
                         return AccountHandler.signUp(
-                            firebase.auth().currentUser.uid,
+                            userId,
                             this.state.name,
                             this.state.surname,
                             userId,
@@ -74,6 +76,51 @@ export default class SignUp extends React.Component {
 
             }).catch(error => this.setState({errorMessage: error.message}))
         }
+    }
+
+    handleFacebookSignUp = async () => {
+        this.setState({ isDialogVisible: false });
+        const result = await LoginManager.logInWithReadPermissions(['public_profile', 'email', 'user_birthday', "user_gender"]);
+        if (result.isCancelled) {
+            // handle this however suites the flow of your app
+            throw new Error('User cancelled request');
+        }
+        // get the access token
+        const data = await AccessToken.getCurrentAccessToken();
+        if (!data) {
+            // handle this however suites the flow of your app
+            throw new Error('Something went wrong obtaining the users access token');
+        }
+
+        // create a new firebase credential with the token
+        const credential = firebase.auth.FacebookAuthProvider.credential(data.accessToken);
+        // login with credential
+        const firebaseUserCredential = await firebase.auth().signInWithCredential(credential);
+
+        const userId = firebaseUserCredential.user._user.uid
+        const name = firebaseUserCredential.additionalUserInfo.profile.first_name
+        const surname = firebaseUserCredential.additionalUserInfo.profile.last_name
+        const birthDate =firebaseUserCredential.additionalUserInfo.profile.birthday
+        const sex = firebaseUserCredential.additionalUserInfo.profile.gender == "male" ? "M" : "F"
+        ConnectyCubeHandler.setInstance().then(() => {
+            return ConnectyCubeHandler.signUp(userId, userId).then(session => {
+                return AccountHandler.signUp(
+                    userId,
+                    name,
+                    surname,
+                    userId,
+                    false,
+                    sex,
+                    session.id,
+                    birthDate)
+            }).then(()=>{
+                return ConnectyCubeHandler.login(userId)
+            }).then(() => {
+                LoadingHandler.initApp(userId).then(()=>{
+                    this.props.navigation.navigate('Home')
+                })
+            }).catch(error => this.setState({errorMessage: error.message}))
+        })
     }
 
     render() {
@@ -158,6 +205,12 @@ export default class SignUp extends React.Component {
                                 mode={"outlined"}
                                 onPress={this.handleSignUp}>
                                 SignUp
+                            </Button>
+                            <Button
+                                style={styles.button}
+                                mode={"outlined"}
+                                onPress={this.handleFacebookSignUp}>
+                                SignUp with Facebook
                             </Button>
                             <Button
                                 style={styles.button}
