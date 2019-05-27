@@ -5,7 +5,10 @@ import { Text, TextInput, Button } from 'react-native-paper'
 import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen'
 import LoadingHandler from "../handler/LoadingHandler";
 import LoadingComponent from "../components/LoadingComponent";
-import { AccessToken, LoginManager } from 'react-native-fbsdk';
+import {AccessToken, GraphRequest, LoginManager, GraphRequestManager} from 'react-native-fbsdk';
+import UserHandler from "../handler/UserHandler";
+import AccountHandler from "../handler/AccountHandler";
+import ConnectyCubeHandler from "../handler/ConnectyCubeHandler";
 
 export default class Login extends React.Component {
     state = {
@@ -17,36 +20,94 @@ export default class Login extends React.Component {
 
     handleLogin = () => {
         const {email, password} = this.state;
-        firebase.auth().signInWithEmailAndPassword(email, password).then(() => {
+        if(email == "" || password == ""){
+            this.setState({errorMessage: "Make sure you have filled all the fields."})
+        }else{
             this.setState({buttonClicked: true})
-            const userId = firebase.auth().currentUser.uid
-            LoadingHandler.initApp(userId).then(() => {
-                this.props.navigation.navigate('Home')
-            })
-        }).catch(error => this.setState({errorMessage: error.message}))
+            firebase.auth().signInWithEmailAndPassword(email, password).then(() => {
+                const userId = firebase.auth().currentUser.uid
+                LoadingHandler.initApp(userId).then(() => {
+                    this.props.navigation.navigate('Home')
+                })
+            }).catch(error => this.setState({
+                errorMessage: error.message,
+                buttonClicked: false
+            }))
+        }
     }
 
     handleFacebookLogin = async () => {
-        const result = await LoginManager.logInWithReadPermissions(['public_profile', 'email']);
+        this.setState({buttonClicked: true})
+        const result = await LoginManager.logInWithReadPermissions(['public_profile', 'email', 'user_birthday', "user_gender", "user_photos"]);
         if (result.isCancelled) {
             // handle this however suites the flow of your app
-            throw new Error('User cancelled request');
+            this.setState({buttonClicked: false})
+            return
         }
         // get the access token
         const data = await AccessToken.getCurrentAccessToken();
         if (!data) {
             // handle this however suites the flow of your app
-            throw new Error('Something went wrong obtaining the users access token');
+            this.setState({buttonClicked: false})
+            return
         }
         // create a new firebase credential with the token
         const credential = firebase.auth.FacebookAuthProvider.credential(data.accessToken);
         // login with credential
         const firebaseUserCredential = await firebase.auth().signInWithCredential(credential);
 
-        this.setState({buttonClicked: true})
-        const userId = firebaseUserCredential.uid
-        LoadingHandler.initApp(userId).then(() => {
-            this.props.navigation.navigate('Home')
+        console.log(firebaseUserCredential)
+        const userId = firebaseUserCredential.user._user.uid
+        UserHandler.getUserInfo(userId).then(userInfo => {
+            if (userInfo) {
+                //user exists
+                LoadingHandler.initApp(userId).then(() => {
+                    this.props.navigation.navigate('Home')
+                })
+            } else {
+                //user is singing up
+                const name = firebaseUserCredential.additionalUserInfo.profile.first_name
+                const surname = firebaseUserCredential.additionalUserInfo.profile.last_name
+                const birthDate =firebaseUserCredential.additionalUserInfo.profile.birthday
+                const sex = firebaseUserCredential.additionalUserInfo.profile.gender == "male" ? "M" : "F"
+                ConnectyCubeHandler.setInstance().then(() => {
+                    return ConnectyCubeHandler.signUp(userId, userId).then(session => {
+                        return AccountHandler.signUp(
+                            userId,
+                            name,
+                            surname,
+                            userId,
+                            false,
+                            sex,
+                            session.id,
+                            birthDate)
+                    }).then(()=>{
+                        const graphRequest = new GraphRequest('/me', {
+                            accessToken: data.accessToken,
+                            parameters: {
+                                fields: {
+                                    string: 'picture.height(600)',
+                                },
+                            },
+                        }, (error, result) => {
+                            if (error) {
+                                console.error(error)
+                            } else {
+                                UserHandler.setUrlPhoto(result.picture.data.url)
+                            }
+                        })
+                        new GraphRequestManager().addRequest(graphRequest).start()
+                        //const photoPath = firebaseUserCredential.user._user.photoURL
+                        //return UserHandler.setUrlPhoto(photoPath)
+                    }).then(()=>{
+                        return ConnectyCubeHandler.login(userId)
+                    }).then(() => {
+                        LoadingHandler.initApp(userId).then(()=>{
+                            this.props.navigation.navigate('Home')
+                        })
+                    }).catch(error => this.setState({errorMessage: error.message}))
+                })
+            }
         })
     }
 
@@ -109,7 +170,7 @@ const styles = StyleSheet.create({
     },
     textInput: {
         height: hp("7%"),
-        width: '90%',
+        width: wp('90%'),
         marginTop: 8
     },
     button:{
