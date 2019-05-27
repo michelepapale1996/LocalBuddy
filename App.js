@@ -1,160 +1,20 @@
 import React from 'react'
-import { createBottomTabNavigator, createAppContainer, createSwitchNavigator, createStackNavigator, createMaterialTopTabNavigator } from 'react-navigation'
-import {Icon} from 'react-native-elements'
-import ProfileTab from "./screens/ProfileTab"
-import Settings from "./screens/Settings"
-import CityChosen from "./screens/CityChosen"
-import ChooseCity from "./screens/ChooseCity"
-import Loading from "./screens/Loading"
-import Login from "./screens/Login"
-import SignUp from "./screens/SignUp"
-import BuddyProfile from "./screens/BuddyProfile"
-import AllChats from "./screens/AllChats"
-import SingleChat from "./screens/SingleChat"
-import ChangePassword from "./screens/ChangePassword"
-import WhoCanFindMe from "./screens/WhoCanFindMe"
-import CitiesOfBuddy from "./screens/CitiesOfBuddy"
-import FutureMeetings from "./screens/FutureMeetings"
-import PastMeetings from "./screens/PastMeetings"
-import NewMeeting from "./screens/NewMeeting"
-import Feedback from "./screens/Feedback"
-import NewBiography from "./screens/NewBiography";
+import { createAppContainer} from 'react-navigation'
+import { Dimensions } from 'react-native';
 import { DefaultTheme, Provider as PaperProvider } from 'react-native-paper'
-import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen'
 import MeetingsNotificationsHandler from "./handler/MeetingsNotificationsHandler";
 import MessagesNotificationsHandler from "./handler/MessagesNotificationsHandler";
 import NavigationService from "./handler/NavigationService"
+import PhoneApp from "./PhoneNavigators"
+import TabletApp from "./TabletNavigators"
 
-const SearchTab = createStackNavigator({
-    Home: {
-        screen: ChooseCity,
-    },
-    CityChosen: {
-        screen: CityChosen,
-    },
-    BuddyProfile: {
-        screen: BuddyProfile
-    }
-});
+var AppContainer
+if(Dimensions.get('window').width < 600){
+    AppContainer = createAppContainer(PhoneApp)
+}else{
+    AppContainer = createAppContainer(TabletApp)
+}
 
-const ChatTab = createStackNavigator({
-    AllChats: {
-        screen: AllChats,
-    },
-    SingleChat: {
-        screen: SingleChat,
-    },
-    BuddyProfile: {
-        screen: BuddyProfile
-    }
-});
-
-const MeetingsTab = createMaterialTopTabNavigator({
-    FutureMeetings:{
-        screen: FutureMeetings,
-    },
-    PastMeetings:{
-        screen: PastMeetings
-    }
-},{
-    tabBarOptions: {
-        indicatorStyle:{
-            backgroundColor:'white'
-        },
-    }
-})
-
-const FutureMeetingsTabNavigator = createStackNavigator({
-    FutureMeetingsTab:{
-        screen: MeetingsTab,
-        navigationOptions: {
-            header: null
-        }
-    },
-    NewMeeting:{
-        screen: NewMeeting
-    },
-    Feedback:{
-        screen: Feedback
-    }
-})
-
-const ProfileTabNavigator = createStackNavigator({
-    Profile:{
-        screen: ProfileTab,
-        navigationOptions: {
-            header: null
-        }
-    },
-    Settings:{
-        screen: Settings
-    },
-    ChangePassword:{
-        screen: ChangePassword
-    },
-    WhoCanFindMe:{
-        screen: WhoCanFindMe
-    },
-    CitiesOfBuddy:{
-        screen: CitiesOfBuddy
-    },
-    NewBiography: {
-        screen: NewBiography
-    }
-})
-
-
-const TabNavigator = createBottomTabNavigator({
-    Search: {
-        screen: SearchTab,
-        navigationOptions:{
-            tabBarIcon: ({tintColor}) => <Icon name="search" size={35} color={tintColor}/>
-        }
-    },
-    Chat: {
-        screen: ChatTab,
-        navigationOptions:{
-            tabBarIcon: ({tintColor}) =>  <Icon name="chat" size={35} color={tintColor}/>
-        }
-    },
-    MyMeetings: {
-        screen: FutureMeetingsTabNavigator,
-        navigationOptions:{
-            tabBarIcon: ({tintColor}) => <Icon name="event" size={35} color={tintColor}/>
-        }
-    },
-    Profile: {
-        screen: ProfileTabNavigator,
-        navigationOptions:{
-            tabBarIcon: ({tintColor}) => <Icon name="person" size={35} color={tintColor}/>
-        }
-    }
-},{
-    tabBarOptions: {
-        labelStyle: {
-            fontSize: hp("2%"),
-        },
-        activeTintColor:'#3498db',
-        inactiveTintColor: "#343a40",
-        style: {
-            height: hp("9%"),
-        }
-    }
-});
-
-const App = createSwitchNavigator(
-    {
-        Loading,
-        SignUp,
-        Login,
-        TabNavigator
-    },
-    {
-        initialRouteName: 'Loading'
-    }
-)
-
-const AppContainer = createAppContainer(App)
 const theme = {
     ...DefaultTheme,
     roundness: 2,
