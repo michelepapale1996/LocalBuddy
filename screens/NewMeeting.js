@@ -9,6 +9,7 @@ import MeetingsHandler from "../handler/MeetingsHandler"
 import AccountHandler from "../handler/AccountHandler"
 import { Text, Button } from 'react-native-paper'
 import DateHandler from "../handler/DateHandler";
+import MeetingsUpdatesHandler from "../handler/MeetingsUpdatesHandler";
 
 export default class NewMeeting extends Component {
     static navigationOptions = ({ navigation }) => {
@@ -17,7 +18,7 @@ export default class NewMeeting extends Component {
             headerRight: (
                 <Button
                     mode={"outlined"}
-                    onPress={()=>navigation.getParam("saveMeeting", null)()}
+                    onPress={()=> navigation.getParam("saveMeeting", null)()}
                     style={styles.button}
                     color={"white"}
                 >
@@ -34,12 +35,12 @@ export default class NewMeeting extends Component {
         }
     }
 
-    saveMeeting = () => {
+    saveMeeting = async () => {
         if(this.state.chosenUserId == null) {
             alert("Please, choose a person.")
         }else{
             MeetingsHandler.createMeeting(this.state.date, this.state.time, this.state.chosenUserId).then(()=>{
-                this.props.navigation.getParam("addPendingMeeting", null)(this.state.date, this.state.time, this.state.chosenUserId)
+                MeetingsUpdatesHandler.newPendingMeeting(this.state.date, this.state.time, this.state.chosenUserId)
                 this.props.navigation.goBack()
             })
         }
@@ -51,12 +52,14 @@ export default class NewMeeting extends Component {
         const today = DateHandler.dateToString(date)
         const time = DateHandler.timeToString(date)
 
+        //nameAndSurnameOpponent is used when the user has tapped the button add a meeting from the profile of the other user
         this.state = {
             date: today,
             today: today,
             time: time,
             users: null,
-            chosenUserId: null,
+            chosenUserId: this.props.navigation.getParam("opponentId", null),
+            nameAndSurnameOpponent: this.props.navigation.getParam("nameAndSurnameOpponent", null),
             loadingDone: false,
             isDatePickerVisible: false,
             isTimePickerVisible: false
@@ -93,33 +96,29 @@ export default class NewMeeting extends Component {
         this.hideTimePicker();
     }
 
-    componentDidMount() {
-        ChatsHandler.getChats().then(chats => {
-            const promises = chats.map(user => {
-                return AccountHandler.getUserId(user.CCopponentUserId)
-            })
+    async componentDidMount() {
+        //user can arrive here or from the profile of the other user or from the meetings handler.
+        //in the former case, nameAndSurnameOpponent and idOpponent is setted
+        //in the latter, we have to retrieve all the users with whom the user has a chat
+        if(this.state.nameAndSurnameOpponent == null){
+            const chats = await ChatsHandler.getChats()
+            const usersWithChat = chats.map(user => ({
+                label: user.nameAndSurname,
+                value: user.opponentUserId
+            }))
 
-            Promise.all(promises).then(results => {
-                return chats.map((user, index) => {
-                    return {
-                        label: user.nameAndSurname,
-                        value: results[index]
-                    }
-                })
-            }).then(usersWithChat => {
-                //do not consider users already having a meeting with me
-                return MeetingsHandler.getFutureMeetings().then(meetings => {
-                    return usersWithChat.filter(elem => {
-                        return meetings.filter(m => m.idOpponent == elem.value) == 0
-                    })
-                })
-            }).then(users=>{
-                this.setState({
-                    users: users,
-                    loadingDone: true
-                })
+            //do not show opponents with whom the user has already a future meeting and user with account deleted
+            const meetings = await MeetingsHandler.getFutureMeetings()
+            const users = usersWithChat.filter(elem => {
+                return meetings.filter(m => m.idOpponent == elem.value) == 0 && elem.value !== undefined
             })
-        })
+            this.setState({
+                users: users,
+                loadingDone: true
+            })
+        }else{
+            this.setState({loadingDone: true})
+        }
     }
 
     render() {
@@ -128,25 +127,29 @@ export default class NewMeeting extends Component {
                 <View style={styles.mainContainer}>
                     <View style={styles.container}>
                         <Text style={styles.text}>Who do you want to meet?</Text>
-                        <RNPickerSelect
-                            placeholder={{
-                                label: 'Select a person',
-                                value: null,
-                                color: '#9EA0A4',
-                            }}
-                            items={this.state.users}
-                            onValueChange={value => {
-                                this.setState({
-                                    chosenUserId: value,
-                                });
-                            }}
-                            style={pickerSelectStyles}
-                            useNativeAndroidPickerStyle={false}
-                        />
+                        {this.state.nameAndSurnameOpponent != null && <Text style={styles.text}>{this.state.nameAndSurnameOpponent}</Text>}
+                        {
+                            this.state.nameAndSurnameOpponent == null &&
+                            <RNPickerSelect
+                                placeholder={{
+                                    label: 'Select a person',
+                                    value: null,
+                                    color: '#9EA0A4',
+                                }}
+                                items={this.state.users}
+                                onValueChange={value => {
+                                    this.setState({
+                                        chosenUserId: value,
+                                    });
+                                }}
+                                style={pickerSelectStyles}
+                                useNativeAndroidPickerStyle={false}
+                            />
+                        }
                     </View>
                     <View style={styles.container}>
                         <Text style={styles.text}>Choose the date of the meeting:</Text>
-                        <Button onPress={this.showDatePicker}>Select a date</Button>
+                        <Button mode={"outlined"} onPress={this.showDatePicker}>Select a date</Button>
                         <DateTimePicker
                             isVisible={this.state.isDatePickerVisible}
                             onConfirm={this.handleDatePicked}
@@ -157,7 +160,7 @@ export default class NewMeeting extends Component {
                     </View>
                     <View style={styles.container}>
                         <Text style={styles.text}>Choose time of the meeting:</Text>
-                        <Button onPress={this.showTimePicker}>Select time</Button>
+                        <Button mode={"outlined"} onPress={this.showTimePicker}>Select time</Button>
                         <DateTimePicker
                             mode={"time"}
                             isVisible={this.state.isTimePickerVisible}
@@ -183,8 +186,6 @@ const styles = StyleSheet.create({
     container:{
         justifyContent: 'center',
         margin:hp("2%"),
-        borderBottomColor: 'grey',
-        borderBottomWidth: 1,
     },
     singleOptionContainer:{
         flex:1,

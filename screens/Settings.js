@@ -1,12 +1,12 @@
 import React, {Component} from 'react';
-import {StyleSheet, View, Alert, ScrollView, TouchableWithoutFeedback} from 'react-native';
+import {StyleSheet, View, Alert, ScrollView } from 'react-native';
 import firebase from 'react-native-firebase'
 import LocalStateHandler from "../handler/LocalStateHandler";
 import UserHandler from "../handler/UserHandler";
 import {heightPercentageToDP as hp, widthPercentageToDP as wp} from "react-native-responsive-screen";
 import LoadingComponent from '../components/LoadingComponent'
 import CitiesOfBuddy from "./CitiesOfBuddy";
-import { Text } from 'react-native-paper';
+import { Text, TouchableRipple } from 'react-native-paper';
 import AccountHandler from "../handler/AccountHandler";
 
 function BuddyComponent(props){
@@ -26,56 +26,52 @@ function BuddyComponent(props){
             <View>
                 <WhoCanFindMe nav={props.nav}/>
                 <YourCities nav={props.nav}/>
-                <View style={styles.singleOptionContainer}>
-                    <TouchableWithoutFeedback
-                        onPress={this.stopToBeBuddy}>
+                <TouchableRipple onPress={this.stopToBeBuddy}>
+                    <View style={styles.singleOptionContainer}>
                         <Text style={styles.text}>Stop to be buddy</Text>
-                    </TouchableWithoutFeedback>
-                </View>
+                    </View>
+                </TouchableRipple>
             </View>
         )
     }else{
         return(
-            <View style={styles.singleOptionContainer}>
-                <TouchableWithoutFeedback
-                    onPress={this.becomeBuddy}>
+            <TouchableRipple onPress={this.becomeBuddy}>
+                <View style={styles.singleOptionContainer}>
                     <Text style={styles.text}>Become buddy</Text>
-                </TouchableWithoutFeedback>
-            </View>
+                </View>
+            </TouchableRipple>
         )
     }
 }
 
 function YourCities(props) {
     return (
-        <View style={styles.singleOptionContainer}>
-            <TouchableWithoutFeedback
-                onPress={() => props.nav.navigate('CitiesOfBuddy')}>
+        <TouchableRipple onPress={() => props.nav.navigate('CitiesOfBuddy')}>
+            <View style={styles.singleOptionContainer}>
                 <Text style={styles.text}>Your cities</Text>
-            </TouchableWithoutFeedback>
-        </View>
+            </View>
+        </TouchableRipple>
     )
 }
 
 function WhoCanFindMe(props) {
     return (
-        <View style={styles.singleOptionContainer}>
-            <TouchableWithoutFeedback
-                onPress={() => props.nav.navigate('WhoCanFindMe')}>
+        <TouchableRipple
+            onPress={() => props.nav.navigate('WhoCanFindMe')}>
+            <View style={styles.singleOptionContainer}>
                 <Text style={styles.text}>Who can find me</Text>
-            </TouchableWithoutFeedback>
-        </View>
+            </View>
+        </TouchableRipple>
     )
 }
 
 function ChangePassword(props) {
     return(
-        <View style={styles.singleOptionContainer}>
-            <TouchableWithoutFeedback
-                onPress={()=>props.nav.navigate("ChangePassword")}>
+        <TouchableRipple onPress={()=>props.nav.navigate("ChangePassword")}>
+            <View style={styles.singleOptionContainer}>
                 <Text style={styles.text}>Change password</Text>
-            </TouchableWithoutFeedback>
-        </View>
+            </View>
+        </TouchableRipple>
     )
 }
 
@@ -102,29 +98,11 @@ function DeleteAccount(props) {
     }
 
     return(
-        <View style={styles.singleOptionContainer}>
-            <TouchableWithoutFeedback
-                onPress={deleteAlert}>
+        <TouchableRipple onPress={deleteAlert}>
+            <View style={styles.singleOptionContainer}>
                 <Text style={styles.text}>Delete account</Text>
-            </TouchableWithoutFeedback>
-        </View>
-    )
-}
-
-function LogOut(props) {
-    logOutAlert = (props) => {
-        AccountHandler.logOut().then(() => {
-            props.nav.navigate('Loading')
-        })
-    }
-
-    return(
-        <View style={styles.singleOptionContainer}>
-            <TouchableWithoutFeedback
-                onPress={() => this.logOutAlert(props)}>
-                <Text style={styles.text}>Log out</Text>
-            </TouchableWithoutFeedback>
-        </View>
+            </View>
+        </TouchableRipple>
     )
 }
 
@@ -177,7 +155,18 @@ export default class Settings extends Component {
                             <Text style={styles.header}>Account</Text>
                             <ChangePassword nav={this.props.navigation}/>
                             <DeleteAccount nav={this.props.navigation}/>
-                            <LogOut nav={this.props.navigation}/>
+
+                            <TouchableRipple onPress={() =>{
+                                this.setState({loadingDone: false})
+                                AccountHandler.logOut().then(() => {
+                                    this.props.navigation.navigate('Loading')
+                                })
+                            }}>
+                                <View style={styles.singleOptionContainer}>
+                                    <Text style={styles.text}>Log out</Text>
+                                </View>
+                            </TouchableRipple>
+
                         </View>
                     </ScrollView>
                 </View>

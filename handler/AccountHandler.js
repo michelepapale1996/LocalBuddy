@@ -16,7 +16,7 @@ class AccountHandler {
                 }
 
                 //if the user is a deleted user
-                if(res.items[0].user === undefined){
+                if(res.items.length == 0){
                     reject()
                 } else {
                     resolve(res.items[0].user.custom_data)

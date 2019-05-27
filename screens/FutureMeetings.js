@@ -195,9 +195,11 @@ export default class FutureMeetings extends Component{
         MeetingsUpdatesHandler.removeAcceptedMeetingListener()
         MeetingsUpdatesHandler.removeDeniedMeetingListener()
         MeetingsUpdatesHandler.removeNewMeetingListener()
+        MeetingsUpdatesHandler.removeNewPendingMeetingListener()
     }
 
     componentDidMount(){
+        MeetingsUpdatesHandler.setNewPendingMeetingListener(this.addPendingMeeting)
         MeetingsUpdatesHandler.setAcceptedMeetingListener(this.acceptedMeeting)
         MeetingsUpdatesHandler.setDeniedMeetingListener(this.deniedMeeting)
         MeetingsUpdatesHandler.setNewMeetingListener(this.newMeeting)
@@ -260,7 +262,7 @@ export default class FutureMeetings extends Component{
         })
     }
 
-    addPendingMeeting = (date, time, opponentId)=>{
+    addPendingMeeting = (date, time, opponentId) => {
         const promises = [UserHandler.getNameAndSurname(opponentId), UserHandler.getUrlPhoto(opponentId)]
         Promise.all(promises).then(results => {
             this.setState((prevState) => {
@@ -322,9 +324,7 @@ export default class FutureMeetings extends Component{
                         style={styles.fab}
                         color={"white"}
                         icon="add"
-                        onPress={() => this.props.navigation.navigate('NewMeeting', {
-                            addPendingMeeting: this.addPendingMeeting
-                        })}
+                        onPress={() => this.props.navigation.navigate('NewMeeting')}
                     />
                 </View>
             )

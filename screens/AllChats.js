@@ -173,7 +173,7 @@ export default class AllChats extends Component {
             }else{
                 return(
                     <View style={styles.container}>
-                        <Text>You do not have any chat yet!</Text>
+                        <Text style={styles.text}>You do not have any chat yet!</Text>
                     </View>
                 )
             }

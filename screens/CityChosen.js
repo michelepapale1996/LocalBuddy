@@ -47,7 +47,7 @@ export default class CityChosen extends Component {
     }
 
     componentDidMount(){
-        CityHandler.getFilteredCity(this.cityId).then((response)=>{
+        CityHandler.getFilteredCity(this.cityId).then(response => {
             //response status is 200
             if(response != null){
                 this.setState({

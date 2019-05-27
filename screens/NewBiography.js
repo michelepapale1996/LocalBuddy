@@ -1,5 +1,5 @@
 import React, {Component} from "react";
-import {StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import {heightPercentageToDP as hp, widthPercentageToDP as wp} from "react-native-responsive-screen"
 import LoadingComponent from '../components/LoadingComponent'
 import { TextInput, Text, Button } from 'react-native-paper';
@@ -39,7 +39,7 @@ export default class NewBiography extends Component {
     constructor(props) {
         super(props)
         this.state = {
-            text:null,
+            text: this.props.navigation.getParam("oldText", null),
             loadingDone: false
         }
         this.props.navigation.setParams({
@@ -49,7 +49,6 @@ export default class NewBiography extends Component {
 
     componentDidMount() {
         this.setState({
-            text: "",
             loadingDone:true
         })
     }
@@ -64,9 +63,10 @@ export default class NewBiography extends Component {
                             mode={"outlined"}
                             multiline={true}
                             onChangeText={(text) => this.setState({text})}
+                            style={styles.textInput}
                             value={this.state.text}
-                            selectionColor={"black"}
-                            underlineColor={"black"}
+                            selectionColor={"white"}
+                            underlineColor={"white"}
                         />
                     </View>
                 </View>
@@ -86,8 +86,6 @@ const styles = StyleSheet.create({
     container:{
         justifyContent: 'center',
         margin:hp("2%"),
-        borderBottomColor: 'grey',
-        borderBottomWidth: 1,
     },
     singleOptionContainer:{
         flex:1,
@@ -98,6 +96,11 @@ const styles = StyleSheet.create({
         fontSize: 20,
         fontWeight: "bold",
         textAlign:"center"
+    },
+    textInput: {
+        height: hp("7%"),
+        width: wp('90%'),
+        marginTop: 8
     },
     header:{
         fontSize: 20,

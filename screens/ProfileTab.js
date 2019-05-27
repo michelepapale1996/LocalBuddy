@@ -1,36 +1,36 @@
 import React, {Component} from 'react';
-import {StyleSheet, View, Image, ScrollView, TouchableWithoutFeedback} from 'react-native';
+import {StyleSheet, View, Image, ScrollView, TouchableWithoutFeedback, FlatList} from 'react-native';
 import firebase from "react-native-firebase"
 import ImagePicker from 'react-native-image-picker';
 import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen';
 import {Icon} from 'react-native-elements';
 import LoadingComponent from "../components/LoadingComponent";
-import { IconButton, Colors, Text, Surface } from 'react-native-paper';
+import { IconButton, Colors, Text, Surface, TouchableRipple, Avatar } from 'react-native-paper';
 import UserHandler from "../handler/UserHandler";
 import StarRating from 'react-native-star-rating';
 
 function Biography(props){
 
     modifyBiography = ()=>{
-        props.nav.navigate("NewBiography", {"newBiography": props.newBiography})
+        props.nav.navigate("NewBiography", {"newBiography": props.newBiography, "oldText": props.bio})
     }
-
-    /*<Text style={{fontWeight:"bold", fontSize:wp("5%"), textAlign:"center"}}>Biography</Text>*/
 
     return(
         <View style={styles.biographyContainer}>
-            <View style={styles.biography}>
-                <View style={{flexDirection:"row", flex: 1, justifyContent: 'flex-end',}}>
-                    <Icon onPress={modifyBiography} name='pencil' type='evilicon' size={30}/>
+            <TouchableRipple onPress={modifyBiography} rippleColor="rgba(0, 0, 0, .32)">
+                <View style={styles.biography}>
+                    <View style={{flexDirection:"row", flex: 1, justifyContent: 'flex-end',}}>
+                        <Icon name='pencil' type='evilicon' size={30}/>
 
+                    </View>
+
+                    {
+                        props.bio != ""
+                            ? <Text style={styles.biographyText}>{props.bio}</Text>
+                            : <Text style={styles.biographyText}>You do not have any biography yet. Tap to modify!</Text>
+                    }
                 </View>
-
-                {
-                    props.bio != ""
-                        ? <Text style={styles.biographyText}>{props.bio}</Text>
-                        : <Text style={styles.biographyText}>You do not have any biography yet. Tap to modify!</Text>
-                }
-            </View>
+            </TouchableRipple>
         </View>
     )
 }
@@ -106,17 +106,20 @@ function Feedbacks(props){
     return(
         <View style={styles.feedbacksContainer}>
             <Text style={{fontWeight:"bold", fontSize:wp("6%"), marginLeft:wp("5%")}}>Feedbacks</Text>
-            <Surface style={styles.feedbacks}>
                 {
-                    props.feedbacks != "" && props.feedbacks != undefined
-                        ? props.feedbacks != null && props.feedbacks.map(
-                            elem => <Feedback key={elem.opponentId} feedback={elem}/>
-                        )
+                    props.feedbacks != "" && props.feedbacks != undefined && props.feedbacks != null
+                        ?
+                            <FlatList
+                                data={props.feedbacks}
+                                keyExtractor={(item, index) => index.toString()}
+                                renderItem={({item}) => <Surface style={styles.feedbacks}>
+                                    <Feedback key={item.opponentId} feedback={item}/>
+                                </Surface>
+                            }/>
                         : <Text style={styles.biographyText}>
                             You do not have any feedback yet.
                         </Text>
                 }
-            </Surface>
         </View>
     )
 }
@@ -218,7 +221,7 @@ const styles = StyleSheet.create({
         margin: hp("1%"),
     },
     biography:{
-        margin: wp("4%"),
+        margin: wp("4%")
     },
     biographyText:{
         textAlign: "center",
@@ -226,9 +229,9 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     feedbacks:{
-        margin: wp("2%"),
-        borderRadius: 10,
-        elevation:4
+        margin: wp("1%"),
+        borderRadius: 5,
+        elevation:2
     },
     infoUser:{
         flex: 1,
@@ -288,9 +291,8 @@ const styles = StyleSheet.create({
         height: wp("10%"),
         borderRadius: wp("10%"),
         position: 'absolute',
-        marginTop:hp("20%"),
-        marginLeft:wp("65%"),
+        marginTop:hp("15%"),
+        marginLeft:wp("70%"),
         zIndex:10,
-        backgroundColor:"dodgerblue"
     }
 });
