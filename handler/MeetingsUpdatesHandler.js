@@ -3,6 +3,7 @@ class MeetingsUpdatesHandler{
     static acceptedMeetingListener = null
     static deniedMeetingListener = null
     static fromFutureToPastMeetingListener = null
+    static newPendingMeetingListener = null
 
     static setNewMeetingListener(fn){
         MeetingsUpdatesHandler.newMeetingListener = fn
@@ -18,6 +19,10 @@ class MeetingsUpdatesHandler{
 
     static setFromFutureToPastMeeting(fn){
         MeetingsUpdatesHandler.fromFutureToPastMeetingListener = fn
+    }
+
+    static setNewPendingMeetingListener(fn){
+        MeetingsUpdatesHandler.newPendingMeetingListener = fn
     }
 
     static removeNewMeetingListener(){
@@ -36,6 +41,10 @@ class MeetingsUpdatesHandler{
         MeetingsUpdatesHandler.fromFutureToPastMeetingListener = null
     }
 
+    static removeNewPendingMeetingListener(){
+        MeetingsUpdatesHandler.newPendingMeetingListener = null
+    }
+
     static newMeeting(date, time, opponentId){
         if(this.newMeetingListener != null) this.newMeetingListener(date, time, opponentId)
     }
@@ -50,6 +59,10 @@ class MeetingsUpdatesHandler{
 
     static fromFutureToPastMeeting(date, time, opponentId){
         if(this.fromFutureToPastMeetingListener != null) this.fromFutureToPastMeetingListener(date, time, opponentId)
+    }
+
+    static newPendingMeeting(date, time, opponentId){
+        if(this.newPendingMeetingListener != null) this.newPendingMeetingListener(date, time, opponentId)
     }
 }
 MeetingsUpdatesHandler.shared = new MeetingsUpdatesHandler()

@@ -48,7 +48,7 @@ class UserHandler{
 
     static setUrlPhoto(url) {
         const idUser = firebase.auth().currentUser.uid
-        firebase.auth().currentUser.getIdToken(true).then(function(id) {
+        return firebase.auth().currentUser.getIdToken(true).then(function(id) {
             return fetch(IP_ADDRESS + "/api/users/" + idUser + "/photoProfile", {
                 method: "POST",
                 headers: {

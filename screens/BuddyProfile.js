@@ -1,12 +1,14 @@
 import React, {Component} from 'react';
-import { StyleSheet, View, Image, ScrollView } from 'react-native';
+import { StyleSheet, View, Image, ScrollView, FlatList } from 'react-native';
 import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen';
 import UserHandler from "../handler/UserHandler";
 import SingleChatHandler from "../handler/SingleChatHandler";
 import LoadingComponent from "../components/LoadingComponent";
-import { FAB, Text, Surface, Button } from 'react-native-paper';
+import { FAB, Text, Surface, Button, Snackbar } from 'react-native-paper';
 import firebase from "react-native-firebase";
 import StarRating from 'react-native-star-rating';
+import MeetingsHandler from "../handler/MeetingsHandler";
+import NavigationService from "../handler/NavigationService";
 
 function Biography(props){
     return(
@@ -74,17 +76,19 @@ function Feedbacks(props){
     return(
         <View style={styles.feedbacksContainer}>
             <Text style={{fontWeight:"bold", fontSize:wp("6%"), marginLeft:wp("5%")}}>Feedbacks</Text>
-            <Surface style={styles.feedbacks}>
                 {
-                    props.feedbacks != "" && props.feedbacks != undefined
-                        ? props.feedbacks != null && props.feedbacks.map(
-                        elem => <Feedback key={elem.opponentId} feedback={elem}/>
-                    )
+                    props.feedbacks != "" && props.feedbacks != undefined && props.feedbacks != null
+                        ? <FlatList
+                            data={props.feedbacks}
+                            keyExtractor={(item, index) => index.toString()}
+                            renderItem={({item}) => <Surface style={styles.feedbacks}>
+                                    <Feedback key={item.opponentId} feedback={item}/>
+                                </Surface>
+                            }/>
                         : <Text style={styles.biographyText}>
                             You do not have any feedback yet.
                         </Text>
                 }
-            </Surface>
         </View>
     )
 }
@@ -96,7 +100,8 @@ export default class ProfileTab extends Component {
         this.state = {
             user: null,
             photoToUpload: null,
-            loadingDone: false
+            loadingDone: false,
+            snackBarVisible: false
         }
     }
 
@@ -110,18 +115,17 @@ export default class ProfileTab extends Component {
         })
     }
 
-    componentDidMount(){
+    async componentDidMount(){
         const idBuddy = this.props.navigation.getParam('idUser', 'Error')
-        UserHandler.getUserInfo(idBuddy).then(buddy => {
-            //check if it exists already a chat between the logged user and the buddy
-            SingleChatHandler.getChatId(idBuddy).then(connectyCubeChatId => {
-                this.props.navigation.setParams({nameBuddy: buddy.name + " " + buddy.surname})
-                this.setState({
-                    user: buddy,
-                    loadingDone: true,
-                    chatId: connectyCubeChatId
-                })
-            })
+        const buddy = await UserHandler.getUserInfo(idBuddy)
+        const connectyCubeChatId = await SingleChatHandler.getChatId(idBuddy)
+
+        this.props.navigation.setParams({nameBuddy: buddy.name + " " + buddy.surname})
+        this.setState({
+            user: buddy,
+            loadingDone: true,
+            chatId: connectyCubeChatId
+
         })
     }
 
@@ -152,6 +156,24 @@ export default class ProfileTab extends Component {
                                     nav={this.props.navigation}
                                     userInfo={this.state.user}
                                 />
+                                <Button
+                                    mode={"outlined"}
+                                    onPress={async () => {
+                                        //check if the user has already a future meeting with the given opponent
+                                        const futureMeetings = await MeetingsHandler.getFutureMeetings()
+                                        const idOpponent = this.props.navigation.getParam('idUser', 'Error')
+                                        if(futureMeetings.filter(elem => elem.idOpponent == idOpponent).length > 0){
+                                            alert("You have already a future meeting with this user.")
+                                        }else {
+                                            const navOptions = {
+                                                nameAndSurnameOpponent: this.state.user.name + " " + this.state.user.surname,
+                                                opponentId: idOpponent
+                                            }
+                                            NavigationService.goToNewMeeting(navOptions)
+                                        }
+                                    }}>
+                                    Propose a new meeting
+                                </Button>
                                 <Biography bio={this.state.user.bio} nav={this.props.navigation}/>
                                 <Feedbacks feedbacks={this.state.user.feedbacks}/>
                             </View>
@@ -195,9 +217,9 @@ const styles = StyleSheet.create({
         margin: wp("4%"),
     },
     feedbacks:{
-        margin: wp("2%"),
-        borderRadius: 10,
-        elevation:4
+        margin: wp("1%"),
+        borderRadius: 5,
+        elevation:2
     },
     biographyText:{
         textAlign: "center",

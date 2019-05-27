@@ -26,9 +26,19 @@ function notificationOpened(notification) {
     );
 }
 
+function goToNewMeeting(navOptions){
+    _navigator.dispatch(
+        NavigationActions.navigate({
+            routeName: 'NewMeeting',
+            params: {...navOptions}
+        })
+    )
+}
+
 // add other navigation functions that you need and export them
 
 export default {
     notificationOpened,
     setTopLevelNavigator,
+    goToNewMeeting
 };
