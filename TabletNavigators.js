@@ -15,13 +15,13 @@ import SignUp from "./screens/SignUp";
 import BuddyProfile from "./screens/BuddyProfile";
 import ProfileTab from "./screens/ProfileTab";
 import Login from "./screens/Login";
-import AllChats from "./screens/AllChats";
-import FutureMeetings from "./screens/FutureMeetings";
 import WhoCanFindMe from "./screens/WhoCanFindMe";
 import NewMeeting from "./screens/NewMeeting";
 import CityChosen from "./screens/CityChosen";
 import NewBiography from "./screens/NewBiography";
 import ChatTablet from "./screens/ChatTablet"
+import FixedMeetings from "./screens/FixedMeetings";
+import MeetingInfo from "./screens/MeetingInfo";
 
 const SearchTab = createStackNavigator({
     Home: {
@@ -40,18 +40,19 @@ const ChatTab = createStackNavigator({
 });
 
 const MeetingsTab = createMaterialTopTabNavigator({
-    FutureMeetings:{
-        screen: FutureMeetings,
+    FixedMeetings:{
+        screen: FixedMeetings
     },
     PastMeetings:{
         screen: PastMeetings
-    }
+    },
 },{
     tabBarOptions: {
         indicatorStyle:{
             backgroundColor:'white'
         },
     },
+    initialRouteName: 'FixedMeetings',
     animationEnabled: false
 })
 
@@ -61,6 +62,9 @@ const FutureMeetingsTabNavigator = createStackNavigator({
         navigationOptions: {
             header: null
         }
+    },
+    MeetingInfo:{
+        screen: MeetingInfo
     },
     NewMeeting:{
         screen: NewMeeting
@@ -111,7 +115,7 @@ const TabNavigator = createBottomTabNavigator({
     MyMeetings: {
         screen: FutureMeetingsTabNavigator,
         navigationOptions:{
-            tabBarIcon: ({tintColor}) => <Icon name="event" size={35} color={tintColor}/>
+            tabBarIcon: ({tintColor}) => <Icon name="account-multiple" type="material-community" size={35} color={tintColor}/>
         }
     },
     Profile: {

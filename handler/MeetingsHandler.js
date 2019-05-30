@@ -5,20 +5,59 @@ import IP_ADDRESS from "../ip";
 class MeetingsHandler {
     static getFutureMeetings(){
         const idUser = firebase.auth().currentUser.uid
-        return UserHandler.getFutureMeetings(idUser).then(meetings => {
-            //user maybe hasn't meetings
-            if(meetings == null) return []
-            return meetings
+        return firebase.auth().currentUser.getIdToken(true).then(function(id) {
+            return fetch(IP_ADDRESS + "/api/users/" + idUser + "/futureMeetings", {
+                method: "POST",
+                headers: {
+                    Accept: 'application/json',
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    idToken: id
+                })
+            }).then(response => {
+                if(response.status == 200){
+                    response = response.json()
+                    //user maybe hasn't meetings
+                    if(response == null) return []
+                    return response
+                }else{
+                    console.log("Error in the request: ", response.status)
+                    return null
+                }
+            }).catch( err => console.log(err))
         })
     }
 
-    static getPastMeetings(){
+    static getMeetings(){
         const idUser = firebase.auth().currentUser.uid
-        return UserHandler.getPastMeetings(idUser).then(meetings => {
-            //user maybe hasn't meetings
-            if(meetings == null) return []
-            return meetings
-        })
+        return firebase.auth().currentUser.getIdToken(true).then(function(id) {
+            return fetch(IP_ADDRESS + "/api/users/" + idUser + "/meetings", {
+                method: "POST",
+                headers: {
+                    Accept: 'application/json',
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    idToken: id
+                })
+            }).then(response => {
+                if(response.status == 200){
+                    response = response.json()
+                    if(response == null) return []
+                    return response
+                }else{
+                    console.log("Error in the request: ", response.status)
+                    return null
+                }
+            }).catch( err => {
+                console.log("Error", err)
+                return null
+            })
+        }).catch(function(error) {
+            console.log("Error in retrieving idToken from firebase.auth()", error)
+            return null
+        });
     }
 
     static acceptMeeting(opponentId){

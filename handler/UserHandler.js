@@ -16,30 +16,6 @@ class UserHandler{
         }).catch( err => console.log(err))
     }
 
-    static getFutureMeetings(idUser){
-        return fetch(IP_ADDRESS + "/api/users/" + idUser + "/futureMeetings").then(response => {
-            if(response.status == 200){
-                response = response.json()
-                return response
-            }else{
-                console.log("Error in the request: ", response.status)
-                return null
-            }
-        }).catch( err => console.log(err))
-    }
-
-    static getPastMeetings(idUser){
-        return fetch(IP_ADDRESS + "/api/users/" + idUser + "/pastMeetings").then(response => {
-            if(response.status == 200){
-                response = response.json()
-                return response
-            }else{
-                console.log("Error in the request: ", response.status)
-                return null
-            }
-        }).catch( err => console.log(err))
-    }
-
     static getNameAndSurname(id){
         return this.getUserInfo(id).then(user=>{
             return user.name + " " + user.surname
