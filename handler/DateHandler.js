@@ -1,4 +1,13 @@
 class DateHandler {
+    static isInThePast(date, time){
+        const today = new Date()
+        const thatDate = new Date(date)
+        thatDate.setHours(time.substring(0, time.indexOf(":")))
+        thatDate.setMinutes(time.substring(time.indexOf(":") + 1, time.length))
+
+        return today.getTime() >= thatDate.getTime()
+    }
+
     static dateToString(date){
         var mm = date.getMonth() + 1 // getMonth() is zero-based
         var dd = date.getDate()

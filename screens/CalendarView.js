@@ -6,8 +6,9 @@ import { Button, FAB, TouchableRipple } from 'react-native-paper'
 import MeetingsHandler from "../handler/MeetingsHandler";
 import UserHandler from "../handler/UserHandler";
 import {heightPercentageToDP as hp, widthPercentageToDP as wp} from "react-native-responsive-screen"
+import DateHandler from "../handler/DateHandler";
 
-export default class FixedMeetings extends Component {
+export default class CalendarView extends Component {
     //<Text style={{fontSize: 18, fontWeight: "bold", color: "white"}}>Fixed Meetings</Text>
     static navigationOptions ={
         tabBarLabel: <View style={{height:hp("6%")}}>
@@ -91,12 +92,21 @@ export default class FixedMeetings extends Component {
     }
 
     renderItem(item) {
+        const isFuture = !DateHandler.isInThePast(item.date, item.time)
         return (
             <View style={styles.item}>
                 <TouchableRipple onPress={()=>this.props.navigation.navigate({routeName: "MeetingInfo",params: {meeting: item}, key:item.idOpponent})}>
-                    <View style={{flexDirection:"row", alignItems:"center", justifyContent: "space-between",}}>
-                        <View>
-                            <Text>{item.time}</Text>
+                    <View style={{flex: 1, flexDirection:"row", alignItems:"center", justifyContent: "space-between",}}>
+                        <View style={{flex: 1}}>
+                            <View style={{flex: 1, flexDirection: "row", alignItems:"center", justifyContent:"space-between", marginRight:wp("5%")}}>
+                                <Text>{item.time}</Text>
+                                    {isFuture && item.isFixed != 0 &&
+                                    <Button style={styles.button} mode="outlined" disabled>Fixed</Button>}
+                                    {isFuture && item.isPending != 0 &&
+                                    <Button style={styles.button} mode="outlined" disabled>Pending</Button>}
+                                    {isFuture && !item.isFixed != 0 && !item.isPending != 0 &&
+                                    <Button style={styles.button} mode="outlined" disabled>Waiting for you</Button>}
+                            </View>
                             <Text style={styles.text}>{item.nameAndSurname}</Text>
                         </View>
                         <Image style={styles.userPhoto} source={{uri: item.urlPhoto}}/>
@@ -152,9 +162,7 @@ const styles = StyleSheet.create({
         fontSize: 20,
     },
     button:{
-        marginLeft:0,
-        marginRight:0,
-        borderRadius: 25
+        borderRadius: 5,
     },
     fab: {
         position: 'absolute',

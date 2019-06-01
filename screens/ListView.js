@@ -7,8 +7,9 @@ import MeetingsHandler from "../handler/MeetingsHandler"
 import { Text, Button, Surface, TouchableRipple } from 'react-native-paper'
 import {Icon} from 'react-native-elements'
 import MeetingsUpdatesHandler from "../handler/MeetingsUpdatesHandler";
+import DateHandler from "../handler/DateHandler";
 
-export default class PastMeetings extends Component{
+export default class ListView extends Component{
     constructor(props){
         super(props)
         this.state = {
@@ -18,10 +19,41 @@ export default class PastMeetings extends Component{
     }
 
     //<Text style={{fontSize: 18, fontWeight: "bold", color: "white"}}>Past Meetings</Text>
-    static navigationOptions ={
+    static navigationOptions = {
         tabBarLabel: <View style={{height:hp("6%")}}>
             <Icon name={"format-list-bulleted"} color={"white"} size={35}/>
         </View>
+    }
+
+    componentWillUnmount(){
+        MeetingsUpdatesHandler.removeFromFutureToPastMeetingListener()
+    }
+
+    async componentDidMount(){
+        MeetingsUpdatesHandler.setFromFutureToPastMeeting(this.addMeeting)
+
+        var meetings = await MeetingsHandler.getMeetings()
+
+        //get the id of the other person
+        const peopleIds = []
+        meetings.forEach(elem => {
+            if(!peopleIds.includes(elem.idOpponent)) peopleIds.push(elem.idOpponent)
+        })
+
+        const meetingsByPeople = peopleIds.map(person => {
+            const filteredMeetings = meetings.filter(meet => meet.idOpponent == person)
+            const pastMeetings = filteredMeetings.filter(m => DateHandler.isInThePast(m.date, m.time))
+            return ({
+                meetings: filteredMeetings,
+                atLeastOnePassed: pastMeetings.length > 0,
+                feedbackAlreadyGiven: Math.max.apply(Math, filteredMeetings.map(function(o) { return o.feedbackAlreadyGiven}))
+            })
+        })
+
+        this.setState({
+            loadingDone: true,
+            pastMeetings: meetingsByPeople
+        })
     }
 
     addMeeting = (date, time, opponentId) => {
@@ -42,30 +74,6 @@ export default class PastMeetings extends Component{
                     pastMeetings: meetings
                 }
             })
-        })
-    }
-
-    componentWillUnmount(){
-        MeetingsUpdatesHandler.removeFromFutureToPastMeetingListener()
-    }
-
-    async componentDidMount(){
-        MeetingsUpdatesHandler.setFromFutureToPastMeeting(this.addMeeting)
-
-        var meetings = await MeetingsHandler.getMeetings()
-
-        const peopleIds = []
-        meetings.forEach(elem => {
-            if(!peopleIds.includes(elem.idOpponent)) peopleIds.push(elem.idOpponent)
-        })
-
-        const meetingsByPeople = peopleIds.map(person => {
-            return meetings.filter(meet => meet.idOpponent == person)
-        })
-
-        this.setState({
-            loadingDone: true,
-            pastMeetings: meetingsByPeople
         })
     }
 
@@ -97,26 +105,30 @@ export default class PastMeetings extends Component{
                                 <FlatList
                                     data={this.state.pastMeetings}
                                     renderItem={({item}) => {
-                                        const meetings = item.map((meet,index) => (
+                                        const meetings = item.meetings.map((m,index) => (
                                             <TouchableRipple key={index} onPress={()=>{
-                                                this.props.navigation.navigate({routeName: "MeetingInfo",params: {meeting: meet}, key:meet.idOpponent})
+                                                this.props.navigation.navigate({routeName: "MeetingInfo",params: {meeting: m}, key:m.idOpponent})
                                             }}>
-                                                <View style={{flexDirection: "row", alignItems:"center", marginLeft:wp("10%"), justifyContent:"space-between"}}>
-                                                    <Text style={styles.text}>{meet.date} {meet.time}</Text>
-                                                    {meet.isFixed != 0 && <Button style={styles.button} mode="outlined" disabled>Fixed</Button>}
-                                                    {meet.isPending != 0 && <Button style={styles.button} mode="outlined" disabled>Pending</Button>}
-                                                    {!meet.isFixed != 0 && !meet.isPending != 0 && <Button style={styles.button} mode="outlined" disabled>New</Button>}
+                                                <View style={{flexDirection: "row", alignItems:"center", marginLeft:wp("10%"), marginRight:wp("5%"), justifyContent:"space-between"}}>
+                                                    <Text style={styles.text}>{m.date} {m.time}</Text>
+                                                    {m.isFixed != 0 && <Button style={styles.button} mode="outlined" disabled>Fixed</Button>}
+                                                    {m.isPending != 0 && <Button style={styles.button} mode="outlined" disabled>Pending</Button>}
+                                                    {!m.isFixed != 0 && !m.isPending != 0 && <Button style={styles.button} mode="outlined" disabled>Waiting for you</Button>}
                                                 </View>
                                             </TouchableRipple>
                                         ))
                                         return(
                                             <Surface style={styles.opponentMeetings}>
-                                                <View style={styles.userContainer}>
-                                                    <Image
-                                                        style={styles.userPhoto}
-                                                        source={{uri: item[0].urlPhoto}}/>
-                                                    <Text style={styles.text}>{item[0].nameAndSurname}</Text>
-                                                </View>
+                                                <TouchableRipple onPress={() => this.props.navigation.navigate('BuddyProfile', {idUser: item.meetings[0].idOpponent})}>
+                                                    <View style={styles.userContainer}>
+                                                        <Image style={styles.userPhoto} source={{uri: item.meetings[0].urlPhoto}}/>
+                                                        <Text style={{fontWeight: "bold",...styles.text}}>{item.meetings[0].nameAndSurname}</Text>
+                                                        {item.feedbackAlreadyGiven === 0 && item.atLeastOnePassed &&
+                                                            <Button style={styles.button} mode="outlined" onPress={()=>{
+                                                                this.props.navigation.navigate("Feedback", {feedbackedIdUser: item.meetings[0].idOpponent, feedbackGiven: this.feedbackGiven})
+                                                            }}>Add a feedback</Button>}
+                                                    </View>
+                                                </TouchableRipple>
                                                 {meetings}
                                             </Surface>
                                         )
@@ -137,14 +149,12 @@ export default class PastMeetings extends Component{
 
 const styles = StyleSheet.create({
     mainContainer: {
-        margin: hp("0%"),
         flex: 1,
         backgroundColor: 'white',
     },
     container:{
         justifyContent: 'center',
         flex:1,
-        margin:hp("2%"),
     },
     singleOptionContainer:{
         flex:1,
@@ -162,6 +172,7 @@ const styles = StyleSheet.create({
     userPhoto: {
         width: wp("15%"),
         height: wp("15%"),
+        marginRight: wp("5%"),
         borderRadius: wp("15%")
     },
     userContainer: {

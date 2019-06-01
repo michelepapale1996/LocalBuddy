@@ -4,6 +4,7 @@ import { Button, IconButton } from 'react-native-paper'
 import LoadingComponent from '../components/LoadingComponent'
 import {heightPercentageToDP as hp, widthPercentageToDP as wp} from "react-native-responsive-screen"
 import { Text } from 'react-native-paper'
+import DateHandler from "../handler/DateHandler";
 
 export default class MeetingInfo extends Component{
     constructor(props){
@@ -30,65 +31,83 @@ export default class MeetingInfo extends Component{
     render() {
 
         if(this.state.loadingDone != false) {
-            return (
-                <View style={styles.mainContainer}>
-                    <Text style={styles.text}>Meeting with {this.state.meeting.nameAndSurname}</Text>
-                    <View style={{flexDirection:"row", alignItems:"center"}}>
-                        <IconButton icon={"access-time"} size={30}/><Text style={styles.text}>{this.state.meeting.date} {this.state.meeting.time}</Text>
-                    </View>
-                    {
-                        this.state.meeting.isFixed != 0 &&
-                        <View>
-                            <View style={{flexDirection:"row", alignItems:"center"}}>
-                                <Text>Status: </Text>
-                                <Button style={styles.button} mode="outlined" disabled>Fixed</Button>
-                            </View>
-                            <Button
-                                mode={"outlined"}
-                                style={styles.button}
-                                onPress={() => denyMeeting(this.state.meeting.idOpponent)}
-                                backgroundColor="red"
-                            >
-                                Delete
-                            </Button>
-                        </View>
-                    }
-                    {
-                        this.state.meeting.isPending != 0 &&
-                        <View>
-                            <View style={{flexDirection:"row", alignItems:"center"}}>
-                                <Text>Status: </Text>
-                                <Button style={styles.button} mode="outlined" disabled>Pending</Button>
-                            </View>
-                            <Button
-                                mode={"outlined"}
-                                style={styles.button}
-                                onPress={() => denyMeeting(this.state.meeting.idOpponent)}
-                                backgroundColor="red"
-                            >
-                                Delete
-                            </Button>
-                        </View>
-                    }
-                    {
-                        !this.state.meeting.isFixed != 0 && !this.state.meeting.isPending != 0 &&
-                        <View>
-                            <View>
-                                <View style={{flexDirection:"row", alignItems:"center"}}>
-                                    <Text>Status: </Text>
-                                    <Button style={styles.button} mode="outlined" disabled>New</Button>
+            const isFuture = !DateHandler.isInThePast(this.state.meeting.date, this.state.meeting.time)
+            if(isFuture){
+                return (
+                    <View style={styles.mainContainer}>
+                        {
+                            this.state.meeting.isFixed != 0 &&
+                            <View style={{flex: 1, justifyContent:"space-between"}}>
+                                <View>
+                                    <Text style={{fontWeight:"bold", ...styles.text}}>Who you are meeting</Text>
+                                    <Text style={styles.text}>{this.state.meeting.nameAndSurname}</Text>
+
+                                    <Text style={{fontWeight:"bold", ...styles.text}}>Date</Text>
+                                    <Text style={styles.text}>{this.state.meeting.date} {this.state.meeting.time}</Text>
+
+                                    <Text style={{fontWeight:"bold", ...styles.text}}>Status</Text>
+                                    <Button style={styles.button} mode="outlined" disabled>Fixed</Button>
                                 </View>
-                                <View style={{flexDirection:"row"}}>
+
+                                <Button
+                                    mode={"outlined"}
+                                    style={styles.button}
+                                    onPress={() => denyMeeting(this.state.meeting.idOpponent)}
+                                    backgroundColor="red"
+                                >
+                                    Delete
+                                </Button>
+                            </View>
+                        }
+                        {
+                            this.state.meeting.isPending != 0 &&
+                            <View style={{flex: 1, justifyContent:"space-between"}}>
+                                <View>
+                                    <Text style={{fontWeight:"bold", ...styles.text}}>Who you are meeting</Text>
+                                    <Text style={styles.text}>{this.state.meeting.nameAndSurname}</Text>
+
+                                    <Text style={{fontWeight:"bold", ...styles.text}}>Date</Text>
+                                    <Text style={styles.text}>{this.state.meeting.date} {this.state.meeting.time}</Text>
+
+                                    <Text>Status</Text>
+                                    <Button style={styles.button} mode="outlined" disabled>Pending</Button>
+                                </View>
+
+                                <Button
+                                    mode={"outlined"}
+                                    style={styles.button}
+                                    onPress={() => denyMeeting(this.state.meeting.idOpponent)}
+                                    backgroundColor="red"
+                                >
+                                    Delete
+                                </Button>
+                            </View>
+                        }
+                        {
+                            !this.state.meeting.isFixed != 0 && !this.state.meeting.isPending != 0 &&
+                            <View style={{flex: 1, justifyContent:"space-between"}}>
+                                <View>
+                                    <Text style={{fontWeight:"bold", ...styles.text}}>Who you are meeting</Text>
+                                    <Text style={styles.text}>{this.state.meeting.nameAndSurname}</Text>
+
+                                    <Text style={{fontWeight:"bold", ...styles.text}}>Date</Text>
+                                    <Text style={styles.text}>{this.state.meeting.date} {this.state.meeting.time}</Text>
+
+                                    <Text style={{fontWeight:"bold", ...styles.text}}>Status</Text>
+                                    <Button style={styles.button} mode="outlined" disabled>Waiting for you</Button>
+                                </View>
+
+                                <View style={{flexDirection:"row", justifyContent:"space-between"}}>
                                     <Button
                                         mode={"outlined"}
-                                        style={styles.button}
+                                        style={{width:wp("40%"), ...styles.button}}
                                         onPress={() => acceptMeeting(this.state.meeting.idOpponent)}
                                     >
                                         Accept
                                     </Button>
                                     <Button
                                         mode={"outlined"}
-                                        style={styles.button}
+                                        style={{width:wp("40%"), ...styles.button}}
                                         onPress={() => denyMeeting(this.state.meeting.idOpponent)}
                                         backgroundColor="red"
                                     >
@@ -96,10 +115,26 @@ export default class MeetingInfo extends Component{
                                     </Button>
                                 </View>
                             </View>
+                        }
+                    </View>
+                )
+            }else{
+                //meeting passed
+                return(
+                    <View style={{flex: 1, justifyContent:"space-between"}}>
+                        <View>
+                            <Text style={{fontWeight:"bold", ...styles.text}}>Who you are meeting</Text>
+                            <Text style={styles.text}>{this.state.meeting.nameAndSurname}</Text>
+
+                            <Text style={{fontWeight:"bold", ...styles.text}}>Date</Text>
+                            <Text style={styles.text}>{this.state.meeting.date} {this.state.meeting.time}</Text>
+
+                            <Text style={{fontWeight:"bold", ...styles.text}}>Status</Text>
+                            <Button style={styles.button} mode="outlined" disabled>Passed</Button>
                         </View>
-                    }
-                </View>
-            )
+                    </View>
+                )
+            }
         }else{
             return(<LoadingComponent/>)
         }
@@ -108,10 +143,13 @@ export default class MeetingInfo extends Component{
 
 const styles = StyleSheet.create({
     mainContainer: {
+        flex:1,
         marginTop: hp("5%"),
+        marginBottom: hp("5%"),
+        marginLeft: wp("3%"),
+        marginRight: wp("3%"),
         height: hp("30%"),
         backgroundColor: 'white',
-        alignItems:"center",
         justifyContent:"space-between"
     },
     container:{
@@ -153,7 +191,7 @@ const styles = StyleSheet.create({
     button:{
         marginLeft:0,
         marginRight:0,
-        borderRadius: 25
+        borderRadius: 5
     },
     fab: {
         position: 'absolute',
