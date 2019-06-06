@@ -7,6 +7,7 @@ import MeetingsHandler from "../handler/MeetingsHandler";
 import UserHandler from "../handler/UserHandler";
 import {heightPercentageToDP as hp, widthPercentageToDP as wp} from "react-native-responsive-screen"
 import DateHandler from "../handler/DateHandler";
+import MeetingsUpdatesHandler from "../handler/MeetingsUpdatesHandler";
 
 export default class CalendarView extends Component {
     //<Text style={{fontSize: 18, fontWeight: "bold", color: "white"}}>Fixed Meetings</Text>
@@ -23,7 +24,21 @@ export default class CalendarView extends Component {
         };
     }
 
+    componentWillUnmount(){
+        //remove listeners for this UI
+        MeetingsUpdatesHandler.removeAcceptedMeetingListener(this.acceptedMeeting)
+        MeetingsUpdatesHandler.removeDeniedMeetingListener(this.deniedMeeting)
+        MeetingsUpdatesHandler.removeNewMeetingListener(this.newMeeting)
+        MeetingsUpdatesHandler.removeNewPendingMeetingListener(this.addPendingMeeting)
+        MeetingsUpdatesHandler.removeFromFutureToPastMeetingListener(this.changeFromFutureToPastMeeting)
+    }
+
     componentDidMount(){
+        MeetingsUpdatesHandler.setNewPendingMeetingListener(this.addPendingMeeting)
+        MeetingsUpdatesHandler.setAcceptedMeetingListener(this.acceptedMeeting)
+        MeetingsUpdatesHandler.setDeniedMeetingListener(this.deniedMeeting)
+        MeetingsUpdatesHandler.setNewMeetingListener(this.newMeeting)
+        MeetingsUpdatesHandler.setFromFutureToPastMeeting(this.changeFromFutureToPastMeeting)
         MeetingsHandler.getMeetings().then(meetings => {
             let promises = meetings.map(meeting => {
                 return UserHandler.getNameAndSurname(meeting.idOpponent)
@@ -49,6 +64,70 @@ export default class CalendarView extends Component {
         })
     }
 
+    newMeeting = (date, time, opponentId) => {
+        this.createMeeting(date, time, opponentId, 0, 0)
+    }
+
+    addPendingMeeting = (date, time, opponentId) => {
+        this.createMeeting(date, time, opponentId, 0, 1)
+    }
+
+    createMeeting = (date, time, opponentId, isFixed, isPending) => {
+        const promises = [UserHandler.getNameAndSurname(opponentId), UserHandler.getUrlPhoto(opponentId)]
+        Promise.all(promises).then(results => {
+            this.setState(prevState => {
+                const singleMeeting = {
+                    idOpponent: opponentId,
+                    date: date,
+                    time: time,
+                    isFixed: isFixed,
+                    isPending: isPending,
+                    nameAndSurname: results[0],
+                    urlPhoto: results[1]
+                }
+
+                if(prevState.items[date] == undefined){
+                    prevState.items[date] = [singleMeeting]
+                }else{
+                    prevState.items[date].push(singleMeeting)
+                }
+
+                return {
+                    items: prevState.items
+                }
+            })
+        })
+    }
+
+    acceptedMeeting = (date, time, idOpponent) => {
+        var meetingToUpdate = this.state.items[date].filter(elem => elem.idOpponent == idOpponent && elem.time == time)[0]
+        meetingToUpdate.isFixed = 1
+        meetingToUpdate.isPending = 0
+        this.deniedMeeting(date, time, idOpponent)
+
+        this.setState(prevState => {
+            prevState.items[date] = prevState.items[date].filter(elem => elem.idOpponent != idOpponent && elem.time != time)
+            prevState.items[date].push(meetingToUpdate)
+
+            return {
+                items: prevState.items
+            }
+        })
+    }
+
+    deniedMeeting = (date, time, idOpponent) => {
+        this.setState((prevState) => {
+            prevState.items[date] = prevState.items[date].filter(elem => elem.idOpponent != idOpponent && elem.time != time)
+            return {
+                items: prevState.items
+            }
+        })
+    }
+
+    changeFromFutureToPastMeeting = (date, time, opponentId) => {
+        this.setState({loadingDone: true})
+    }
+
     render() {
         return (
             <View style={{flex: 1}}>
@@ -59,7 +138,6 @@ export default class CalendarView extends Component {
                     renderItem={this.renderItem.bind(this)}
                     renderEmptyDate={this.renderEmptyDate.bind(this)}
                     rowHasChanged={this.rowHasChanged.bind(this)}
-
                     theme={{
                         //calendarBackground: '#34495e',
                         'stylesheet.calendar.header': {
@@ -95,7 +173,7 @@ export default class CalendarView extends Component {
         const isFuture = !DateHandler.isInThePast(item.date, item.time)
         return (
             <View style={styles.item}>
-                <TouchableRipple onPress={()=>this.props.navigation.navigate({routeName: "MeetingInfo",params: {meeting: item}, key:item.idOpponent})}>
+                <TouchableRipple onPress={()=>this.props.navigation.navigate({routeName: "MeetingInfo", params: {meeting: item}, key:item.idOpponent})}>
                     <View style={{flex: 1, flexDirection:"row", alignItems:"center", justifyContent: "space-between",}}>
                         <View style={{flex: 1}}>
                             <View style={{flex: 1, flexDirection: "row", alignItems:"center", justifyContent:"space-between", marginRight:wp("5%")}}>

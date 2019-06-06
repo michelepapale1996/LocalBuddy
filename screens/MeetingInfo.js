@@ -5,17 +5,19 @@ import LoadingComponent from '../components/LoadingComponent'
 import {heightPercentageToDP as hp, widthPercentageToDP as wp} from "react-native-responsive-screen"
 import { Text } from 'react-native-paper'
 import DateHandler from "../handler/DateHandler";
+import MeetingsHandler from "../handler/MeetingsHandler";
+import MeetingsUpdatesHandler from "../handler/MeetingsUpdatesHandler";
 
 export default class MeetingInfo extends Component{
     constructor(props){
         super(props)
         this.state = {
             loadingDone: true,
-            meeting: props.navigation.getParam('meeting', 'Error'),
+            meeting: props.navigation.getParam('meeting', 'Error')
         }
     }
 
-    static navigationOptions = ({ navigation }) => {
+    static navigationOptions = () => {
         return {
             title: "Meeting Info",
             headerTintColor: 'white',
@@ -28,8 +30,26 @@ export default class MeetingInfo extends Component{
         }
     }
 
-    render() {
+    acceptMeeting = (date, time, idOpponent)=>{
+        MeetingsHandler.acceptMeeting(date, time, idOpponent).then(()=>{
+            MeetingsUpdatesHandler.acceptedMeeting(date, time, idOpponent)
+            this.setState(prevState => {
+                const meeting = prevState.meeting
+                meeting.isFixed = 1
+                meeting.isPending = 0
+                return {meeting: meeting}
+            })
+        })
+    }
 
+    denyMeeting = (date, time, idOpponent)=>{
+        MeetingsHandler.denyMeeting(date, time, idOpponent).then(()=>{
+            MeetingsUpdatesHandler.deniedMeeting(date, time, idOpponent)
+            this.props.navigation.goBack()
+        })
+    }
+
+    render() {
         if(this.state.loadingDone != false) {
             const isFuture = !DateHandler.isInThePast(this.state.meeting.date, this.state.meeting.time)
             if(isFuture){
@@ -52,7 +72,7 @@ export default class MeetingInfo extends Component{
                                 <Button
                                     mode={"outlined"}
                                     style={styles.button}
-                                    onPress={() => denyMeeting(this.state.meeting.idOpponent)}
+                                    onPress={() => this.denyMeeting(this.state.meeting.date, this.state.meeting.time, this.state.meeting.idOpponent)}
                                     backgroundColor="red"
                                 >
                                     Delete
@@ -76,7 +96,7 @@ export default class MeetingInfo extends Component{
                                 <Button
                                     mode={"outlined"}
                                     style={styles.button}
-                                    onPress={() => denyMeeting(this.state.meeting.idOpponent)}
+                                    onPress={() => this.denyMeeting(this.state.meeting.date, this.state.meeting.time, this.state.meeting.idOpponent)}
                                     backgroundColor="red"
                                 >
                                     Delete
@@ -101,14 +121,14 @@ export default class MeetingInfo extends Component{
                                     <Button
                                         mode={"outlined"}
                                         style={{width:wp("40%"), ...styles.button}}
-                                        onPress={() => acceptMeeting(this.state.meeting.idOpponent)}
+                                        onPress={() => this.acceptMeeting(this.state.meeting.date, this.state.meeting.time, this.state.meeting.idOpponent)}
                                     >
                                         Accept
                                     </Button>
                                     <Button
                                         mode={"outlined"}
                                         style={{width:wp("40%"), ...styles.button}}
-                                        onPress={() => denyMeeting(this.state.meeting.idOpponent)}
+                                        onPress={() => this.denyMeeting(this.state.meeting.date, this.state.meeting.time, this.state.meeting.idOpponent)}
                                         backgroundColor="red"
                                     >
                                         Decline
@@ -121,6 +141,7 @@ export default class MeetingInfo extends Component{
             }else{
                 //meeting passed
                 return(
+                    <View style={styles.mainContainer}>
                     <View style={{flex: 1, justifyContent:"space-between"}}>
                         <View>
                             <Text style={{fontWeight:"bold", ...styles.text}}>Who you are meeting</Text>
@@ -132,6 +153,7 @@ export default class MeetingInfo extends Component{
                             <Text style={{fontWeight:"bold", ...styles.text}}>Status</Text>
                             <Button style={styles.button} mode="outlined" disabled>Passed</Button>
                         </View>
+                    </View>
                     </View>
                 )
             }

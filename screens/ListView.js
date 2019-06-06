@@ -4,7 +4,7 @@ import LoadingComponent from '../components/LoadingComponent'
 import UserHandler from "../handler/UserHandler"
 import {heightPercentageToDP as hp, widthPercentageToDP as wp} from "react-native-responsive-screen"
 import MeetingsHandler from "../handler/MeetingsHandler"
-import { Text, Button, Surface, TouchableRipple } from 'react-native-paper'
+import { Text, Button, Surface, TouchableRipple, FAB } from 'react-native-paper'
 import {Icon} from 'react-native-elements'
 import MeetingsUpdatesHandler from "../handler/MeetingsUpdatesHandler";
 import DateHandler from "../handler/DateHandler";
@@ -14,7 +14,7 @@ export default class ListView extends Component{
         super(props)
         this.state = {
             loadingDone: false,
-            pastMeetings: null
+            meetings: null
         }
     }
 
@@ -26,14 +26,23 @@ export default class ListView extends Component{
     }
 
     componentWillUnmount(){
-        MeetingsUpdatesHandler.removeFromFutureToPastMeetingListener()
+        //remove listeners for this UI
+        MeetingsUpdatesHandler.removeAcceptedMeetingListener(this.acceptedMeeting)
+        MeetingsUpdatesHandler.removeDeniedMeetingListener(this.deniedMeeting)
+        MeetingsUpdatesHandler.removeNewMeetingListener(this.newMeeting)
+        MeetingsUpdatesHandler.removeNewPendingMeetingListener(this.addPendingMeeting)
+        MeetingsUpdatesHandler.removeFromFutureToPastMeetingListener(this.changeFromFutureToPastMeeting)
     }
 
     async componentDidMount(){
-        MeetingsUpdatesHandler.setFromFutureToPastMeeting(this.addMeeting)
+        //add listeners for this UI
+        MeetingsUpdatesHandler.setNewPendingMeetingListener(this.addPendingMeeting)
+        MeetingsUpdatesHandler.setAcceptedMeetingListener(this.acceptedMeeting)
+        MeetingsUpdatesHandler.setDeniedMeetingListener(this.deniedMeeting)
+        MeetingsUpdatesHandler.setNewMeetingListener(this.newMeeting)
+        MeetingsUpdatesHandler.setFromFutureToPastMeeting(this.changeFromFutureToPastMeeting)
 
         var meetings = await MeetingsHandler.getMeetings()
-
         //get the id of the other person
         const peopleIds = []
         meetings.forEach(elem => {
@@ -44,6 +53,7 @@ export default class ListView extends Component{
             const filteredMeetings = meetings.filter(meet => meet.idOpponent == person)
             const pastMeetings = filteredMeetings.filter(m => DateHandler.isInThePast(m.date, m.time))
             return ({
+                idOpponent: person,
                 meetings: filteredMeetings,
                 atLeastOnePassed: pastMeetings.length > 0,
                 feedbackAlreadyGiven: Math.max.apply(Math, filteredMeetings.map(function(o) { return o.feedbackAlreadyGiven}))
@@ -52,46 +62,103 @@ export default class ListView extends Component{
 
         this.setState({
             loadingDone: true,
-            pastMeetings: meetingsByPeople
+            meetings: meetingsByPeople
         })
     }
 
-    addMeeting = (date, time, opponentId) => {
+    //called when the user gives a new feedback
+    feedbackGiven = (opponentId) => {
+        let toChange = this.state.meetings.filter(elem => {
+            return elem.idOpponent == opponentId
+        })
+        toChange = toChange[0]
+
+        const notToChange = this.state.meetings.filter(elem => {
+            return elem.idOpponent != opponentId
+        })
+
+        toChange.feedbackAlreadyGiven = 1
+        let meetings = [...notToChange, toChange]
+        this.setState({
+            meetings: meetings
+        })
+    }
+
+    newMeeting = (date, time, opponentId) => {
+        this.createMeeting(date, time, opponentId, 0, 0)
+    }
+
+    addPendingMeeting = (date, time, opponentId) => {
+        this.createMeeting(date, time, opponentId, 0, 1)
+    }
+
+    createMeeting = (date, time, opponentId, isFixed, isPending) => {
         const promises = [UserHandler.getNameAndSurname(opponentId), UserHandler.getUrlPhoto(opponentId)]
         Promise.all(promises).then(results => {
-            this.setState((prevState) => {
-                const newMeeting = {
+            this.setState(prevState => {
+                var meetingsWithOpponent = prevState.meetings.filter(m => m.idOpponent == opponentId)[0]
+                const otherMeetings = prevState.meetings.filter(m => m.idOpponent != opponentId)
+                const singleMeeting = {
                     idOpponent: opponentId,
                     date: date,
                     time: time,
-                    isFixed: 1,
-                    isPending: 0,
+                    isFixed: isFixed,
+                    isPending: isPending,
                     nameAndSurname: results[0],
                     urlPhoto: results[1]
                 }
-                const meetings = [...prevState.pastMeetings, newMeeting]
+
+                //if there exists already meetings with the opponent
+                if(meetingsWithOpponent !== undefined){
+                    meetingsWithOpponent.meetings.push(singleMeeting)
+                } else {
+                    meetingsWithOpponent = {
+                        idOpponent: opponentId,
+                        atLeastOnePassed: false,
+                        feedbackAlreadyGiven: 0,
+                        meetings: [singleMeeting]
+                    }
+                }
+                otherMeetings.push(meetingsWithOpponent)
                 return {
-                    pastMeetings: meetings
+                    meetings: otherMeetings
                 }
             })
         })
     }
 
-    feedbackGiven = (opponentId) => {
-        let toChange = this.state.pastMeetings.filter(elem => {
-            return elem.idOpponent == opponentId
-        })
-        toChange = toChange[0]
+    acceptedMeeting = (date, time, idOpponent) => {
+        this.setState((prevState) => {
+            let meetingsWithOpponent = prevState.meetings.filter(elem => elem.idOpponent == idOpponent)[0]
+            const otherMeetings = prevState.meetings.filter(m => m.idOpponent != idOpponent)
+            meetingsWithOpponent.meetings.forEach(m => {
+                if (m.isFixed == 0){
+                    m.isFixed = 1
+                    m.isPending = 0
+                }
+            })
 
-        const notToChange = this.state.pastMeetings.filter(elem => {
-            return elem.idOpponent != opponentId
+            otherMeetings.push(meetingsWithOpponent)
+            return {
+                meetings: otherMeetings
+            }
         })
+    }
 
-        toChange.feedbackAlreadyGiven = 1
-        let pastMeetings = [...notToChange, toChange]
-        this.setState({
-            pastMeetings: pastMeetings
+    deniedMeeting = (date, time, idOpponent) => {
+        this.setState(prevState => {
+            const meetings = prevState.meetings.filter(elem => {
+                return elem.idOpponent != idOpponent
+            })
+
+            return {
+                meetings: meetings
+            }
         })
+    }
+
+    changeFromFutureToPastMeeting = (date, time, opponentId) => {
+        this.setState({loadingDone: true})
     }
 
     render() {
@@ -101,22 +168,27 @@ export default class ListView extends Component{
                     <ScrollView>
                         <View style={styles.container}>
                             {
-                                this.state.pastMeetings.length > 0 &&
+                                this.state.meetings.length > 0 &&
                                 <FlatList
-                                    data={this.state.pastMeetings}
+                                    data={this.state.meetings}
                                     renderItem={({item}) => {
-                                        const meetings = item.meetings.map((m,index) => (
-                                            <TouchableRipple key={index} onPress={()=>{
-                                                this.props.navigation.navigate({routeName: "MeetingInfo",params: {meeting: m}, key:m.idOpponent})
-                                            }}>
-                                                <View style={{flexDirection: "row", alignItems:"center", marginLeft:wp("10%"), marginRight:wp("5%"), justifyContent:"space-between"}}>
-                                                    <Text style={styles.text}>{m.date} {m.time}</Text>
-                                                    {m.isFixed != 0 && <Button style={styles.button} mode="outlined" disabled>Fixed</Button>}
-                                                    {m.isPending != 0 && <Button style={styles.button} mode="outlined" disabled>Pending</Button>}
-                                                    {!m.isFixed != 0 && !m.isPending != 0 && <Button style={styles.button} mode="outlined" disabled>Waiting for you</Button>}
-                                                </View>
-                                            </TouchableRipple>
-                                        ))
+                                        const meetings = item.meetings.map((m,index) => {
+                                            const isFuture = !DateHandler.isInThePast(m.date, m.time)
+                                            return (
+                                                <TouchableRipple key={index} onPress={()=>{
+                                                    this.props.navigation.navigate({routeName: "MeetingInfo",params: { meeting: m }, key: m.idOpponent})
+                                                }}>
+                                                    <View style={{flexDirection: "row", alignItems:"center", marginLeft:wp("10%"), marginRight:wp("5%"), justifyContent:"space-between"}}>
+                                                        <Text style={styles.text}>{m.date} {m.time}</Text>
+                                                        {isFuture == 1 && m.isFixed != 0 && <Button style={styles.button} mode="outlined" disabled>Fixed</Button>}
+                                                        {isFuture == 1 && m.isPending != 0 && <Button style={styles.button} mode="outlined" disabled>Pending</Button>}
+                                                        {isFuture == 1 && !m.isFixed != 0 && !m.isPending != 0 && <Button style={styles.button} mode="outlined" disabled>Waiting for you</Button>}
+
+                                                        {isFuture != 1 && <Button style={styles.button} mode="outlined" disabled>Passed</Button>}
+                                                    </View>
+                                                </TouchableRipple>
+                                            )}
+                                        )
                                         return(
                                             <Surface style={styles.opponentMeetings}>
                                                 <TouchableRipple onPress={() => this.props.navigation.navigate('BuddyProfile', {idUser: item.meetings[0].idOpponent})}>
@@ -139,6 +211,12 @@ export default class ListView extends Component{
                             }
                         </View>
                     </ScrollView>
+                    <FAB
+                        style={styles.fab}
+                        color={"white"}
+                        icon="add"
+                        onPress={() => this.props.navigation.navigate('NewMeeting')}
+                    />
                 </View>
             )
         }else{
@@ -200,5 +278,12 @@ const styles = StyleSheet.create({
         marginLeft: wp("1%"),
         marginRight: wp("1%"),
         borderRadius: 4
-    }
+    },
+    fab: {
+        position: 'absolute',
+        margin: 16,
+        right: 0,
+        bottom: 0,
+        backgroundColor: "#52c8ff"
+    },
 });

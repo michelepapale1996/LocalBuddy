@@ -1,68 +1,68 @@
 class MeetingsUpdatesHandler{
-    static newMeetingListener = null
-    static acceptedMeetingListener = null
-    static deniedMeetingListener = null
-    static fromFutureToPastMeetingListener = null
-    static newPendingMeetingListener = null
+    static newMeetingListener = []
+    static acceptedMeetingListener = []
+    static deniedMeetingListener = []
+    static fromFutureToPastMeetingListener = []
+    static newPendingMeetingListener = []
 
     static setNewMeetingListener(fn){
-        MeetingsUpdatesHandler.newMeetingListener = fn
+        MeetingsUpdatesHandler.newMeetingListener.push(fn)
     }
 
     static setAcceptedMeetingListener(fn){
-        MeetingsUpdatesHandler.acceptedMeetingListener = fn
+        MeetingsUpdatesHandler.acceptedMeetingListener.push(fn)
     }
 
     static setDeniedMeetingListener(fn){
-        MeetingsUpdatesHandler.deniedMeetingListener = fn
+        MeetingsUpdatesHandler.deniedMeetingListener.push(fn)
     }
 
     static setFromFutureToPastMeeting(fn){
-        MeetingsUpdatesHandler.fromFutureToPastMeetingListener = fn
+        MeetingsUpdatesHandler.fromFutureToPastMeetingListener.push(fn)
     }
 
     static setNewPendingMeetingListener(fn){
-        MeetingsUpdatesHandler.newPendingMeetingListener = fn
+        MeetingsUpdatesHandler.newPendingMeetingListener.push(fn)
     }
 
-    static removeNewMeetingListener(){
-        MeetingsUpdatesHandler.newMeetingListener = null
+    static removeNewMeetingListener(fn){
+        MeetingsUpdatesHandler.newMeetingListener = MeetingsUpdatesHandler.newMeetingListener.filter(elem => elem != fn)
     }
 
-    static removeAcceptedMeetingListener(){
-        MeetingsUpdatesHandler.acceptedMeetingListener = null
+    static removeAcceptedMeetingListener(fn){
+        MeetingsUpdatesHandler.acceptedMeetingListener = MeetingsUpdatesHandler.acceptedMeetingListener.filter(elem => elem != fn)
     }
 
-    static removeDeniedMeetingListener(){
-        MeetingsUpdatesHandler.deniedMeetingListener = null
+    static removeDeniedMeetingListener(fn){
+        MeetingsUpdatesHandler.deniedMeetingListener = MeetingsUpdatesHandler.deniedMeetingListener.filter(elem => elem != fn)
     }
 
-    static removeFromFutureToPastMeetingListener(){
-        MeetingsUpdatesHandler.fromFutureToPastMeetingListener = null
+    static removeFromFutureToPastMeetingListener(fn){
+        MeetingsUpdatesHandler.fromFutureToPastMeetingListener = MeetingsUpdatesHandler.fromFutureToPastMeetingListener.filter(elem => elem != fn)
     }
 
-    static removeNewPendingMeetingListener(){
-        MeetingsUpdatesHandler.newPendingMeetingListener = null
+    static removeNewPendingMeetingListener(fn){
+        MeetingsUpdatesHandler.newPendingMeetingListener = MeetingsUpdatesHandler.newPendingMeetingListener.filter(elem => elem != fn)
     }
 
     static newMeeting(date, time, opponentId){
-        if(this.newMeetingListener != null) this.newMeetingListener(date, time, opponentId)
+        this.newMeetingListener.forEach(fn => fn(date, time, opponentId))
     }
 
-    static deniedMeeting(idOpponent){
-        if(this.deniedMeetingListener != null) this.deniedMeetingListener(idOpponent)
+    static deniedMeeting(date, time, idOpponent){
+        this.deniedMeetingListener.forEach(fn => fn(date, time, idOpponent))
     }
 
-    static acceptedMeeting(idOpponent){
-        if(this.acceptedMeetingListener != null) this.acceptedMeetingListener(idOpponent)
+    static acceptedMeeting(date, time, idOpponent){
+        this.acceptedMeetingListener.forEach(fn => fn(date, time, idOpponent))
     }
 
     static fromFutureToPastMeeting(date, time, opponentId){
-        if(this.fromFutureToPastMeetingListener != null) this.fromFutureToPastMeetingListener(date, time, opponentId)
+        this.fromFutureToPastMeetingListener.forEach(fn => fn(date, time, opponentId))
     }
 
     static newPendingMeeting(date, time, opponentId){
-        if(this.newPendingMeetingListener != null) this.newPendingMeetingListener(date, time, opponentId)
+        this.newPendingMeetingListener.forEach(fn => fn(date, time, opponentId))
     }
 }
 MeetingsUpdatesHandler.shared = new MeetingsUpdatesHandler()

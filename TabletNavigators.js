@@ -1,13 +1,11 @@
 import { createBottomTabNavigator, createSwitchNavigator, createStackNavigator, createMaterialTopTabNavigator } from 'react-navigation'
 import React from 'react'
 import {Icon} from 'react-native-elements'
-
-import SingleChat from "./screens/SingleChat";
 import Settings from "./screens/Settings";
 import ChangePassword from "./screens/ChangePassword";
 import CitiesOfBuddy from "./screens/CitiesOfBuddy";
 import {heightPercentageToDP as hp} from "react-native-responsive-screen";
-import PastMeetings from "./screens/ListView";
+import ListView from "./screens/ListView";
 import Feedback from "./screens/Feedback";
 import ChooseCity from "./screens/ChooseCity";
 import Loading from "./screens/Loading";
@@ -20,7 +18,7 @@ import NewMeeting from "./screens/NewMeeting";
 import CityChosen from "./screens/CityChosen";
 import NewBiography from "./screens/NewBiography";
 import ChatTablet from "./screens/ChatTablet"
-import FixedMeetings from "./screens/CalendarView";
+import CalendarView from "./screens/CalendarView";
 import MeetingInfo from "./screens/MeetingInfo";
 
 const SearchTab = createStackNavigator({
@@ -40,11 +38,11 @@ const ChatTab = createStackNavigator({
 });
 
 const MeetingsTab = createMaterialTopTabNavigator({
-    FixedMeetings:{
-        screen: FixedMeetings
+    CalendarView:{
+        screen: CalendarView
     },
-    PastMeetings:{
-        screen: PastMeetings
+    ListView:{
+        screen: ListView
     },
 },{
     tabBarOptions: {
@@ -52,7 +50,7 @@ const MeetingsTab = createMaterialTopTabNavigator({
             backgroundColor:'white'
         },
     },
-    initialRouteName: 'FixedMeetings',
+    initialRouteName: 'CalendarView',
     animationEnabled: false
 })
 

@@ -46,7 +46,7 @@ class MeetingsHandler {
                     response = response.json()
                     if(response == null) return []
                     return response
-                }else{
+                } else {
                     console.log("Error in the request: ", response.status)
                     return null
                 }
@@ -60,7 +60,7 @@ class MeetingsHandler {
         });
     }
 
-    static acceptMeeting(opponentId){
+    static acceptMeeting(date, time, opponentId){
         const idUser = firebase.auth().currentUser.uid
         return firebase.auth().currentUser.getIdToken(true).then(function(id) {
             return fetch(IP_ADDRESS + "/api/users/" + idUser + "/acceptMeeting", {
@@ -71,7 +71,9 @@ class MeetingsHandler {
                 },
                 body: JSON.stringify({
                     idToken: id,
-                    opponentId: opponentId
+                    opponentId: opponentId,
+                    date: date,
+                    time: time
                 })
             }).catch( err => {
                 console.log("Error", err)
@@ -83,7 +85,7 @@ class MeetingsHandler {
         });
     }
 
-    static denyMeeting(opponentId) {
+    static denyMeeting(date, time, opponentId) {
         const idUser = firebase.auth().currentUser.uid
         return firebase.auth().currentUser.getIdToken(true).then(function(id) {
             return fetch(IP_ADDRESS + "/api/users/" + idUser + "/denyMeeting", {
@@ -94,7 +96,9 @@ class MeetingsHandler {
                 },
                 body: JSON.stringify({
                     idToken: id,
-                    opponentId: opponentId
+                    opponentId: opponentId,
+                    date: date,
+                    time: time
                 })
             }).catch( err => {
                 console.log("Error", err)
