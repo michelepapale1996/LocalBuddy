@@ -61,7 +61,7 @@ export default class ChangePassword extends React.Component {
                     onChangeText={repeatNewPassword => this.setState({ repeatNewPassword })}
                     value={this.state.repeatNewPassword}
                 />
-                <Button mode={"outlined"} onPress={this.handleChangePassword} >Change password</Button>
+                <Button mode={"outlined"} onPress={this.handleChangePassword}>Change password</Button>
             </View>
         )
     }

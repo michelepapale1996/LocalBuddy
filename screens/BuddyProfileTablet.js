@@ -1,0 +1,286 @@
+import React, {Component} from 'react';
+import { StyleSheet, View, Image, ScrollView, FlatList } from 'react-native';
+import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen';
+import UserHandler from "../handler/UserHandler";
+import SingleChatHandler from "../handler/SingleChatHandler";
+import LoadingComponent from "../components/LoadingComponent";
+import { FAB, Text, Surface, Button, Snackbar } from 'react-native-paper';
+import firebase from "react-native-firebase";
+import StarRating from 'react-native-star-rating';
+import MeetingsHandler from "../handler/MeetingsHandler";
+import NavigationService from "../handler/NavigationService";
+
+function Biography(props){
+    return(
+        <View style={styles.biographyContainer}>
+            <View style={styles.biography}>
+                {
+                    props.bio != ""
+                        ? <Text style={styles.biographyText}>{props.bio}</Text>
+                        : <Text style={styles.biographyText}>The buddy does not have any biography yet.</Text>
+                }
+            </View>
+        </View>
+    )
+}
+
+
+function UserInfo(props) {
+    const birthdate = new Date(props.userInfo.birthDate)
+    const years = new Date().getFullYear() - birthdate.getFullYear()
+    return(
+        <View>
+            <Text style={styles.nameAndSurnameText}>
+                {props.userInfo.name} {props.userInfo.surname}
+            </Text>
+            <Text style={styles.infoUserText}>{years} years old</Text>
+        </View>
+    )
+}
+
+function PhotoProfile(props) {
+    return(
+        <Image style={styles.avatar} source={{uri: props.photoPath}}/>
+    )
+}
+
+function Feedback(props){
+    return(
+        <View style={{flexDirection:"row", margin:10}}>
+            <Image style={styles.photoTravelerProfile} source={{uri: props.feedback.url}}/>
+            <View style={{margin:5, flex:1}}>
+                <View style={{flexDirection:"row", justifyContent:"space-between", flexWrap: "wrap" }}>
+                    <Text style={{fontWeight:"bold",fontSize:wp("2,5%")}}>{props.feedback.name}</Text>
+                    <StarRating
+                        disabled={true}
+                        maxStars={5}
+                        starSize={20}
+                        rating={props.feedback.rating}
+                        emptyStarColor={'#f1c40f'}
+                        fullStarColor={'#f1c40f'}
+                    />
+                </View>
+
+                <Text style={{fontSize:wp("2%")}}>{props.feedback.text}</Text>
+            </View>
+        </View>
+    )
+}
+
+function Feedbacks(props){
+    return(
+        <View style={styles.feedbacksContainer}>
+            <Text style={{fontWeight:"bold", fontSize:wp("3%"), marginLeft:wp("5%")}}>Feedbacks</Text>
+            {
+                props.feedbacks != "" && props.feedbacks != undefined && props.feedbacks != null
+                    ? <FlatList
+                        data={props.feedbacks}
+                        keyExtractor={(item, index) => index.toString()}
+                        renderItem={({item}) => <Surface style={styles.feedbacks}>
+                            <Feedback key={item.opponentId} feedback={item}/>
+                        </Surface>
+                        }/>
+                    : <Text style={styles.biographyText}>
+                        The buddy does not have any feedback yet.
+                    </Text>
+            }
+        </View>
+    )
+}
+
+export default class ProfileTab extends Component {
+    constructor(props){
+        super(props);
+
+        this.state = {
+            user: null,
+            photoToUpload: null,
+            loadingDone: false,
+            snackBarVisible: false
+        }
+    }
+
+    componentDidMount(){
+        UserHandler.getUserInfo(idUser).then(user => {
+            this.setState({
+                user: user,
+                chatId: null,
+                loadingDone: true
+            })
+        })
+    }
+
+    async componentDidMount(){
+        const idBuddy = this.props.navigation.getParam('idUser', 'Error')
+        const buddy = await UserHandler.getUserInfo(idBuddy)
+        const connectyCubeChatId = await SingleChatHandler.getChatId(idBuddy)
+
+        this.props.navigation.setParams({nameBuddy: buddy.name + " " + buddy.surname})
+        this.setState({
+            user: buddy,
+            loadingDone: true,
+            chatId: connectyCubeChatId
+
+        })
+    }
+
+    static navigationOptions = ({ navigation }) => {
+        return {
+            title: navigation.state.params.nameBuddy,
+            headerTintColor: 'white',
+            headerStyle: {
+                backgroundColor: '#2fa1ff'
+            },
+            headerTitleStyle: {
+                color: 'white'
+            }
+        };
+    };
+
+    render() {
+        if (this.state.loadingDone){
+            return(
+                <View style={styles.container}>
+                    <ScrollView>
+                        <View style={styles.header}/>
+                        <PhotoProfile photoPath={this.state.user.urlPhoto} chatId={this.state.chatId} userId={this.state.user.id}/>
+
+                        <View style={{flex:1, marginTop: hp("15%"), flexDirection: "row", justifyContent:"space-between", ...styles.bodyContent}}>
+                            <View style={{width: wp("30%"), flexDirection: "column"}}>
+                                <UserInfo userInfo={this.state.user}/>
+                                <Button
+                                    mode={"outlined"}
+                                    onPress={async () => {
+                                        //check if the user has already a future meeting with the given opponent
+                                        const futureMeetings = await MeetingsHandler.getFutureMeetings()
+                                        const idOpponent = this.props.navigation.getParam('idUser', 'Error')
+                                        if(futureMeetings.filter(elem => elem.idOpponent == idOpponent).length > 0){
+                                            alert("You have already a future meeting with this user.")
+                                        }else {
+                                            const navOptions = {
+                                                nameAndSurnameOpponent: this.state.user.name + " " + this.state.user.surname,
+                                                opponentId: idOpponent
+                                            }
+                                            NavigationService.goToNewMeeting(navOptions)
+                                        }
+                                    }}>
+                                    Propose a new meeting
+                                </Button>
+                                <Biography bio={this.state.user.bio} nav={this.props.navigation} newBiography={this.newBiography}/>
+                            </View>
+                            <Feedbacks feedbacks={this.state.user.feedbacks}/>
+                        </View>
+                    </ScrollView>
+                    <FAB
+                        style={styles.fab}
+                        color={"white"}
+                        icon="send"
+                        onPress={() => this.props.navigation.navigate({
+                            routeName: 'SingleChat',
+                            key: this.state.chatId,
+                            params: {
+                                CCopponentUserId: this.state.user.ccUserId,
+                                chatId: this.state.chatId,
+                                opponentNameAndSurname: this.state.user.name + " " + this.state.user.surname,
+                                urlPhotoOther: this.state.user.urlPhoto,
+                                opponentUserId: this.props.navigation.getParam('idUser', 'Error')
+                            }
+                        })}
+                    />
+                </View>
+            )
+        }else{
+            return(<LoadingComponent/>)
+        }
+    }
+}
+
+const styles = StyleSheet.create({
+    container:{
+        backgroundColor: 'white',
+        flex:1,
+        marginBottom:2,
+        shadowColor: "#000000",
+        shadowOpacity: 0.8,
+        shadowRadius: 2,
+        shadowOffset: {
+            height: 1,
+            width: 1
+        }
+    },
+    biographyContainer: {
+        fontSize: wp("5%"),
+        margin: hp("1%"),
+    },
+    feedbacksContainer: {
+        textAlign: "center",
+        width: wp("60%"),
+    },
+    biography:{
+        margin: wp("4%")
+    },
+    biographyText:{
+        textAlign: "center",
+        fontSize: wp("2%")
+    },
+    feedbacks:{
+        margin: wp("1%"),
+        borderRadius: 5,
+        elevation:2
+    },
+    nameAndSurnameText:{
+        fontSize:wp("3%"),
+        fontWeight:'bold',
+        textAlign:"center"
+    },
+    infoUserText:{
+        fontSize:wp("2%"),
+        textAlign:"center"
+    },
+    photoTravelerProfile:{
+        width: wp("10%"),
+        height: wp("10%"),
+        borderRadius: wp("20%")
+    },
+    header:{
+        backgroundColor: "#2fa1ff",
+        height:hp("20%"),
+    },
+    bodyContent: {
+        flex: 1,
+        padding:hp("10%"),
+        backgroundColor: "white"
+    },
+    avatar: {
+        width: wp("25%"),
+        height: wp("25%"),
+        borderRadius: wp("30%"),
+        borderWidth: 4,
+        borderColor: "white",
+        alignSelf:'flex-start',
+        position: 'absolute',
+        marginLeft: wp("7%"),
+        marginTop:hp("3%"),
+        zIndex:9
+    },
+    settingsButton:{
+        position: 'absolute',
+        marginTop:hp("5%"),
+        marginLeft:wp("85%")
+    },
+    photoButton:{
+        width: wp("10%"),
+        height: wp("10%"),
+        borderRadius: wp("10%"),
+        position: 'absolute',
+        marginTop:hp("15%"),
+        marginLeft:wp("70%"),
+        zIndex:10,
+    },
+    fab: {
+        position: 'absolute',
+        right: wp("3%"),
+        top: hp("70%"),
+        backgroundColor: "#52c8ff"
+    },
+});

@@ -1,3 +1,4 @@
+//used to link the allChats and SingleChat component in the chatTablet screen
 class ChatTabletHandler{
     static listener = null
 

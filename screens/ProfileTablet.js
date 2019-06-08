@@ -19,9 +19,8 @@ function Biography(props){
         <View style={styles.biographyContainer}>
             <TouchableRipple onPress={modifyBiography} rippleColor="rgba(0, 0, 0, .32)">
                 <View style={styles.biography}>
-                    <View style={{flexDirection:"row", flex: 1, justifyContent: 'flex-end',}}>
+                    <View style={{flexDirection:"row", flex: 1, justifyContent: 'flex-end'}}>
                         <Icon name='pencil' type='evilicon' size={30}/>
-
                     </View>
 
                     {
@@ -39,7 +38,7 @@ function UserInfo(props) {
     const birthdate = new Date(props.userInfo.birthDate)
     const years = new Date().getFullYear() - birthdate.getFullYear()
     return(
-        <View style={styles.infoUser}>
+        <View>
             <Text style={styles.nameAndSurnameText}>
                 {props.userInfo.name} {props.userInfo.surname}
             </Text>
@@ -79,13 +78,10 @@ function PhotoProfile(props) {
 function Feedback(props){
     return(
         <View style={{flexDirection:"row", margin:10}}>
-            <Image
-                style={styles.photoTravelerProfile}
-                source={{uri: props.feedback.url}}/>
+            <Image style={styles.photoTravelerProfile} source={{uri: props.feedback.url}}/>
             <View style={{margin:5, flex:1}}>
-
-                <View style={{flexDirection:"row", justifyContent:"space-between", flexWrap: "wrap" }}>
-                    <Text style={{fontWeight:"bold",fontSize:wp("5%")}}>{props.feedback.name}</Text>
+                <View style={{flexDirection:"row", justifyContent:"space-between", alignItems:"center", flexWrap: "wrap" }}>
+                    <Text style={{fontWeight:"bold", fontSize:wp("2,5%")}}>{props.feedback.name}</Text>
                     <StarRating
                         disabled={true}
                         maxStars={5}
@@ -96,7 +92,7 @@ function Feedback(props){
                     />
                 </View>
 
-                <Text style={{fontSize:wp("4%")}}>{props.feedback.text}</Text>
+                <Text style={{fontSize:wp("2%")}}>{props.feedback.text}</Text>
             </View>
         </View>
     )
@@ -105,26 +101,26 @@ function Feedback(props){
 function Feedbacks(props){
     return(
         <View style={styles.feedbacksContainer}>
-            <Text style={{fontWeight:"bold", fontSize:wp("6%"), marginLeft:wp("5%")}}>Feedbacks</Text>
-                {
-                    props.feedbacks != "" && props.feedbacks != undefined && props.feedbacks != null
-                        ?
-                            <FlatList
-                                data={props.feedbacks}
-                                keyExtractor={(item, index) => index.toString()}
-                                renderItem={({item}) => <Surface style={styles.feedbacks}>
-                                    <Feedback key={item.opponentId} feedback={item}/>
-                                </Surface>
-                            }/>
-                        : <Text style={styles.biographyText}>
-                            You do not have any feedback yet.
-                        </Text>
-                }
+            <Text style={{fontWeight:"bold", fontSize:wp("3%")}}>Feedbacks</Text>
+            {
+                props.feedbacks != "" && props.feedbacks != undefined && props.feedbacks != null
+                    ?
+                    <FlatList
+                        data={props.feedbacks}
+                        keyExtractor={(item, index) => index.toString()}
+                        renderItem={({item}) => <Surface style={styles.feedbacks}>
+                            <Feedback key={item.opponentId} feedback={item}/>
+                        </Surface>
+                        }/>
+                    : <Text style={styles.biographyText}>
+                        You do not have any feedback yet.
+                    </Text>
+            }
         </View>
     )
 }
 
-export default class ProfileTab extends Component {
+export default class ProfileTablet extends Component {
     constructor(props){
         super(props);
 
@@ -166,8 +162,7 @@ export default class ProfileTab extends Component {
             return(
                 <View style={styles.container}>
                     <ScrollView>
-
-                        <View style={styles.header}></View>
+                        <View style={styles.header}/>
                         <IconButton
                             style={styles.settingsButton}
                             color={Colors.white}
@@ -175,18 +170,13 @@ export default class ProfileTab extends Component {
                             size={30}
                             onPress={() => this.props.navigation.navigate('Settings')}
                         />
-
-                        <IconButton
-                            icon="add-a-photo"
-                            color={Colors.white}
-                            style={styles.photoButton}
-                            size={30}
-                        />
                         <PhotoProfile photoPath={this.state.user.urlPhoto} updatePhoto={this.updateUserPhoto} userId={this.state.user.id}/>
 
-                        <View style={styles.bodyContent}>
-                            <UserInfo userInfo={this.state.user}/>
-                            <Biography bio={this.state.user.bio} nav={this.props.navigation} newBiography={this.newBiography}/>
+                        <View style={{flex:1, marginTop: hp("10%"), flexDirection: "row", justifyContent:"space-between", ...styles.bodyContent}}>
+                            <View style={{width: wp("30%"), flexDirection: "column"}}>
+                                <UserInfo userInfo={this.state.user}/>
+                                <Biography bio={this.state.user.bio} nav={this.props.navigation} newBiography={this.newBiography}/>
+                            </View>
                             <Feedbacks feedbacks={this.state.user.feedbacks}/>
                         </View>
                     </ScrollView>
@@ -201,6 +191,7 @@ export default class ProfileTab extends Component {
 const styles = StyleSheet.create({
     container:{
         backgroundColor: 'white',
+        flex:1,
         marginBottom:2,
         shadowColor: "#000000",
         shadowOpacity: 0.8,
@@ -211,21 +202,19 @@ const styles = StyleSheet.create({
         }
     },
     biographyContainer: {
-        fontSize: hp("30%"),
-        width: wp("95%"),
+        fontSize: wp("5%"),
         margin: hp("1%"),
     },
     feedbacksContainer: {
-        fontSize: hp("30%"),
-        width: wp("95%"),
-        margin: hp("1%"),
+        textAlign: "center",
+        width: wp("60%"),
     },
     biography:{
         margin: wp("4%")
     },
     biographyText:{
         textAlign: "center",
-        fontSize:wp("4%"),
+        fontSize:wp("2%"),
         flex: 1,
     },
     feedbacks:{
@@ -233,58 +222,46 @@ const styles = StyleSheet.create({
         borderRadius: 5,
         elevation:2
     },
-    infoUser:{
-        flex: 1,
-        width: wp("80%"),
-        fontWeight:'600',
-        marginTop: hp("5%"),
-    },
     nameAndSurnameText:{
-        fontSize:wp("7%"),
+        fontSize:wp("3%"),
         flex: 1,
-        fontWeight:'600',
+        fontWeight:'bold',
         textAlign:"center"
     },
     infoUserText:{
-        fontSize:wp("5%"),
-        flex: 1,
-        fontWeight:'300',
-        marginLeft: 0,
+        fontSize:wp("2%"),
         textAlign:"center"
     },
-    nameAndSurname:{
-        flex:1
-    },
     photoTravelerProfile:{
-        width: wp("20%"),
-        height: wp("20%"),
+        width: wp("10%"),
+        height: wp("10%"),
         borderRadius: wp("20%")
     },
     header:{
         backgroundColor: "#2fa1ff",
-        height:hp("30%"),
+        height:hp("20%"),
     },
     bodyContent: {
         flex: 1,
-        alignItems: 'center',
         padding:hp("10%"),
         backgroundColor: "white"
     },
     avatar: {
-        width: wp("50%"),
-        height: wp("50%"),
+        width: wp("25%"),
+        height: wp("25%"),
         borderRadius: wp("40%"),
         borderWidth: 4,
         borderColor: "white",
-        alignSelf:'center',
+        alignSelf:'flex-start',
         position: 'absolute',
-        marginTop:wp("20%"),
+        marginLeft: wp("7%"),
+        marginTop:hp("2%"),
         zIndex:9
     },
     settingsButton:{
         position: 'absolute',
         marginTop:hp("5%"),
-        marginLeft:wp("85%")
+        marginLeft:wp("95%")
     },
     photoButton:{
         width: wp("10%"),

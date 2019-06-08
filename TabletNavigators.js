@@ -10,8 +10,8 @@ import Feedback from "./screens/Feedback";
 import ChooseCity from "./screens/ChooseCity";
 import Loading from "./screens/Loading";
 import SignUp from "./screens/SignUp";
-import BuddyProfile from "./screens/BuddyProfile";
-import ProfileTab from "./screens/ProfileTab";
+import BuddyProfileTablet from "./screens/BuddyProfileTablet";
+import ProfileTablet from "./screens/ProfileTablet";
 import Login from "./screens/Login";
 import WhoCanFindMe from "./screens/WhoCanFindMe";
 import NewMeeting from "./screens/NewMeeting";
@@ -29,7 +29,7 @@ const SearchTab = createStackNavigator({
         screen: CityChosen,
     },
     BuddyProfile: {
-        screen: BuddyProfile
+        screen: BuddyProfileTablet
     },
 });
 
@@ -65,7 +65,7 @@ const FutureMeetingsTabNavigator = createStackNavigator({
         screen: MeetingInfo
     },
     BuddyProfile: {
-        screen: BuddyProfile
+        screen: BuddyProfileTablet
     },
     NewMeeting:{
         screen: NewMeeting
@@ -77,7 +77,7 @@ const FutureMeetingsTabNavigator = createStackNavigator({
 
 const ProfileTabNavigator = createStackNavigator({
     Profile:{
-        screen: ProfileTab,
+        screen: ProfileTablet,
         navigationOptions: {
             header: null
         }

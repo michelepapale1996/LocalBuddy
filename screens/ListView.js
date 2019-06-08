@@ -209,6 +209,10 @@ export default class ListView extends Component{
                                     showsVerticalScrollIndicator={false}
                                 />
                             }
+                            {
+                                this.state.meetings.length == 0 &&
+                                <Text style={{fontWeight:"bold", ...styles.text}}>You do not have any meeting yet.</Text>
+                            }
                         </View>
                     </ScrollView>
                     <FAB

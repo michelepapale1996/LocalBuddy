@@ -11,7 +11,6 @@ function Chat(props) {
     return(
         <TouchableRipple
             onPress={() =>{
-                //go
                 props.nav.navigate({routeName: 'SingleChat',
                     key: props.item.chatId,
                     params:{
@@ -84,7 +83,7 @@ export default class AllChats extends Component {
             }
             lastMessageTime = time.getHours() + ":" + minutes
         }else if(time.getDate() + 1== now.getDate()){
-            lastMessageTime = "Ieri"
+            lastMessageTime = "Yesterday"
         }else{
             lastMessageTime = time.getDate() + "/" + (time.getMonth()+1) + "/" + time.getFullYear()
         }
@@ -196,6 +195,7 @@ const styles = StyleSheet.create({
     },
     singleChat: {
         borderBottomWidth: 1,
+        borderColor:"grey",
         flex: 1,
         flexDirection: 'column',
         marginLeft: wp("3%")
@@ -209,11 +209,5 @@ const styles = StyleSheet.create({
         width: wp("15%"),
         height: wp("15%"),
         borderRadius: wp("15%")
-    },
-    circle:{
-        width:36,
-        height:36,
-        borderRadius:18,   //half radius will make it cirlce,
-        backgroundColor:'green'
     }
 });

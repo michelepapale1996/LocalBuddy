@@ -4,20 +4,21 @@ import {widthPercentageToDP as wp, heightPercentageToDP as hp} from "react-nativ
 import ChatsHandler from "../handler/ChatsHandler"
 import MessagesUpdatesHandler from "../handler/MessagesUpdatesHandler"
 import LoadingComponent from '../components/LoadingComponent'
-import { Text, TouchableRipple } from 'react-native-paper'
-import {GiftedChat} from "react-native-gifted-chat";
+import { Text, TouchableRipple, Button } from 'react-native-paper'
+import {GiftedChat, Bubble} from "react-native-gifted-chat";
 import firebase from "react-native-firebase";
 import UserHandler from "../handler/UserHandler";
 import SingleChatHandler from "../handler/SingleChatHandler";
 import ChatTabletHandler from "../handler/ChatTabletHandler";
+import { Header } from "react-native-elements"
 
 function Chat(props) {
     const lastMessageTime = props.getTime(props.item.createdAt)
     return(
         <TouchableRipple
             onPress={() =>{
-                //go
                 ChatTabletHandler.update({
+                    chatSelected: true,
                     key: props.item.chatId,
                     chatId: props.item.chatId,
                     opponentNameAndSurname: props.item.nameAndSurname,
@@ -31,11 +32,11 @@ function Chat(props) {
                     style={styles.userPhoto}
                     source={{uri: props.item.urlPhotoOther}}/>
                 <View style={styles.singleChat}>
-                    <View style={{flexDirection: "row", justifyContent:"space-between"}}>
+                    <View style={{flexDirection: "row", justifyContent:"space-between", alignItems:"center"}}>
                         <Text style={styles.text}>
                             {props.item.nameAndSurname}
                         </Text>
-                        <Text>
+                        <Text style={{marginRight:wp("1%")}}>
                             {lastMessageTime}
                         </Text>
                     </View>
@@ -77,23 +78,13 @@ function AllChats(props){
 class SingleChat extends Component{
     constructor(props){
         super(props)
+        this.state = {chatSelected: false}
         ChatTabletHandler.addListener(this.updateState)
-    }
-
-    updateState = (state) => {
-        console.log("ABCD")
-        console.log(state)
-        this.setState(state)
-        const urlPhotoOther = state.urlPhotoOther
-        if(state.chatId != null){
-            SingleChatHandler.retrieveChatHistory(state.chatId, 100, null, urlPhotoOther).then(messages => this.setState({messages: messages}))
-        }
         MessagesUpdatesHandler.addListener(this.onMessageRcvd)
     }
 
     componentDidMount() {
         const userId = firebase.auth().currentUser.uid
-
         //used for the notification
         UserHandler.getNameAndSurname(userId).then(nameAndSurname => {
             this.setState({nameAndSurname: nameAndSurname})
@@ -103,6 +94,14 @@ class SingleChat extends Component{
     componentWillUnmount(){
         MessagesUpdatesHandler.removeListeners(this.onMessageRcvd)
         ChatTabletHandler.removeListener()
+    }
+
+    updateState = (state) => {
+        this.setState(state)
+        const urlPhotoOther = state.urlPhotoOther
+        if(state.chatId != null){
+            SingleChatHandler.retrieveChatHistory(state.chatId, 100, null, urlPhotoOther).then(messages => this.setState({messages: messages}))
+        }
     }
 
     //local parameter is a bool that is true if the msg is sent from the loggedUser
@@ -162,13 +161,30 @@ class SingleChat extends Component{
     render() {
         return (
             <View style={{borderLeftWidth:0.5, borderColor:"grey", flex:1}}>
-                {this.state != null && <GiftedChat
-                    messages={this.state.messages}
-                    onSend={messages => this.onSend(messages)}
-                    user={{
-                        _id: 1,
-                    }}
-                />}
+                {
+                    this.state.chatSelected &&
+                    <View style={{flex:1}}>
+                        <Header backgroundColor='#2980b9'>
+                            <TouchableRipple style={{flex:1}}
+                                 onPress={() => {
+                                     if(this.state.opponentNameAndSurname != "Account Deleted") this.props.navigation.navigate('BuddyProfile', {idUser: this.state.opponentUserId})
+                                 }}
+                            >
+                                <Text style={{color: '#fff', fontSize: wp("2%"), fontWeight:"bold"}}>{this.state.opponentNameAndSurname}</Text>
+                            </TouchableRipple>
+                            <View/>
+                            <Button mode={"outlined"} style={styles.button} color={"white"} onPress={()=>this.setState({chatSelected: false})}>Close</Button>
+                        </Header>
+
+                        <GiftedChat
+                            messages={this.state.messages}
+                            onSend={messages => this.onSend(messages)}
+                            user={{
+                                _id: 1,
+                            }}
+                        />
+                    </View>
+                }
             </View>
         )
     }
@@ -213,7 +229,7 @@ export default class ChatTablet extends Component {
             }
             lastMessageTime = time.getHours() + ":" + minutes
         }else if(time.getDate() + 1== now.getDate()){
-            lastMessageTime = "Ieri"
+            lastMessageTime = "Yesterday"
         }else{
             lastMessageTime = time.getDate() + "/" + (time.getMonth()+1) + "/" + time.getFullYear()
         }
@@ -329,5 +345,11 @@ const styles = StyleSheet.create({
         width: wp("5%"),
         height: wp("5%"),
         borderRadius: wp("15%")
-    }
+    },
+    button:{
+        marginLeft:0,
+        marginRight:0,
+        borderRadius: 5,
+        borderColor: "white"
+    },
 });
