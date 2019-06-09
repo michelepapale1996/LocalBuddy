@@ -9,6 +9,7 @@ import {AccessToken, GraphRequest, LoginManager, GraphRequestManager} from 'reac
 import UserHandler from "../handler/UserHandler";
 import AccountHandler from "../handler/AccountHandler";
 import ConnectyCubeHandler from "../handler/ConnectyCubeHandler";
+import LocalStateHandler from "../handler/LocalStateHandler";
 
 export default class Login extends React.Component {
     state = {
@@ -27,7 +28,7 @@ export default class Login extends React.Component {
             firebase.auth().signInWithEmailAndPassword(email, password).then(() => {
                 const userId = firebase.auth().currentUser.uid
                 LoadingHandler.initApp(userId).then(() => {
-                    this.props.navigation.navigate('Home')
+                    this.props.navigation.navigate('Chat')
                 })
             }).catch(error => this.setState({
                 errorMessage: error.message,
@@ -56,16 +57,18 @@ export default class Login extends React.Component {
         // login with credential
         const firebaseUserCredential = await firebase.auth().signInWithCredential(credential);
 
-        console.log(firebaseUserCredential)
         const userId = firebaseUserCredential.user._user.uid
         UserHandler.getUserInfo(userId).then(userInfo => {
             if (userInfo) {
                 //user exists
+
+                //save in local
+                LocalStateHandler.storeUserInfo(userInfo)
                 LoadingHandler.initApp(userId).then(() => {
-                    this.props.navigation.navigate('Home')
+                    this.props.navigation.navigate('Chat')
                 })
             } else {
-                //user is singing up
+                //user is signing up
                 const name = firebaseUserCredential.additionalUserInfo.profile.first_name
                 const surname = firebaseUserCredential.additionalUserInfo.profile.last_name
                 const birthDate =firebaseUserCredential.additionalUserInfo.profile.birthday
@@ -101,9 +104,13 @@ export default class Login extends React.Component {
                         //return UserHandler.setUrlPhoto(photoPath)
                     }).then(()=>{
                         return ConnectyCubeHandler.login(userId)
-                    }).then(() => {
+                    }).then(async () => {
+                        //save in local
+                        const user = await UserHandler.getUserInfo(userId)
+                        await LocalStateHandler.storeUserInfo(user)
+
                         LoadingHandler.initApp(userId).then(()=>{
-                            this.props.navigation.navigate('Home')
+                            this.props.navigation.navigate('Chat')
                         })
                     }).catch(error => this.setState({errorMessage: error.message}))
                 })

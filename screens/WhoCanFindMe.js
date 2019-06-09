@@ -74,7 +74,7 @@ export default class Settings extends Component {
         if(this.state.loadingDone != false) {
             return(
                 <View style={styles.viewContainer}>
-                    <View style={{flexDirection:"row", justifyContent:"space-between"}}>
+                    <View style={{flexDirection:"row", justifyContent:"space-between", marginTop:hp("20%")}}>
                     <Text style={styles.text}>Only from same-sex people</Text>
                     <Switch
                         value={this.state.onlySameSex}
@@ -112,7 +112,7 @@ const styles = StyleSheet.create({
     },
     viewContainer:{
         flex:1,
-        alignItems: 'center'
+        alignItems: 'center',
     },
     text: {
         fontSize: 20,

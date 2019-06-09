@@ -10,7 +10,6 @@ import { Text, TouchableRipple } from 'react-native-paper';
 import AccountHandler from "../handler/AccountHandler";
 
 function BuddyComponent(props){
-
     stopToBeBuddy = () => {
         UserHandler.stopToBeBuddy()
         props.isBuddyUpdater(0)
@@ -19,6 +18,7 @@ function BuddyComponent(props){
     becomeBuddy = () => {
         UserHandler.becomeBuddy()
         props.isBuddyUpdater(1)
+        props.nav.navigate("CitiesOfBuddy")
     }
 
     if(props.isBuddy == 1){
