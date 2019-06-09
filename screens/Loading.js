@@ -5,6 +5,7 @@ import LoadingHandler from "../handler/LoadingHandler";
 import MessagesNotificationsHandler from "../handler/MessagesNotificationsHandler";
 import MeetingsNotificationsHandler from "../handler/MeetingsNotificationsHandler";
 import UserHandler from "../handler/UserHandler";
+import LocalStateHandler from "../handler/LocalStateHandler";
 var PushNotification = require('react-native-push-notification');
 
 export default class Loading extends React.Component {
@@ -53,21 +54,22 @@ export default class Loading extends React.Component {
     }
 
     componentDidMount() {
-        firebase.auth().onAuthStateChanged(user => {
+        firebase.auth().onAuthStateChanged(async user => {
             if(!this.authFlag) {
                 this.authFlag = true
                 if (user) {
                     //check if the user exists
-                    UserHandler.getUserInfo(user.uid).then(userInfo => {
-                        if (userInfo) {
-                            //user is logged
-                            LoadingHandler.initApp(user.uid).then(() => {
-                                this.props.navigation.navigate('Home')
-                            })
-                        } else {
-                            this.props.navigation.navigate('Login')
-                        }
-                    })
+                    //check to be done beacause if the user deletes himself and has multiple devices -> the authentication still works
+                    const userInfo = await UserHandler.getUserInfo(user.uid)
+                    LocalStateHandler.storeUserInfo(userInfo)
+                    if (userInfo) {
+                        //user is logged
+                        LoadingHandler.initApp(user.uid).then(() => {
+                            this.props.navigation.navigate('Chat')
+                        })
+                    } else {
+                        this.props.navigation.navigate('Login')
+                    }
                 } else {
                     this.props.navigation.navigate('Login')
                 }

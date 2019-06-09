@@ -8,6 +8,8 @@ import ConnectyCubeHandler from "../handler/ConnectyCubeHandler"
 import LoadingComponent from "../components/LoadingComponent";
 import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen'
 import LoadingHandler from "../handler/LoadingHandler";
+import LocalStateHandler from "../handler/LocalStateHandler";
+import UserHandler from "../handler/UserHandler";
 
 export default class SignUp extends React.Component {
     constructor(props){
@@ -65,9 +67,13 @@ export default class SignUp extends React.Component {
                         this.state.sex,
                         session.id,
                         this.state.birthDate)
+                //save in local
+                const user = await UserHandler.getUserInfo(userId)
+                await LocalStateHandler.storeUserInfo(user)
+
                 await ConnectyCubeHandler.login(userId)
                 await LoadingHandler.initApp(userId)
-                this.props.navigation.navigate('Home')
+                this.props.navigation.navigate('Chat')
             }).catch(error => {
                 this.setState({
                     errorMessage: error.message,
