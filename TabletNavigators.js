@@ -101,12 +101,6 @@ const ProfileTabNavigator = createStackNavigator({
 
 
 const TabNavigator = createBottomTabNavigator({
-    Search: {
-        screen: SearchTab,
-        navigationOptions:{
-            tabBarIcon: ({tintColor}) => <Icon name="search" size={35} color={tintColor}/>
-        }
-    },
     Chat: {
         screen: ChatTab,
         navigationOptions:{
@@ -117,6 +111,12 @@ const TabNavigator = createBottomTabNavigator({
         screen: FutureMeetingsTabNavigator,
         navigationOptions:{
             tabBarIcon: ({tintColor}) => <Icon name="account-multiple" type="material-community" size={35} color={tintColor}/>
+        }
+    },
+    Search: {
+        screen: SearchTab,
+        navigationOptions:{
+            tabBarIcon: ({tintColor}) => <Icon name="search" size={35} color={tintColor}/>
         }
     },
     Profile: {
