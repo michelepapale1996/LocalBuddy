@@ -8,6 +8,7 @@ import LoadingComponent from "../components/LoadingComponent";
 import { IconButton, Colors, Text, Surface, TouchableRipple, Avatar } from 'react-native-paper';
 import UserHandler from "../handler/UserHandler";
 import StarRating from 'react-native-star-rating';
+import LocalStateHandler from "../handler/LocalStateHandler";
 
 function Biography(props){
 
@@ -19,7 +20,7 @@ function Biography(props){
         <View style={styles.biographyContainer}>
             <TouchableRipple onPress={modifyBiography} rippleColor="rgba(0, 0, 0, .32)">
                 <View style={styles.biography}>
-                    <View style={{flexDirection:"row", flex: 1, justifyContent: 'flex-end',}}>
+                    <View style={{flexDirection:"row", flex: 1, justifyContent: 'flex-end'}}>
                         <Icon name='pencil' type='evilicon' size={30}/>
 
                     </View>
@@ -143,13 +144,18 @@ export default class ProfileTab extends Component {
         })
     }
 
-    componentDidMount(){
-        const id = firebase.auth().currentUser.uid
+    async componentDidMount(){
+        /*const id = firebase.auth().currentUser.uid
         UserHandler.getUserInfo(id).then(user => {
             this.setState({
                 user: user,
                 loadingDone: true
             })
+        })*/
+        const user = await LocalStateHandler.getUserInfo()
+        this.setState({
+            user: user,
+            loadingDone: true
         })
     }
 
@@ -166,7 +172,6 @@ export default class ProfileTab extends Component {
             return(
                 <View style={styles.container}>
                     <ScrollView>
-
                         <View style={styles.header}></View>
                         <IconButton
                             style={styles.settingsButton}

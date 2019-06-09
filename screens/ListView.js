@@ -8,6 +8,7 @@ import { Text, Button, Surface, TouchableRipple, FAB } from 'react-native-paper'
 import {Icon} from 'react-native-elements'
 import MeetingsUpdatesHandler from "../handler/MeetingsUpdatesHandler";
 import DateHandler from "../handler/DateHandler";
+import LocalStateHandler from "../handler/LocalStateHandler";
 
 export default class ListView extends Component{
     constructor(props){
@@ -43,6 +44,7 @@ export default class ListView extends Component{
         MeetingsUpdatesHandler.setFromFutureToPastMeeting(this.changeFromFutureToPastMeeting)
 
         var meetings = await MeetingsHandler.getMeetings()
+
         //get the id of the other person
         const peopleIds = []
         meetings.forEach(elem => {
@@ -211,7 +213,9 @@ export default class ListView extends Component{
                             }
                             {
                                 this.state.meetings.length == 0 &&
-                                <Text style={{fontWeight:"bold", ...styles.text}}>You do not have any meeting yet.</Text>
+                                <View style={{flex: 1, alignItems:"center", justifyContent: 'center'}}>
+                                    <Text style={{fontWeight:"bold", textAlign: 'center', ...styles.text}}>You do not have any meeting yet.</Text>
+                                </View>
                             }
                         </View>
                     </ScrollView>

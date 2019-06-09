@@ -55,7 +55,7 @@ export default class CityChosen extends Component {
                     loadingDone: true
                 })
                 //setting the title
-                this.props.navigation.setParams({title: "Buddies a " + response.name})
+                this.props.navigation.setParams({title: "Buddies in " + response.name})
             }else{
                 this.setState({
                     loadingDone: true
@@ -122,18 +122,19 @@ const styles = StyleSheet.create({
     },
     singleBuddyContainer: {
         flex:1,
+        justifyContent:"center",
+        alignItems:"center",
         flexDirection: 'row',
-        marginTop: wp('3%'),
-        marginBottom: wp('1%'),
-        marginLeft: wp("5%"),
+        marginTop: hp('1%'),
+        marginBottom: hp('1%'),
+        marginLeft: wp("4%"),
         marginRight: wp('5%'),
         height: hp("13%")
     },
     userPhoto: {
-        marginLeft:wp("3%"),
-        width: wp("15%"),
-        height: wp("15%"),
-        borderRadius: wp("15%")
+        width: wp("20%"),
+        height: wp("20%"),
+        borderRadius: wp("20%")
     },
     singleBuddy: {
         flex: 1,

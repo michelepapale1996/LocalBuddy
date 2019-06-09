@@ -1,12 +1,44 @@
 import React, {Component} from 'react';
 import {StyleSheet, View, FlatList} from 'react-native'
 import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen'
-import { Searchbar, Text, TouchableRipple } from 'react-native-paper';
+import { Searchbar, Text, TouchableRipple, Card, Title, IconButton } from 'react-native-paper';
 
 export default class ChooseCity extends Component {
     constructor(props) {
         super(props);
         this.state = {
+            initialCities:[
+                {
+                    name: "London",
+                    url: "https://d13k13wj6adfdf.cloudfront.net/urban_areas/london_web-e8502ca139.jpg",
+                    id: "ChIJdd4hrwug2EcRmSrV3Vo6llI"
+                },
+                {
+                    name: "New York",
+                    url: "https://d13k13wj6adfdf.cloudfront.net/urban_areas/new-york_web-99d9bb0809.jpg",
+                    id: "ChIJOwg_06VPwokRYv534QaPC8g"
+                },
+                {
+                    name: "Tokyo",
+                    url: "https://d13k13wj6adfdf.cloudfront.net/urban_areas/tokyo_web-7a20b5733f.jpg",
+                    id: "ChIJXSModoWLGGARILWiCfeu2M0"
+                },
+                {
+                    name: "Dubai",
+                    url: "https://d13k13wj6adfdf.cloudfront.net/urban_areas/dubai_web-e211678fd9.jpg",
+                    id: "ChIJRcbZaklDXz4RYlEphFBu5r0"
+                },
+                {
+                    name: "San Francisco",
+                    url: "https://d13k13wj6adfdf.cloudfront.net/urban_areas/san-francisco-bay-area_web-f17b1f60e6.jpg",
+                    id: "ChIJIQBpAG2ahYAR_6128GcTUEo"
+                },
+                {
+                    name: "Los Angeles",
+                    url: "https://d13k13wj6adfdf.cloudfront.net/urban_areas/los-angeles-f5b60deb04.jpg",
+                    id: "ChIJE9on3F3HwoAR9AhGJW_fL-I"
+                }
+            ],
             cities: [],
             query: ""
         };
@@ -19,11 +51,11 @@ export default class ChooseCity extends Component {
     };
 
     getCities = (input) => {
-        ApiKey = "AIzaSyBRfBut3xLOq-gimCV4mT2zalmchEppB6U"
-        sessionToken = "1234567890"
+        const ApiKey = "AIzaSyBRfBut3xLOq-gimCV4mT2zalmchEppB6U"
+        const sessionToken = "1234567890"
 
-        AppId = "nIjKA6dhmhmoMEAGvlaA"
-        AppCode = "Ii8RBuVJB1l_RiJbtZcp-Q"
+        const AppId = "nIjKA6dhmhmoMEAGvlaA"
+        const AppCode = "Ii8RBuVJB1l_RiJbtZcp-Q"
 
         if(input != null && input.length > 3){
             const queryGoogle = "https://maps.googleapis.com/maps/api/place/autocomplete/json?input="
@@ -61,22 +93,37 @@ export default class ChooseCity extends Component {
                     value={this.state.query}
                 />
                 {
-                    this.state.cities.length != 0 ?
+                    this.state.query.length > 3 ?
                         <FlatList
                             data={this.state.cities}
                             renderItem={({item}) =>
                                 <TouchableRipple onPress={() => this.props.navigation.navigate('CityChosen', {cityId: item.cityId})}>
-                                    <Text style={styles.text}>
-                                        {item.name}
-                                    </Text>
+                                    <View style={{flexDirection:"row"}}>
+                                        <IconButton icon={"location-on"}/><Text style={styles.text}>{item.name}</Text>
+                                    </View>
                                 </TouchableRipple>
                             }
                             keyExtractor={(item, index) => index.toString()}
                             extraData={this.state}
                             showsVerticalScrollIndicator={false}
-                        /> :
-                        <View style={styles.container}>
-                            <Text style={styles.text}>To start, search a city where you want to find a buddy!</Text>
+                        />
+                        :
+                        <View style={{flex:1}}>
+                            <FlatList
+                                data={this.state.initialCities}
+                                renderItem={({item}) =>
+                                    <Card onPress={()=> this.props.navigation.navigate('CityChosen', {cityId: item.id})}
+                                          elevation={10} style={{marginTop:hp("0.5%"), marginBottom: hp("0.5%"), marginRight:wp("1%"), marginLeft:wp("1%")}}>
+                                        <Card.Cover source={{ uri: item.url }} style={{height:hp("20%")}} />
+                                        <Card.Content>
+                                            <Title>{item.name}</Title>
+                                        </Card.Content>
+                                    </Card>
+                                }
+                                keyExtractor={(item, index) => index.toString()}
+                                extraData={this.state}
+                                showsVerticalScrollIndicator={false}
+                            />
                         </View>
                 }
             </View>
@@ -84,16 +131,19 @@ export default class ChooseCity extends Component {
     }
 }
 
+/*
+<View style={styles.container}>
+                            <Text style={styles.text}>To start, search a city where you want to find a buddy!</Text>
+                        </View>
+*/
+
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
         backgroundColor: 'white',
     },
     text: {
         fontSize: 20,
-        textAlign: 'center',
         margin: 10,
         fontWeight: "bold"
     },

@@ -35,31 +35,37 @@ export default class CitiesOfBuddy extends Component {
     componentDidMount(){
         const idUser = firebase.auth().currentUser.uid
         UserHandler.getCities(idUser).then(cities => {
-            let cityIds = Object.values(cities)
-            let promises = cityIds.map(city => {
-                return CityHandler.getCity(city)
-            })
-            Promise.all(promises).then(res => {
-                let toShow = res.map((city, index) => {
-                    return {
-                        cityName: city.name,
-                        cityId: cityIds[index]
-                    }
+            if(cities != null){
+                let cityIds = Object.values(cities)
+                let promises = cityIds.map(city => {
+                    return CityHandler.getCity(city)
                 })
-                this.setState({
-                    cities: toShow,
-                    loadingDone: true
+                Promise.all(promises).then(res => {
+                    console.log("AAAABBBB")
+                    console.log(res)
+                    let toShow = res.map((city, index) => {
+                        return {
+                            cityName: city.name,
+                            cityId: cityIds[index]
+                        }
+                    })
+                    this.setState({
+                        cities: toShow,
+                        loadingDone: true
+                    })
                 })
-            })
+            }else{
+                this.setState({loadingDone: true})
+            }
         })
     }
 
     getCities = (input) => {
-        ApiKey = "AIzaSyBRfBut3xLOq-gimCV4mT2zalmchEppB6U"
-        sessionToken = "1234567890"
+        const ApiKey = "AIzaSyBRfBut3xLOq-gimCV4mT2zalmchEppB6U"
+        const sessionToken = "1234567890"
 
-        AppId = "nIjKA6dhmhmoMEAGvlaA"
-        AppCode = "Ii8RBuVJB1l_RiJbtZcp-Q"
+        const AppId = "nIjKA6dhmhmoMEAGvlaA"
+        const AppCode = "Ii8RBuVJB1l_RiJbtZcp-Q"
 
         if(input != null && input.length > 3){
             const queryGoogle = "https://maps.googleapis.com/maps/api/place/autocomplete/json?input="
@@ -80,6 +86,10 @@ export default class CitiesOfBuddy extends Component {
             }).catch(
                 err => console.log(err)
             )
+        }else{
+            this.setState({
+                foundCities: undefined
+            })
         }
     }
 
@@ -138,7 +148,7 @@ export default class CitiesOfBuddy extends Component {
                     </View>
             }else{
                 citiesWhereIsAlreadyBuddy = <View style={styles.text}>
-                    <Text style={styles.text}>You don't have any city yet</Text>
+                    <Text style={styles.text}>You do not have any city yet.</Text>
                 </View>
             }
             return(
@@ -149,16 +159,14 @@ export default class CitiesOfBuddy extends Component {
                         </View>
 
                         <View style={styles.newCitiesContainer}>
-                            <Text style={styles.text}>Add a new city to start being buddy there!</Text>
+                            <Text style={styles.text}>Search a city to start being buddy there!</Text>
                             <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
                                 <TextInput
-                                    mode={"outlined"}
                                     label="Insert the city name"
                                     onChangeText={(input) => this.getCities(input)}
                                     style={{
                                         borderBottomWidth: 1,
                                         fontSize:20,
-                                        borderBottomColor: 'grey',
                                         borderColor: 'white',
                                         marginLeft: 20,
                                         marginRight:20,

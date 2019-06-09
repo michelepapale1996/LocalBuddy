@@ -3,14 +3,15 @@ import React, {Component} from 'react';
 import { View, StyleSheet, Text, Image } from 'react-native';
 import {Icon} from 'react-native-elements'
 import { Button, FAB, TouchableRipple } from 'react-native-paper'
-import MeetingsHandler from "../handler/MeetingsHandler";
-import UserHandler from "../handler/UserHandler";
+import MeetingsHandler from "../handler/MeetingsHandler"
+import UserHandler from "../handler/UserHandler"
 import {heightPercentageToDP as hp, widthPercentageToDP as wp} from "react-native-responsive-screen"
-import DateHandler from "../handler/DateHandler";
-import MeetingsUpdatesHandler from "../handler/MeetingsUpdatesHandler";
+import DateHandler from "../handler/DateHandler"
+import MeetingsUpdatesHandler from "../handler/MeetingsUpdatesHandler"
+import LocalStateHandler from "../handler/LocalStateHandler"
+import LoadingComponent from "../components/LoadingComponent";
 
 export default class CalendarView extends Component {
-    //<Text style={{fontSize: 18, fontWeight: "bold", color: "white"}}>Fixed Meetings</Text>
     static navigationOptions ={
         tabBarLabel: <View style={{height:hp("6%")}}>
             <Icon name={"event"} color={"white"} size={35}/>
@@ -33,35 +34,41 @@ export default class CalendarView extends Component {
         MeetingsUpdatesHandler.removeFromFutureToPastMeetingListener(this.changeFromFutureToPastMeeting)
     }
 
-    componentDidMount(){
+    async componentDidMount(){
         MeetingsUpdatesHandler.setNewPendingMeetingListener(this.addPendingMeeting)
         MeetingsUpdatesHandler.setAcceptedMeetingListener(this.acceptedMeeting)
         MeetingsUpdatesHandler.setDeniedMeetingListener(this.deniedMeeting)
         MeetingsUpdatesHandler.setNewMeetingListener(this.newMeeting)
         MeetingsUpdatesHandler.setFromFutureToPastMeeting(this.changeFromFutureToPastMeeting)
-        MeetingsHandler.getMeetings().then(meetings => {
-            let promises = meetings.map(meeting => {
+
+        const info = await LocalStateHandler.getUserInfo()
+        var infoMeetings = info.meetings
+        //MeetingsHandler.getMeetings().then(infoMeetings => {
+        if(infoMeetings != null){
+            let promises = infoMeetings.map(meeting => {
                 return UserHandler.getNameAndSurname(meeting.idOpponent)
             })
 
-            return Promise.all(promises).then(results=>{
-                meetings.forEach((meeting,index)=>{
+            Promise.all(promises).then(results=>{
+                infoMeetings.forEach((meeting,index)=>{
                     meeting.nameAndSurname = results[index]
                 })
-                return meetings
-            })
-        }).then(meetings=>{
-            this.setState(prevState => {
-                meetings.forEach(elem => {
-                    if(prevState.items[elem.date] == undefined){
-                        prevState.items[elem.date] = [elem]
-                    }else{
-                        prevState.items[elem.date].push(elem)
+                return infoMeetings
+            }).then(meetings=>{
+                this.setState(prevState => {
+                    meetings.forEach(elem => {
+                        if(prevState.items[elem.date] == undefined){
+                            prevState.items[elem.date] = [elem]
+                        }else{
+                            prevState.items[elem.date].push(elem)
+                        }
+                    })
+                    return {
+                        items: prevState.items,
                     }
                 })
-                return {items: prevState.items}
             })
-        })
+        }
     }
 
     newMeeting = (date, time, opponentId) => {
@@ -156,7 +163,7 @@ export default class CalendarView extends Component {
                     onPress={() => this.props.navigation.navigate('NewMeeting')}
                 />
             </View>
-        );
+        )
     }
 
     loadItems(day) {

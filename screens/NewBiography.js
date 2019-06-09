@@ -4,6 +4,7 @@ import {heightPercentageToDP as hp, widthPercentageToDP as wp} from "react-nativ
 import LoadingComponent from '../components/LoadingComponent'
 import { TextInput, Text, Button } from 'react-native-paper';
 import UserHandler from "../handler/UserHandler";
+import LocalStateHandler from "../handler/LocalStateHandler";
 
 export default class NewBiography extends Component {
     static navigationOptions = ({ navigation }) => {
@@ -29,11 +30,11 @@ export default class NewBiography extends Component {
         }
     }
 
-    saveBiography = () => {
-        UserHandler.saveBiography(this.state.text).then(()=>{
-            this.props.navigation.getParam("newBiography", null)(this.state.text)
-            this.props.navigation.goBack()
-        })
+    saveBiography = async () => {
+        await UserHandler.saveBiography(this.state.text)
+        LocalStateHandler.updateBio(this.state.text)
+        this.props.navigation.getParam("newBiography", null)(this.state.text)
+        this.props.navigation.goBack()
     }
 
     constructor(props) {
@@ -60,7 +61,6 @@ export default class NewBiography extends Component {
                     <View style={styles.container}>
                         <Text style={styles.text}>Insert the biography</Text>
                         <TextInput
-                            mode={"outlined"}
                             multiline={true}
                             onChangeText={(text) => this.setState({text})}
                             style={styles.textInput}
@@ -98,7 +98,6 @@ const styles = StyleSheet.create({
         textAlign:"center"
     },
     textInput: {
-        height: hp("7%"),
         width: wp('90%'),
         marginTop: 8
     },

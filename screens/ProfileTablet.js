@@ -8,6 +8,7 @@ import LoadingComponent from "../components/LoadingComponent";
 import { IconButton, Colors, Text, Surface, TouchableRipple, Avatar } from 'react-native-paper';
 import UserHandler from "../handler/UserHandler";
 import StarRating from 'react-native-star-rating';
+import LocalStateHandler from "../handler/LocalStateHandler";
 
 function Biography(props){
 
@@ -139,13 +140,18 @@ export default class ProfileTablet extends Component {
         })
     }
 
-    componentDidMount(){
-        const id = firebase.auth().currentUser.uid
+    async componentDidMount(){
+        /*const id = firebase.auth().currentUser.uid
         UserHandler.getUserInfo(id).then(user => {
             this.setState({
                 user: user,
                 loadingDone: true
             })
+        })*/
+        const user = await LocalStateHandler.getUserInfo()
+        this.setState({
+            user: user,
+            loadingDone: true
         })
     }
 

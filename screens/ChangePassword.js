@@ -21,10 +21,9 @@ export default class ChangePassword extends React.Component {
     };
 
     handleChangePassword = () => {
-        AccountHandler.changePassword(this.state.oldPassword, this.state.newPassword, this.state.repeatNewPassword)
-            .then(response=>{
-                alert("Password changed!")
-            }).catch(error => this.setState({ errorMessage: error }))
+        AccountHandler.changePassword(this.state.oldPassword, this.state.newPassword, this.state.repeatNewPassword).then(response=>{
+            alert("Password changed!")
+        }).catch(error => this.setState({ errorMessage: error }))
     }
 
     render() {
@@ -36,7 +35,6 @@ export default class ChangePassword extends React.Component {
                 </Text>}
                 <TextInput
                     secureTextEntry
-                    mode={"outlined"}
                     label="Old password"
                     autoCapitalize="none"
                     style={styles.textInput}
@@ -45,7 +43,6 @@ export default class ChangePassword extends React.Component {
                 />
                 <TextInput
                     secureTextEntry
-                    mode={"outlined"}
                     label="New password"
                     autoCapitalize="none"
                     style={styles.textInput}
@@ -54,7 +51,6 @@ export default class ChangePassword extends React.Component {
                 />
                 <TextInput
                     secureTextEntry
-                    mode={"outlined"}
                     label="Repeat new password"
                     autoCapitalize="none"
                     style={styles.textInput}
