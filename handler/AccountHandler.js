@@ -106,6 +106,7 @@ class AccountHandler {
         }).then(()=> {
             ConnectyCubeHandler.deleteAllSubscriptions()
         }).then(()=>{
+            LocalStateHandler.clearStorage()
             return firebase.auth().signOut()
         }).catch(function(error) {
             console.log("Error in retrieving idToken from firebase.auth()", error)
@@ -115,7 +116,7 @@ class AccountHandler {
 
     static logOut = ()=>{
         return UserHandler.deletePushNotificationSubscriptionForThisDevice().then(()=>{
-            //LocalStateHandler.clearStorage()
+            LocalStateHandler.clearStorage()
             ConnectyCubeHandler.deletePushNotificationSubscriptionForThisDevice()
             return firebase.auth().signOut()
         })

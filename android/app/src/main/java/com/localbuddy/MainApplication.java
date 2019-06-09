@@ -7,6 +7,7 @@ import com.facebook.FacebookSdk;
 import com.facebook.appevents.AppEventsLogger;
 
 import com.facebook.react.ReactApplication;
+import com.reactnativecommunity.asyncstorage.AsyncStoragePackage;
 import com.facebook.reactnative.androidsdk.FBSDKPackage;
 import com.learnium.RNDeviceInfo.RNDeviceInfo;
 import com.dieam.reactnativepushnotification.ReactNativePushNotificationPackage;
@@ -46,6 +47,7 @@ public class MainApplication extends Application implements ReactApplication{
     protected List<ReactPackage> getPackages() {
       return Arrays.<ReactPackage>asList(
           new MainReactPackage(),
+            new AsyncStoragePackage(),
             new RNDeviceInfo(),
             new ReactNativePushNotificationPackage(),
             new ImagePickerPackage(),

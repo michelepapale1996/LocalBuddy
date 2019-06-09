@@ -1,8 +1,13 @@
-import {AsyncStorage} from "react-native"
+//import {AsyncStorage} from '@react-native-community/async-storage'
+import {AsyncStorage} from 'react-native'
 import UserHandler from "./UserHandler";
 
 class LocalStateHandler {
     static async storeUserInfo(user){
+        if(user.meetings != null){
+            user.meetings = Object.values(user.meetings)
+        }
+
         try {
             await AsyncStorage.setItem("user", JSON.stringify(user));
         } catch (error) {
@@ -10,7 +15,7 @@ class LocalStateHandler {
         }
     }
 
-    static async retrieveUserInfo(){
+    static async getUserInfo(){
         try {
             const value = await AsyncStorage.getItem('user')
             if (value !== null) {
@@ -43,8 +48,15 @@ class LocalStateHandler {
         )
     }
 
-    static async clearStorage(){
+    static clearStorage(){
         return AsyncStorage.clear()
+    }
+
+    static async updateBio(text) {
+        var user = await LocalStateHandler.getUserInfo()
+        await LocalStateHandler.clearStorage()
+        user.bio = text
+        await LocalStateHandler.storeUserInfo(user)
     }
 }
 
