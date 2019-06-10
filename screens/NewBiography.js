@@ -57,18 +57,16 @@ export default class NewBiography extends Component {
     render() {
         if (this.state.loadingDone != false) {
             return (
-                <View style={styles.mainContainer}>
-                    <View style={styles.container}>
-                        <Text style={styles.text}>Insert the biography</Text>
-                        <TextInput
-                            multiline={true}
-                            onChangeText={(text) => this.setState({text})}
-                            style={styles.textInput}
-                            value={this.state.text}
-                            selectionColor={"white"}
-                            underlineColor={"white"}
-                        />
-                    </View>
+                <View style={styles.container}>
+                    <Text style={styles.text}>Insert the biography</Text>
+                    <TextInput
+                        multiline={true}
+                        onChangeText={(text) => this.setState({text})}
+                        style={styles.textInput}
+                        value={this.state.text}
+                        selectionColor={"white"}
+                        underlineColor={"white"}
+                    />
                 </View>
             )
         } else {
@@ -78,13 +76,9 @@ export default class NewBiography extends Component {
 }
 
 const styles = StyleSheet.create({
-    mainContainer: {
-        margin: hp("0%"),
+    container:{
         flex: 1,
         backgroundColor: 'white',
-    },
-    container:{
-        justifyContent: 'center',
         margin:hp("2%"),
     },
     singleOptionContainer:{

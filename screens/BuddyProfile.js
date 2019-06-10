@@ -5,7 +5,6 @@ import UserHandler from "../handler/UserHandler";
 import SingleChatHandler from "../handler/SingleChatHandler";
 import LoadingComponent from "../components/LoadingComponent";
 import { FAB, Text, Surface, Button, Snackbar } from 'react-native-paper';
-import firebase from "react-native-firebase";
 import StarRating from 'react-native-star-rating';
 import MeetingsHandler from "../handler/MeetingsHandler";
 import NavigationService from "../handler/NavigationService";
@@ -105,20 +104,14 @@ export default class ProfileTab extends Component {
         }
     }
 
-    componentDidMount(){
-        UserHandler.getUserInfo(idUser).then(user => {
-            this.setState({
-                user: user,
-                chatId: null,
-                loadingDone: true
-            })
-        })
-    }
-
     async componentDidMount(){
         const idBuddy = this.props.navigation.getParam('idUser', 'Error')
         const buddy = await UserHandler.getUserInfo(idBuddy)
-        const connectyCubeChatId = await SingleChatHandler.getChatId(idBuddy)
+        var connectyCubeChatId
+        try{
+            connectyCubeChatId = await SingleChatHandler.getChatId(idBuddy)
+        } catch {}
+
 
         this.props.navigation.setParams({nameBuddy: buddy.name + " " + buddy.surname})
         this.setState({

@@ -127,6 +127,10 @@ class ConnectyCubeHandler{
         return ConnectyCubeHandler.getInstance().pushnotifications.subscriptions.create(params, function (error, result) {
         })
     }
+
+    static deleteConversation(dialogId){
+        ConnectyCubeHandler.getInstance().chat.dialog.delete([dialogId], function(error) {});
+    }
 }
 ConnectyCubeHandler.shared = new ConnectyCubeHandler()
 export default ConnectyCubeHandler

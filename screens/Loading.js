@@ -58,8 +58,8 @@ export default class Loading extends React.Component {
             if(!this.authFlag) {
                 this.authFlag = true
                 if (user) {
-                    //check if the user exists
-                    //check to be done beacause if the user deletes himself and has multiple devices -> the authentication still works
+                    /*check if the user exists
+                    check to be done beacause if the user deletes himself and has multiple devices -> the authentication still works
                     const userInfo = await UserHandler.getUserInfo(user.uid)
                     LocalStateHandler.storeUserInfo(userInfo)
                     if (userInfo) {
@@ -69,7 +69,11 @@ export default class Loading extends React.Component {
                         })
                     } else {
                         this.props.navigation.navigate('Login')
-                    }
+                    }*/
+                    //user is logged
+                    LoadingHandler.initApp(user.uid).then(() => {
+                        this.props.navigation.navigate('Chat')
+                    })
                 } else {
                     this.props.navigation.navigate('Login')
                 }

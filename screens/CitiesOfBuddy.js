@@ -5,7 +5,6 @@ import UserHandler from "../handler/UserHandler";
 import {Icon} from 'react-native-elements';
 import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen';
 import firebase from "react-native-firebase";
-import CityHandler from "../handler/CityHandler";
 import { Text, TextInput } from 'react-native-paper';
 
 export default class CitiesOfBuddy extends Component {
@@ -34,25 +33,11 @@ export default class CitiesOfBuddy extends Component {
 
     componentDidMount(){
         const idUser = firebase.auth().currentUser.uid
-        UserHandler.getCities(idUser).then(cities => {
+        UserHandler.getCitiesOfTheBuddy(idUser).then(cities => {
             if(cities != null){
-                let cityIds = Object.values(cities)
-                let promises = cityIds.map(city => {
-                    return CityHandler.getCity(city)
-                })
-                Promise.all(promises).then(res => {
-                    console.log("AAAABBBB")
-                    console.log(res)
-                    let toShow = res.map((city, index) => {
-                        return {
-                            cityName: city.name,
-                            cityId: cityIds[index]
-                        }
-                    })
-                    this.setState({
-                        cities: toShow,
-                        loadingDone: true
-                    })
+                this.setState({
+                    cities: cities,
+                    loadingDone: true
                 })
             }else{
                 this.setState({loadingDone: true})

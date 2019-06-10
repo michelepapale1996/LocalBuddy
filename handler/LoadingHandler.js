@@ -14,10 +14,10 @@ class LoadingHandler{
             await ConnectyCubeHandler.createSession(userId)
         }
         const CCUserId = ConnectyCubeHandler.getCCUserId()
-        await SingleChatHandler.connectToChat(CCUserId, 'LocalBuddy')
+        SingleChatHandler.connectToChat(CCUserId, 'LocalBuddy')
 
         //push notifications
-        return firebase.messaging().hasPermission().then(enabled => {
+        firebase.messaging().hasPermission().then(enabled => {
             if (enabled) {
                 firebase.messaging().getToken().then(token => {
                     ConnectyCubeHandler.createPushNotificationSubscription(token)

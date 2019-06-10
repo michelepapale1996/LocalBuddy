@@ -22,6 +22,31 @@ class UserHandler{
         })
     }
 
+    static getUrlPhoto(id) {
+        return this.getUserInfo(id).then(user => {
+            return user.urlPhoto
+        })
+    }
+
+    static getUsername(id) {
+        return this.getUserInfo(id).then(user => {
+            return user.username
+        })
+    }
+
+    static isBuddy(id){
+        return this.getUserInfo(id).then(user => {
+            return user.isBuddy
+        })
+    }
+
+    static getPreferences() {
+        const idUser = firebase.auth().currentUser.uid
+        return UserHandler.getUserInfo(idUser).then(user => {
+            return user.preferences
+        })
+    }
+
     static setUrlPhoto(url) {
         const idUser = firebase.auth().currentUser.uid
         return firebase.auth().currentUser.getIdToken(true).then(function(id) {
@@ -45,28 +70,33 @@ class UserHandler{
         });
     }
 
-    static getUrlPhoto(id) {
-        return this.getUserInfo(id).then(user => {
-            return user.urlPhoto
-        })
-    }
-
-    static getCities(userId){
-        return this.getUserInfo(userId).then(user => {
-            return user.cities
-        })
-    }
-
-    static getUsername(id) {
-        return this.getUserInfo(id).then(user => {
-            return user.username
-        })
-    }
-
-    static isBuddy(id){
-        return this.getUserInfo(id).then(user => {
-            return user.isBuddy
-        })
+    static getCitiesOfTheBuddy(userId){
+        return firebase.auth().currentUser.getIdToken(true).then(function(id) {
+            return fetch(IP_ADDRESS + "/api/users/" + userId + "/citiesOfBuddy", {
+                method: "POST",
+                headers: {
+                    Accept: 'application/json',
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    idToken: id
+                })
+            }).then(response => {
+                if(response.status == 200){
+                    response = response.json()
+                    return response
+                }else{
+                    console.log("Error in the request: ", response.status)
+                    return null
+                }
+            }).catch( err => {
+                console.log("Error", err)
+                return null
+            })
+        }).catch(function(error) {
+            console.log("Error in retrieving idToken from firebase.auth()", error)
+            return null
+        });
     }
 
     static stopToBeBuddy(){
@@ -161,13 +191,6 @@ class UserHandler{
             console.log("Error in retrieving idToken from firebase.auth()", error)
             return null
         });
-    }
-
-    static getPreferences() {
-        const idUser = firebase.auth().currentUser.uid
-        return UserHandler.getUserInfo(idUser).then(user => {
-            return user.preferences
-        })
     }
 
     static savePreferences(lowerRange, upperRange, onlySameSex){

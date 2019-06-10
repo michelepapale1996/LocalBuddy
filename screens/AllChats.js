@@ -4,12 +4,17 @@ import {widthPercentageToDP as wp, heightPercentageToDP as hp} from "react-nativ
 import ChatsHandler from "../handler/ChatsHandler"
 import MessagesUpdatesHandler from "../handler/MessagesUpdatesHandler"
 import LoadingComponent from '../components/LoadingComponent'
-import { Text, TouchableRipple } from 'react-native-paper'
+import { Text, TouchableRipple, Portal, Dialog, Button, Paragraph } from 'react-native-paper'
+import ConnectyCubeHandler from "../handler/ConnectyCubeHandler";
 
 function Chat(props) {
     const lastMessageTime = props.getTime(props.item.createdAt)
     return(
         <TouchableRipple
+            onLongPress={()=>{
+                props.setDialogIdToDelete(props.item.chatId)
+                props.show()
+            }}
             onPress={() =>{
                 props.nav.navigate({routeName: 'SingleChat',
                     key: props.item.chatId,
@@ -51,7 +56,9 @@ export default class AllChats extends Component {
 
         this.state = {
             chats: [],
-            loadingDone: false
+            loadingDone: false,
+            isDialogVisible: false,
+            dialogIdToDelete: null
         }
     }
 
@@ -143,6 +150,12 @@ export default class AllChats extends Component {
         })
     }
 
+    _showDialog = () => this.setState({ isDialogVisible: true });
+
+    _hideDialog = () => this.setState({ isDialogVisible: false });
+
+    setDialogIdToDelete = (dialogID) => this.setState({ dialogIdToDelete: dialogID})
+
     componentDidMount(){
         MessagesUpdatesHandler.addListener(this.onMessageRcvd)
         ChatsHandler.getChats().then(chats => {
@@ -157,19 +170,48 @@ export default class AllChats extends Component {
         if(this.state.loadingDone != false){
             if(this.state.chats.length != 0) {
                 return (
-                    <FlatList
-                        data={this.state.chats}
-                        renderItem={
-                            ({item}) => (
-                                <Chat item={item} getTime={this.getTime} nav={this.props.navigation} userName={this.state.username}/>
-                            )
-                        }
-                        keyExtractor={(item, index) => index.toString()}
-                        extraData={this.state}
-                        showsVerticalScrollIndicator={false}
-                    />
+                    <View>
+                        <FlatList
+                            data={this.state.chats}
+                            renderItem={
+                                ({item}) => (
+                                    <Chat item={item} getTime={this.getTime} show={this._showDialog} setDialogIdToDelete={this.setDialogIdToDelete} nav={this.props.navigation} userName={this.state.username}/>
+                                )
+                            }
+                            keyExtractor={(item, index) => index.toString()}
+                            extraData={this.state}
+                            showsVerticalScrollIndicator={false}
+                        />
+
+                        <Portal>
+                            <Dialog
+                                visible={this.state.isDialogVisible}
+                                onDismiss={this._hideDialog}>
+                                <Dialog.Content>
+                                    <Paragraph>Do you want to cancel this conversation?</Paragraph>
+                                </Dialog.Content>
+                                <Dialog.Actions>
+                                    <Button onPress={this._hideDialog}>No</Button>
+                                    <Button onPress={()=>{
+                                        this._hideDialog()
+                                        ConnectyCubeHandler.deleteConversation(this.state.dialogIdToDelete)
+                                        this.setState(prevState => {
+                                            console.log(prevState.chats)
+                                            const newState = prevState.chats.filter(chat => {
+                                                return chat.chatId !== this.state.dialogIdToDelete
+                                            })
+
+                                            return {chats: newState}
+                                        })
+                                    }}>
+                                        Yes
+                                    </Button>
+                                </Dialog.Actions>
+                            </Dialog>
+                        </Portal>
+                    </View>
                 )
-            }else{
+            } else {
                 return(
                     <View style={styles.container}>
                         <Text style={styles.text}>You do not have any chat yet!</Text>

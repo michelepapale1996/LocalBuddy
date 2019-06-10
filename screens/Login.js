@@ -25,8 +25,10 @@ export default class Login extends React.Component {
             this.setState({errorMessage: "Make sure you have filled all the fields."})
         }else{
             this.setState({buttonClicked: true})
-            firebase.auth().signInWithEmailAndPassword(email, password).then(() => {
+            firebase.auth().signInWithEmailAndPassword(email, password).then(async () => {
                 const userId = firebase.auth().currentUser.uid
+                const userInfo = await UserHandler.getUserInfo(userId)
+                LocalStateHandler.storeUserInfo(userInfo)
                 LoadingHandler.initApp(userId).then(() => {
                     this.props.navigation.navigate('Chat')
                 })
@@ -61,7 +63,6 @@ export default class Login extends React.Component {
         UserHandler.getUserInfo(userId).then(userInfo => {
             if (userInfo) {
                 //user exists
-
                 //save in local
                 LocalStateHandler.storeUserInfo(userInfo)
                 LoadingHandler.initApp(userId).then(() => {
