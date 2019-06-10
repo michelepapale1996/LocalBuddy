@@ -1,7 +1,8 @@
 import React, {Component} from 'react';
 import {StyleSheet, View, FlatList} from 'react-native'
 import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen'
-import { Searchbar, Text, TouchableRipple, Card, Title, IconButton } from 'react-native-paper';
+import { Searchbar, Text, TouchableRipple, Card, Title, IconButton, FAB } from 'react-native-paper';
+import Geocoder from "react-native-geocoding";
 
 export default class ChooseCity extends Component {
     constructor(props) {
@@ -126,6 +127,23 @@ export default class ChooseCity extends Component {
                             />
                         </View>
                 }
+                <FAB
+                    color={"white"}
+                    icon={"gps-fixed"}
+                    style={styles.fab}
+                    onPress={()=>{
+                        navigator.geolocation.getCurrentPosition(position => {
+                                Geocoder.init("AIzaSyBRfBut3xLOq-gimCV4mT2zalmchEppB6U");
+                                Geocoder.from(position.coords.longitude, position.coords.latitude).then(json => {
+                                    const city = json.results.filter(elem => elem.address_components[0].types.includes("locality"))
+                                    this.props.navigation.navigate('CityChosen', {cityId: city[0].place_id})
+                                }).catch(error => console.warn(error));
+                            },
+                            error => console.log(error.message),
+                            { enableHighAccuracy: true, timeout: 20000, maximumAge: 1000 }
+                        );
+                    }}
+                />
             </View>
         );
     }
@@ -150,5 +168,12 @@ const styles = StyleSheet.create({
     searchBar:{
         backgroundColor:"#2fa1ff",
         height:hp("8%")
+    },
+    fab: {
+        backgroundColor: "#52c8ff",
+        position: 'absolute',
+        margin: 16,
+        right: 0,
+        bottom: 0,
     }
 })
