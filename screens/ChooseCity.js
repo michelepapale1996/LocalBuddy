@@ -98,7 +98,7 @@ export default class ChooseCity extends Component {
                         <FlatList
                             data={this.state.cities}
                             renderItem={({item}) =>
-                                <TouchableRipple onPress={() => this.props.navigation.navigate('CityChosen', {cityId: item.cityId})}>
+                                <TouchableRipple onPress={() => this.props.navigation.navigate('CityChosen', {cityId: item.cityId, cityName: item.name})}>
                                     <View style={{flexDirection:"row"}}>
                                         <IconButton icon={"location-on"}/><Text style={styles.text}>{item.name}</Text>
                                     </View>
@@ -113,7 +113,7 @@ export default class ChooseCity extends Component {
                             <FlatList
                                 data={this.state.initialCities}
                                 renderItem={({item}) =>
-                                    <Card onPress={()=> this.props.navigation.navigate('CityChosen', {cityId: item.id})}
+                                    <Card onPress={()=> this.props.navigation.navigate('CityChosen', {cityId: item.id, cityName: item.name})}
                                           elevation={10} style={{marginTop:hp("0.5%"), marginBottom: hp("0.5%"), marginRight:wp("1%"), marginLeft:wp("1%")}}>
                                         <Card.Cover source={{ uri: item.url }} style={{height:hp("20%")}} />
                                         <Card.Content>
@@ -136,7 +136,8 @@ export default class ChooseCity extends Component {
                                 Geocoder.init("AIzaSyBRfBut3xLOq-gimCV4mT2zalmchEppB6U");
                                 Geocoder.from(position.coords.longitude, position.coords.latitude).then(json => {
                                     const city = json.results.filter(elem => elem.address_components[0].types.includes("locality"))
-                                    this.props.navigation.navigate('CityChosen', {cityId: city[0].place_id})
+                                    console.log(city)
+                                    this.props.navigation.navigate('CityChosen', {cityId: city[0].place_id, cityName: city[0].formatted_address})
                                 }).catch(error => console.warn(error));
                             },
                             error => console.log(error.message),

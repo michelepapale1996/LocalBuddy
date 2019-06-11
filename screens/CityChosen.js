@@ -36,14 +36,16 @@ function Buddy(props){
 
 export default class CityChosen extends Component {
     cityId = this.props.navigation.getParam('cityId', 'Error');
+    cityName = this.props.navigation.getParam('cityName', 'Error');
     constructor(props){
         super(props)
 
         this.state = {
-            cityName: null,
+            cityName: this.cityName,
             buddies: null,
             loadingDone: false
         }
+        this.props.navigation.setParams({title: "Buddies in " + this.cityName})
     }
 
     componentDidMount(){
@@ -54,14 +56,8 @@ export default class CityChosen extends Component {
                     buddies: response.buddies,
                     loadingDone: true
                 })
-                //setting the title
-                this.props.navigation.setParams({title: "Buddies in " + response.name})
             }else{
-                this.setState({
-                    loadingDone: true
-                })
-                //setting the title
-                this.props.navigation.setParams({title: "Buddies" })
+                this.setState({loadingDone: true})
             }
         })
 
