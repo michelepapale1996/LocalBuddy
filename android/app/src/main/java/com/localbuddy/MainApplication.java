@@ -6,6 +6,7 @@ import com.facebook.CallbackManager;
 import com.facebook.FacebookSdk;
 import com.facebook.appevents.AppEventsLogger;
 
+import com.BV.LinearGradient.LinearGradientPackage;
 import com.facebook.react.ReactApplication;
 import com.reactnativecommunity.asyncstorage.AsyncStoragePackage;
 import com.facebook.reactnative.androidsdk.FBSDKPackage;
@@ -58,7 +59,8 @@ public class MainApplication extends Application implements ReactApplication{
             new RNFirebaseDatabasePackage(),
             new RNFirebaseStoragePackage(),
             new RNFirebaseMessagingPackage(),
-            new FBSDKPackage(mCallbackManager)
+            new FBSDKPackage(mCallbackManager),
+            new LinearGradientPackage()
       );
     }
 

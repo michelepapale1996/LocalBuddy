@@ -1,32 +1,36 @@
 import React, {Component} from 'react'
-import {StyleSheet, View, FlatList, Image } from 'react-native'
+import {StyleSheet, View, FlatList, Image, TouchableWithoutFeedback } from 'react-native'
 import {widthPercentageToDP as wp, heightPercentageToDP as hp} from "react-native-responsive-screen"
 import ChatsHandler from "../handler/ChatsHandler"
 import MessagesUpdatesHandler from "../handler/MessagesUpdatesHandler"
 import LoadingComponent from '../components/LoadingComponent'
 import { Text, TouchableRipple, Button } from 'react-native-paper'
-import {GiftedChat, Bubble} from "react-native-gifted-chat";
+import {GiftedChat, Day} from "react-native-gifted-chat";
 import firebase from "react-native-firebase";
 import UserHandler from "../handler/UserHandler";
 import SingleChatHandler from "../handler/SingleChatHandler";
 import ChatTabletHandler from "../handler/ChatTabletHandler";
 import { Header } from "react-native-elements"
+import LinearGradient from 'react-native-linear-gradient';
 
 function Chat(props) {
+    console.log("PORV")
+    console.log(props.item)
     const lastMessageTime = props.getTime(props.item.createdAt)
     return(
-        <TouchableRipple
-            onPress={() =>{
-                ChatTabletHandler.update({
-                    chatSelected: true,
-                    key: props.item.chatId,
-                    chatId: props.item.chatId,
-                    opponentNameAndSurname: props.item.nameAndSurname,
-                    urlPhotoOther: props.item.urlPhotoOther,
-                    CCopponentUserId: props.item.CCopponentUserId,
-                    opponentUserId: props.item.opponentUserId
-                })
-            }}>
+        <TouchableWithoutFeedback onPress={() => {
+            props.updateChatSelected(props.item.chatId)
+            ChatTabletHandler.update({
+                chatSelected: true,
+                key: props.item.chatId,
+                chatId: props.item.chatId,
+                opponentNameAndSurname: props.item.nameAndSurname,
+                urlPhotoOther: props.item.urlPhotoOther,
+                CCopponentUserId: props.item.CCopponentUserId,
+                opponentUserId: props.item.opponentUserId
+            })
+        }}>
+            <View style={(props.item.isSelected === true) ? {backgroundColor: "#bdc3c7"} : {}}>
             <View style={styles.singleChatContainer}>
                 <Image
                     style={styles.userPhoto}
@@ -47,7 +51,8 @@ function Chat(props) {
                     </View>
                 </View>
             </View>
-        </TouchableRipple>
+            </View>
+        </TouchableWithoutFeedback>
     )
 }
 
@@ -55,13 +60,15 @@ function AllChats(props){
     if(props.state.chats.length != 0) {
         return (
             <View style={{width:wp("30%")}}>
+                <Header backgroundColor='#2fa1ff'>
+                    <Text style={{color: '#fff', fontSize: wp("2%"), fontWeight:"bold"}}>Chat</Text>
+                </Header>
                 <FlatList
                     data={props.state.chats}
-                    renderItem={
-                        ({item}) => (
-                            <Chat item={item} getTime={props.getTime} nav={props.nav} modifySingleChatState={props.modifySingleChatState} userName={props.state.username}/>
-                        )
-                    }
+                    extraData={props.state.chats}
+                    renderItem={({item}) => (
+                        <Chat updateChatSelected={props.updateChatSelected} item={item} getTime={props.getTime} nav={props.nav} userName={props.state.username}/>
+                    )}
                     keyExtractor={(item, index) => index.toString()}
                 />
             </View>
@@ -78,7 +85,7 @@ function AllChats(props){
 class SingleChat extends Component{
     constructor(props){
         super(props)
-        this.state = {chatSelected: false}
+        this.state = {chatSelected: false, updateChatSelected: props.updateChatSelected}
         ChatTabletHandler.addListener(this.updateState)
         MessagesUpdatesHandler.addListener(this.onMessageRcvd)
     }
@@ -118,7 +125,7 @@ class SingleChat extends Component{
 
         if(chatId == this.state.chatId){
             const msg = {
-                _id: Math.floor(Math.random() * 10000),
+                _id: Math.floor(Math.random() * 1000000),
                 text: message,
                 createdAt: new Date().getTime(),
                 user: {
@@ -158,13 +165,17 @@ class SingleChat extends Component{
         }
     }
 
+    renderDay(props) {
+        return <Day {...props} textStyle={{color: 'white'}}/>
+    }
+
     render() {
         return (
             <View style={{borderLeftWidth:0.5, borderColor:"grey", flex:1}}>
                 {
                     this.state.chatSelected &&
                     <View style={{flex:1}}>
-                        <Header backgroundColor='#2980b9'>
+                        <Header backgroundColor='#2fa1ff'>
                             <TouchableRipple style={{flex:1}}
                                  onPress={() => {
                                      if(this.state.opponentNameAndSurname != "Account Deleted") this.props.navigation.navigate('BuddyProfile', {idUser: this.state.opponentUserId})
@@ -173,16 +184,33 @@ class SingleChat extends Component{
                                 <Text style={{color: '#fff', fontSize: wp("2%"), fontWeight:"bold"}}>{this.state.opponentNameAndSurname}</Text>
                             </TouchableRipple>
                             <View/>
-                            <Button mode={"outlined"} style={styles.button} color={"white"} onPress={()=>this.setState({chatSelected: false})}>Close</Button>
+                            <Button mode={"outlined"} style={styles.button} color={"white"} onPress={()=>{
+                                this.state.updateChatSelected(null)
+                                this.setState({chatSelected: false})
+                            }}>Close</Button>
                         </Header>
 
-                        <GiftedChat
-                            messages={this.state.messages}
-                            onSend={messages => this.onSend(messages)}
-                            user={{
-                                _id: 1,
-                            }}
-                        />
+                        <View style={{flex:1}}>
+                            <LinearGradient colors={['#2c3e50', '#95a5a6', '#ecf0f1']} style={styles.linearGradient}>
+                            <GiftedChat
+                                renderDay={this.renderDay}
+                                messages={this.state.messages}
+                                onSend={messages => this.onSend(messages)}
+                                user={{
+                                    _id: 1,
+                                }}
+                            />
+                            </LinearGradient>
+                        </View>
+                    </View>
+                }
+                {
+                    !this.state.chatSelected &&
+                    <View style={{flex:1}}>
+                        <Header backgroundColor='#2fa1ff'></Header>
+                        <LinearGradient colors={['#2c3e50', '#95a5a6', '#ecf0f1']} style={styles.linearGradient}>
+                            <View style={{flex:1}}/>
+                        </LinearGradient>
                     </View>
                 }
             </View>
@@ -196,19 +224,12 @@ export default class ChatTablet extends Component {
 
         this.state = {
             chats: [],
-            singleChatState: {},
             loadingDone: false
         }
     }
 
     static navigationOptions = {
-        title: "Chat",
-        headerStyle: {
-            backgroundColor: '#2fa1ff'
-        },
-        headerTitleStyle: {
-            color: 'white'
-        }
+        header: null
     };
 
     componentWillUnmount(){
@@ -299,12 +320,22 @@ export default class ChatTablet extends Component {
         })
     }
 
+    updateChatSelected = (chatId) => {
+        this.setState(prevState => {
+            var newState = Object.assign([], prevState.chats)
+            newState.forEach((chat, index) => {
+                newState[index].isSelected = chat.chatId == chatId
+            })
+            return {chats: newState}
+        })
+    }
+
     render() {
         if(this.state.loadingDone != false){
             return(
                 <View style={{flex:1, flexDirection:"row"}}>
-                    <AllChats state={this.state} nav={this.props.navigation} getTime={this.getTime}/>
-                    <SingleChat navigation={this.props.navigation}/>
+                    <AllChats updateChatSelected={this.updateChatSelected} state={this.state} nav={this.props.navigation} getTime={this.getTime}/>
+                    <SingleChat updateChatSelected={this.updateChatSelected} navigation={this.props.navigation}/>
                 </View>
             )
         }else{
@@ -341,6 +372,14 @@ const styles = StyleSheet.create({
         marginLeft: wp("0.5%"),
         marginTop: hp("1%"),
     },
+    singleChatContainerSelected: {
+        justifyContent: "space-between",
+        flex:1,
+        flexDirection: 'row',
+        height: hp("9%"),
+        marginLeft: wp("0.5%"),
+        marginTop: hp("1%"),
+    },
     userPhoto: {
         width: wp("5%"),
         height: wp("5%"),
@@ -351,5 +390,8 @@ const styles = StyleSheet.create({
         marginRight:0,
         borderRadius: 5,
         borderColor: "white"
+    },
+    linearGradient: {
+        flex: 1
     },
 });
