@@ -6,8 +6,9 @@ import UserHandler from "../handler/UserHandler";
 import {heightPercentageToDP as hp, widthPercentageToDP as wp} from "react-native-responsive-screen";
 import LoadingComponent from '../components/LoadingComponent'
 import CitiesOfBuddy from "./CitiesOfBuddy";
-import { Text, TouchableRipple, Portal, Dialog, Paragraph, Button } from 'react-native-paper';
+import { Text, TouchableRipple, Portal, Dialog, Paragraph, Button, Switch, Surface, IconButton } from 'react-native-paper';
 import AccountHandler from "../handler/AccountHandler";
+import MultiSlider from "@ptomasroos/react-native-multi-slider/MultiSlider";
 
 function BuddyComponent(props){
     stopToBeBuddy = () => {
@@ -23,64 +24,109 @@ function BuddyComponent(props){
     if(props.isBuddy == 1){
         return(
             <View>
-                <WhoCanFindMe nav={props.nav}/>
-                <YourCities nav={props.nav}/>
-                <TouchableRipple onPress={this.stopToBeBuddy}>
-                    <View style={styles.singleOptionContainer}>
-                        <Text style={styles.text}>Stop to be buddy</Text>
-                    </View>
-                </TouchableRipple>
+                <View style={styles.viewContainer}>
+                    <Surface style={styles.surfaceContainer}>
+                        <View style={{justifyContent:"center", ...styles.settingContainer}}>
+                            <View style={{flexDirection:"row", alignItems:"center", justifyContent:"space-between"}}>
+                                <Text style={styles.text}>Only from same-sex people</Text>
+                                <Switch value={props.state.onlySameSex} onValueChange={props.onlySameSexChange}/>
+                            </View>
+                            <Text style={{fontSize: 15, flexWrap: 'wrap'}}>Change the sex of the travelers that can find you</Text>
+                        </View>
+                    </Surface>
+
+                    <Surface style={styles.surfaceContainer}>
+                        <View style={{justifyContent:"center", ...styles.settingContainer}}>
+                            <View style={{flexDirection:"row", justifyContent:"space-between", alignItems:"center"}}>
+                                <Text style={styles.text}>Age range</Text>
+                                <Text >{props.state.lowerRangeTouristAge} - {props.state.upperRangeTouristAge}</Text>
+                            </View>
+                            <View style={{flexDirection:"row", justifyContent:"center", alignItems:"center"}}>
+                                <MultiSlider
+                                    values={[
+                                        props.state.lowerRangeTouristAge,
+                                        props.state.upperRangeTouristAge,
+                                    ]}
+                                    sliderLength={280}
+                                    onValuesChange={props.multiSliderValuesChange}
+                                    min={0}
+                                    max={100}
+                                    step={1}
+                                    allowOverlap
+                                    snapped
+                                />
+                            </View>
+                            <Text style={{fontSize: 15, flexWrap: 'wrap'}}>Choose the age of the travelers that can find you</Text>
+                        </View>
+                    </Surface>
+
+                    <Surface style={styles.surfaceContainer}>
+                        <TouchableRipple onPress={() => props.nav.navigate('CitiesOfBuddy')}>
+                            <View style={{justifyContent:"center", ...styles.settingContainer}}>
+                                <View style={{flex: 1, flexDirection:"row", alignItems:"center", justifyContent:"space-between"}}>
+                                    <View style={{flex:1}}>
+                                        <Text style={styles.text}>Your cities</Text>
+                                        <Text style={{fontSize: 15, flexWrap: 'wrap'}}>Change the cities in which you want to be a buddy</Text>
+                                    </View>
+                                    <IconButton icon={"chevron-right"}/>
+                                </View>
+                            </View>
+                        </TouchableRipple>
+                    </Surface>
+
+                    <Surface style={styles.surfaceContainer}>
+                        <TouchableRipple onPress={this.stopToBeBuddy}>
+                            <View style={{justifyContent:"center", ...styles.settingContainer}}>
+                                <View style={{flex: 1, flexDirection:"row", alignItems:"center", justifyContent:"space-between"}}>
+                                    <View style={{flex:1}}>
+                                        <Text style={styles.text}>Stop to be buddy</Text>
+                                        <Text style={{fontSize: 15, flexWrap: 'wrap'}}>Other users will not find you in the cities where you are a buddy</Text>
+                                    </View>
+                                    <IconButton icon={"chevron-right"}/>
+                                </View>
+                            </View>
+                        </TouchableRipple>
+                    </Surface>
+                </View>
             </View>
         )
     }else{
         return(
-            <TouchableRipple onPress={this.becomeBuddy}>
-                <View style={styles.singleOptionContainer}>
-                    <Text style={styles.text}>Become buddy</Text>
-                </View>
-            </TouchableRipple>
+            <Surface style={styles.surfaceContainer}>
+                <TouchableRipple onPress={this.becomeBuddy}>
+                    <View style={{flexDirection:"row", alignItems:"center", justifyContent:"space-between", ...styles.settingContainer}}>
+                        <Text style={styles.text}>Become buddy</Text>
+                        <IconButton icon={"chevron-right"}/>
+                    </View>
+                </TouchableRipple>
+            </Surface>
         )
     }
 }
 
-function YourCities(props) {
-    return (
-        <TouchableRipple onPress={() => props.nav.navigate('CitiesOfBuddy')}>
-            <View style={styles.singleOptionContainer}>
-                <Text style={styles.text}>Your cities</Text>
-            </View>
-        </TouchableRipple>
-    )
-}
-
-function WhoCanFindMe(props) {
-    return (
-        <TouchableRipple
-            onPress={() => props.nav.navigate('WhoCanFindMe')}>
-            <View style={styles.singleOptionContainer}>
-                <Text style={styles.text}>Who can find me</Text>
-            </View>
-        </TouchableRipple>
-    )
-}
-
 function ChangePassword(props) {
     return(
-        <TouchableRipple onPress={()=>props.nav.navigate("ChangePassword")}>
-            <View style={styles.singleOptionContainer}>
-                <Text style={styles.text}>Change password</Text>
-            </View>
-        </TouchableRipple>
+        <Surface style={styles.surfaceContainer}>
+            <TouchableRipple onPress={()=>props.nav.navigate("ChangePassword")}>
+                <View style={{flexDirection:"row", alignItems:"center", justifyContent:"space-between", ...styles.settingContainer}}>
+                    <Text style={styles.text}>Change password</Text>
+                    <IconButton icon={"chevron-right"}/>
+                </View>
+            </TouchableRipple>
+        </Surface>
     )
 }
 
 function DeleteAccount(props) {
     return(
-        <TouchableRipple onPress={props.deleteAlert}>
-            <View style={styles.singleOptionContainer}>
-                <Text style={styles.text}>Delete account</Text>
-            </View>
-        </TouchableRipple>
+        <Surface style={styles.surfaceContainer}>
+            <TouchableRipple onPress={props.deleteAlert}>
+                <View style={{flexDirection:"row", alignItems:"center", justifyContent:"space-between", ...styles.settingContainer}}>
+                    <Text style={styles.text}>Delete account</Text>
+                    <IconButton icon={"chevron-right"}/>
+                </View>
+            </TouchableRipple>
+        </Surface>
     )
 }
 
@@ -102,17 +148,20 @@ export default class Settings extends Component {
             loadingDone: false,
             userIsNoMoreABuddyToggle: false,
             userIsABuddyToggle: false,
-            deleteUserToggle: false
+            deleteUserToggle: false,
         }
     }
 
-    componentDidMount(){
+    async componentDidMount(){
         const userId = firebase.auth().currentUser.uid;
-        UserHandler.isBuddy(userId).then(response => {
-            this.setState({
-                isBuddy: response,
-                loadingDone: true
-            })
+        const isBuddy = await UserHandler.isBuddy(userId)
+        const preferences = await UserHandler.getPreferences(userId)
+        this.setState({
+            isBuddy: isBuddy,
+            loadingDone: true,
+            lowerRangeTouristAge: preferences.lowerRangeTouristAge,
+            upperRangeTouristAge: preferences.upperRangeTouristAge,
+            onlySameSex: preferences.onlySameSex,
         })
     }
 
@@ -129,6 +178,19 @@ export default class Settings extends Component {
         this.setState({ deleteUserToggle: true })
     }
 
+    multiSliderValuesChange = values => {
+        this.setState({
+            lowerRangeTouristAge: values[0],
+            upperRangeTouristAge: values[1]
+        });
+        UserHandler.savePreferences(values[0], values[1], this.state.onlySameSex)
+    };
+
+    onlySameSexChange = () => {
+        UserHandler.savePreferences(this.state.lowerRangeTouristAge, this.state.upperRangeTouristAge, !this.state.onlySameSex)
+        this.setState({ onlySameSex: !this.state.onlySameSex });
+    }
+
     render() {
         if(this.state.loadingDone != false) {
             return (
@@ -136,24 +198,26 @@ export default class Settings extends Component {
                     <ScrollView>
                         <View style={styles.container}>
                             <Text style={styles.header}>Preferences</Text>
-                            <BuddyComponent isBuddy={this.state.isBuddy} isBuddyUpdater={this.isBuddyUpdater} nav={this.props.navigation}/>
+                            <BuddyComponent isBuddy={this.state.isBuddy} state={this.state} onlySameSexChange={this.onlySameSexChange} multiSliderValuesChange={this.multiSliderValuesChange} isBuddyUpdater={this.isBuddyUpdater} nav={this.props.navigation}/>
                         </View>
                         <View style={styles.container}>
                             <Text style={styles.header}>Account</Text>
                             <ChangePassword nav={this.props.navigation}/>
                             <DeleteAccount nav={this.props.navigation} deleteAlert={this.deleteAlert}/>
 
-                            <TouchableRipple onPress={() =>{
-                                this.setState({loadingDone: false})
-                                AccountHandler.logOut().then(() => {
-                                    this.props.navigation.navigate('Loading')
-                                })
-                            }}>
-                                <View style={styles.singleOptionContainer}>
-                                    <Text style={styles.text}>Log out</Text>
-                                </View>
-                            </TouchableRipple>
-
+                            <Surface style={styles.surfaceContainer}>
+                                <TouchableRipple onPress={() =>{
+                                    this.setState({loadingDone: false})
+                                    AccountHandler.logOut().then(() => {
+                                        this.props.navigation.navigate('Loading')
+                                    })
+                                }}>
+                                    <View style={{flexDirection:"row", alignItems:"center", justifyContent:"space-between", ...styles.settingContainer}}>
+                                        <Text style={styles.text}>Log out</Text>
+                                        <IconButton icon={"chevron-right"}/>
+                                    </View>
+                                </TouchableRipple>
+                            </Surface>
                         </View>
                     </ScrollView>
 
@@ -219,13 +283,12 @@ const styles = StyleSheet.create({
     container:{
         flex:1,
         margin:hp("2%"),
-        borderBottomColor: 'grey',
-        borderBottomWidth: 1,
     },
-    singleOptionContainer:{
-        flex:1,
-        margin: wp("3%"),
-        height: hp("5%")
+    settingContainer:{
+        marginBottom: hp("2%"),
+        marginTop: hp("2%"),
+        marginLeft: wp("4%"),
+        marginRight:wp("4%")
     },
     text:{
         fontSize: 20
@@ -234,5 +297,10 @@ const styles = StyleSheet.create({
         height: hp("5%"),
         fontSize: 20,
         fontWeight:"bold"
+    },
+    surfaceContainer: {
+        elevation: 4,
+        marginBottom: hp("2%"),
+        borderRadius: 5
     }
 });

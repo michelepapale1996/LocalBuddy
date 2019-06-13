@@ -13,7 +13,6 @@ import SignUp from "./screens/SignUp";
 import BuddyProfileTablet from "./screens/BuddyProfileTablet";
 import ProfileTablet from "./screens/ProfileTablet";
 import Login from "./screens/Login";
-import WhoCanFindMe from "./screens/WhoCanFindMe";
 import NewMeeting from "./screens/NewMeeting";
 import CityChosen from "./screens/CityChosen";
 import NewBiography from "./screens/NewBiography";
@@ -87,9 +86,6 @@ const ProfileTabNavigator = createStackNavigator({
     },
     ChangePassword:{
         screen: ChangePassword
-    },
-    WhoCanFindMe:{
-        screen: WhoCanFindMe
     },
     CitiesOfBuddy:{
         screen: CitiesOfBuddy

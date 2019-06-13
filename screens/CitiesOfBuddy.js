@@ -183,10 +183,6 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         backgroundColor: 'white',
     },
-    viewContainer:{
-        flex:1,
-        backgroundColor: 'white',
-    },
     text: {
         fontSize: 20,
         textAlign: 'center',
