@@ -3,7 +3,7 @@ import {StyleSheet, View} from "react-native"
 import { GiftedChat, InputToolbar } from 'react-native-gifted-chat'
 import SingleChatHandler from "../handler/SingleChatHandler"
 import MessagesUpdatesHandler from "../handler/MessagesUpdatesHandler"
-import AccountHandler from "../handler/AccountHandler"
+import LinearGradient from 'react-native-linear-gradient';
 import { Text, TouchableRipple } from 'react-native-paper'
 import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen'
 import UserHandler from "../handler/UserHandler";
@@ -126,13 +126,15 @@ export default class SingleChat extends Component {
 
     render() {
         return (
-            <GiftedChat
-                messages={this.state.messages}
-                onSend={messages => this.onSend(messages)}
-                user={{
-                    _id: 1,
-                }}
-            />
+            <View style={{flex:1}}>
+                <GiftedChat
+                    messages={this.state.messages}
+                    onSend={messages => this.onSend(messages)}
+                    user={{
+                        _id: 1,
+                    }}
+                />
+            </View>
         )
     }
 }
@@ -147,5 +149,5 @@ const styles = StyleSheet.create({
         fontSize: 20,
         fontWeight: "bold",
         color:"white"
-    },
+    }
 })

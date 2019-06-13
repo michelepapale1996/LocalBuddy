@@ -268,14 +268,5 @@ const styles = StyleSheet.create({
         position: 'absolute',
         marginTop:hp("5%"),
         marginLeft:wp("95%")
-    },
-    photoButton:{
-        width: wp("10%"),
-        height: wp("10%"),
-        borderRadius: wp("10%"),
-        position: 'absolute',
-        marginTop:hp("15%"),
-        marginLeft:wp("70%"),
-        zIndex:10,
     }
 });

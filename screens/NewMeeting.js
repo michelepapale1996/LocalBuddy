@@ -6,7 +6,6 @@ import ChatsHandler from "../handler/ChatsHandler"
 import LoadingComponent from '../components/LoadingComponent'
 import RNPickerSelect from 'react-native-picker-select'
 import MeetingsHandler from "../handler/MeetingsHandler"
-import AccountHandler from "../handler/AccountHandler"
 import { Text, Button } from 'react-native-paper'
 import DateHandler from "../handler/DateHandler";
 import MeetingsUpdatesHandler from "../handler/MeetingsUpdatesHandler";
@@ -126,7 +125,7 @@ export default class NewMeeting extends Component {
             return (
                 <View style={styles.mainContainer}>
                     <View style={styles.container}>
-                        <Text style={styles.text}>Who do you want to meet?</Text>
+                        <Text style={styles.text}>Who</Text>
                         {this.state.nameAndSurnameOpponent != null && <Text style={styles.text}>{this.state.nameAndSurnameOpponent}</Text>}
                         {
                             this.state.nameAndSurnameOpponent == null &&
@@ -147,28 +146,26 @@ export default class NewMeeting extends Component {
                             />
                         }
                     </View>
-                    <View style={styles.container}>
-                        <Text style={styles.text}>Choose the date of the meeting:</Text>
-                        <Button mode={"outlined"} onPress={this.showDatePicker}>Select a date</Button>
-                        <DateTimePicker
-                            isVisible={this.state.isDatePickerVisible}
-                            onConfirm={this.handleDatePicked}
-                            onCancel={this.hideDatePicker}
-                            minimumDate={new Date()}
-                        />
-                        <Text style={styles.text}>Date chosen: {this.state.date}</Text>
-                    </View>
-                    <View style={styles.container}>
-                        <Text style={styles.text}>Choose time of the meeting:</Text>
-                        <Button mode={"outlined"} onPress={this.showTimePicker}>Select time</Button>
-                        <DateTimePicker
-                            mode={"time"}
-                            isVisible={this.state.isTimePickerVisible}
-                            onConfirm={this.handleTimePicked}
-                            onCancel={this.hideTimePicker}
-                        />
-                        <Text style={styles.text}>Time chosen: {this.state.time}</Text>
-                    </View>
+                        <View style={styles.container}>
+                            <Text style={styles.text}>When</Text>
+                            <Button onPress={this.showDatePicker}>{this.state.date}</Button>
+                            <DateTimePicker
+                                isVisible={this.state.isDatePickerVisible}
+                                onConfirm={this.handleDatePicked}
+                                onCancel={this.hideDatePicker}
+                                minimumDate={new Date()}
+                            />
+                        </View>
+                        <View style={styles.container}>
+                            <Text style={styles.text}>Time</Text>
+                            <Button onPress={this.showTimePicker}>{this.state.time}</Button>
+                            <DateTimePicker
+                                mode={"time"}
+                                isVisible={this.state.isTimePickerVisible}
+                                onConfirm={this.handleTimePicked}
+                                onCancel={this.hideTimePicker}
+                            />
+                        </View>
                 </View>
             )
         } else {
@@ -179,13 +176,15 @@ export default class NewMeeting extends Component {
 
 const styles = StyleSheet.create({
     mainContainer: {
-        margin: hp("0%"),
         flex: 1,
         backgroundColor: 'white',
     },
     container:{
-        justifyContent: 'center',
-        margin:hp("2%"),
+        marginTop:hp("5%"),
+        marginLeft:wp("5%"),
+        marginRight:wp("5%"),
+        borderBottomWidth:1,
+        borderColor: "grey"
     },
     singleOptionContainer:{
         flex:1,
@@ -195,7 +194,6 @@ const styles = StyleSheet.create({
     text: {
         fontSize: 20,
         fontWeight: "bold",
-        textAlign:"center"
     },
     header:{
         fontSize: 20,
@@ -221,7 +219,7 @@ const styles = StyleSheet.create({
     button:{
         marginLeft:0,
         marginRight:0,
-        borderRadius: 20,
+        borderRadius: 5,
         borderColor: "white"
     }
 });
@@ -231,20 +229,16 @@ const pickerSelectStyles = StyleSheet.create({
         fontSize: 16,
         paddingVertical: 12,
         paddingHorizontal: 10,
-        borderWidth: 1,
-        borderColor: 'gray',
         borderRadius: 4,
-        color: 'black',
         paddingRight: 30, // to ensure the text is never behind the icon
     },
     inputAndroid: {
         fontSize: 16,
         paddingHorizontal: 10,
+        borderBottomWidth:0,
         paddingVertical: 8,
-        borderWidth: 0.5,
-        borderColor: 'transparent',
-        borderRadius: 8,
-        color: 'black',
+        borderColor: "#34495e",
+        color:"black",
         paddingRight: 30, // to ensure the text is never behind the icon
     },
 });

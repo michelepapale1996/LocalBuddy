@@ -150,12 +150,6 @@ export default class ChooseCity extends Component {
     }
 }
 
-/*
-<View style={styles.container}>
-                            <Text style={styles.text}>To start, search a city where you want to find a buddy!</Text>
-                        </View>
-*/
-
 const styles = StyleSheet.create({
     container: {
         flex: 1,

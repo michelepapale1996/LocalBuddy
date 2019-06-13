@@ -5,10 +5,9 @@ import ImagePicker from 'react-native-image-picker';
 import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen';
 import {Icon} from 'react-native-elements';
 import LoadingComponent from "../components/LoadingComponent";
-import { IconButton, Colors, Text, Surface, TouchableRipple, Avatar } from 'react-native-paper';
+import { IconButton, Colors, Text, Surface, TouchableRipple } from 'react-native-paper';
 import UserHandler from "../handler/UserHandler";
 import StarRating from 'react-native-star-rating';
-import LocalStateHandler from "../handler/LocalStateHandler";
 
 function Biography(props){
 
@@ -45,6 +44,17 @@ function UserInfo(props) {
                 {props.userInfo.name} {props.userInfo.surname}
             </Text>
             <Text style={styles.infoUserText}>{years} years old</Text>
+            {props.userInfo.numberOfFeedbacks > 0 && <View style={{flexDirection:"row", flex:1, justifyContent:"center", marginTop:hp("1%"), alignItems:"center"}}>
+                <StarRating
+                    disabled={true}
+                    maxStars={5}
+                    starSize={20}
+                    rating={props.userInfo.rating}
+                    emptyStarColor={'#f1c40f'}
+                    fullStarColor={'#f1c40f'}
+                />
+                <Text style={{marginLeft:wp("1%"), ...styles.text}}>{props.userInfo.numberOfFeedbacks}</Text>
+            </View>}
         </View>
     )
 }
@@ -79,7 +89,7 @@ function PhotoProfile(props) {
 
 function Feedback(props){
     return(
-        <View style={{flexDirection:"row", margin:10}}>
+        <View style={{flexDirection:"row", margin:10, alignItems:"center"}}>
             <Image
                 style={styles.photoTravelerProfile}
                 source={{uri: props.feedback.url}}/>
@@ -145,16 +155,21 @@ export default class ProfileTab extends Component {
     }
 
     async componentDidMount(){
-        /*const id = firebase.auth().currentUser.uid
-        UserHandler.getUserInfo(id).then(user => {
-            this.setState({
-                user: user,
-                loadingDone: true
-            })
-        })*/
-        const user = await LocalStateHandler.getUserInfo()
+        const id = firebase.auth().currentUser.uid
+        var user = await UserHandler.getUserInfo(id)
+
+        const citiesWhereIsBuddy = await UserHandler.getCitiesOfTheBuddy(id)
+        //var user = await LocalStateHandler.getUserInfo()
+        if(user.feedbacks != null){
+            var total = 0
+            user.feedbacks.forEach(elem => total += elem.rating)
+            user.rating = total / user.feedbacks.length
+            user.numberOfFeedbacks = user.feedbacks.length
+        }
+
         this.setState({
             user: user,
+            citiesWhereIsBuddy: citiesWhereIsBuddy,
             loadingDone: true
         })
     }
@@ -180,19 +195,37 @@ export default class ProfileTab extends Component {
                             size={30}
                             onPress={() => this.props.navigation.navigate('Settings')}
                         />
-
-                        <IconButton
-                            icon="add-a-photo"
-                            color={Colors.white}
-                            style={styles.photoButton}
-                            size={30}
-                        />
                         <PhotoProfile photoPath={this.state.user.urlPhoto} updatePhoto={this.updateUserPhoto} userId={this.state.user.id}/>
 
                         <View style={styles.bodyContent}>
                             <UserInfo userInfo={this.state.user}/>
                             <Biography bio={this.state.user.bio} nav={this.props.navigation} newBiography={this.newBiography}/>
+
+                            {
+                                this.state.citiesWhereIsBuddy != undefined && this.state.citiesWhereIsBuddy.length > 0 ?
+                                <View style={styles.feedbacksContainer}>
+                                    <Text style={{fontWeight:"bold", fontSize:wp("6%"), marginLeft:wp("5%")}}>Cities</Text>
+                                    <Surface style={styles.feedbacks}>
+                                    <FlatList
+                                        data={this.state.citiesWhereIsBuddy}
+                                        renderItem={({item}) =>
+                                            <View style={{flexDirection: "row", alignItems:"center"}}>
+                                            <IconButton icon={"location-on"}/>
+                                            <Text style={{fontSize:wp("4%"), marginLeft:wp("2%")}}>{item.cityName}</Text>
+                                            </View>
+                                        }
+                                        keyExtractor={(item, index) => index.toString()}
+                                        extraData={this.state.cities}
+                                        showsVerticalScrollIndicator={false}
+                                    />
+                                    </Surface>
+                                </View>
+                                :
+                                <View/>
+                            }
+
                             <Feedbacks feedbacks={this.state.user.feedbacks}/>
+
                         </View>
                     </ScrollView>
                 </View>
@@ -291,13 +324,4 @@ const styles = StyleSheet.create({
         marginTop:hp("5%"),
         marginLeft:wp("85%")
     },
-    photoButton:{
-        width: wp("10%"),
-        height: wp("10%"),
-        borderRadius: wp("10%"),
-        position: 'absolute',
-        marginTop:hp("15%"),
-        marginLeft:wp("70%"),
-        zIndex:10,
-    }
 });

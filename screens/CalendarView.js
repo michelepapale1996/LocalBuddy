@@ -41,9 +41,9 @@ export default class CalendarView extends Component {
         MeetingsUpdatesHandler.setNewMeetingListener(this.newMeeting)
         MeetingsUpdatesHandler.setFromFutureToPastMeeting(this.changeFromFutureToPastMeeting)
 
-        const info = await LocalStateHandler.getUserInfo()
-        var infoMeetings = info.meetings
-        //MeetingsHandler.getMeetings().then(infoMeetings => {
+        //const info = await LocalStateHandler.getUserInfo()
+        //var infoMeetings = info.meetings
+        const infoMeetings = await MeetingsHandler.getMeetings()
         if(infoMeetings != null){
             let promises = infoMeetings.map(meeting => {
                 return UserHandler.getNameAndSurname(meeting.idOpponent)

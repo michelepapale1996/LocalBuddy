@@ -6,7 +6,7 @@ import UserHandler from "../handler/UserHandler";
 import {heightPercentageToDP as hp, widthPercentageToDP as wp} from "react-native-responsive-screen";
 import LoadingComponent from '../components/LoadingComponent'
 import CitiesOfBuddy from "./CitiesOfBuddy";
-import { Text, TouchableRipple } from 'react-native-paper';
+import { Text, TouchableRipple, Portal, Dialog, Paragraph, Button } from 'react-native-paper';
 import AccountHandler from "../handler/AccountHandler";
 
 function BuddyComponent(props){
@@ -18,7 +18,6 @@ function BuddyComponent(props){
     becomeBuddy = () => {
         UserHandler.becomeBuddy()
         props.isBuddyUpdater(1)
-        props.nav.navigate("CitiesOfBuddy")
     }
 
     if(props.isBuddy == 1){
@@ -76,29 +75,8 @@ function ChangePassword(props) {
 }
 
 function DeleteAccount(props) {
-    deleteAccount = () =>{
-        AccountHandler.deleteAccount().then(()=>{
-            props.nav.navigate('Loading')
-        })
-    }
-
-    deleteAlert = () => {
-        Alert.alert(
-            'Delete account',
-            'Are you sure you want to delete your account? The action will not be reversible.',
-            [
-                {
-                    text: 'Cancel',
-                    style: 'cancel'
-                },
-                {text: 'OK', onPress: () => this.deleteAccount()},
-            ],
-            {cancelable: true}
-        );
-    }
-
     return(
-        <TouchableRipple onPress={deleteAlert}>
+        <TouchableRipple onPress={props.deleteAlert}>
             <View style={styles.singleOptionContainer}>
                 <Text style={styles.text}>Delete account</Text>
             </View>
@@ -121,7 +99,10 @@ export default class Settings extends Component {
     constructor(props){
         super(props)
         this.state = {
-            loadingDone: false
+            loadingDone: false,
+            userIsNoMoreABuddyToggle: false,
+            userIsABuddyToggle: false,
+            deleteUserToggle: false
         }
     }
 
@@ -137,9 +118,15 @@ export default class Settings extends Component {
 
     //function to change the state of this component from other components
     isBuddyUpdater = (itIs) => {
+        if(!itIs) this.setState({ userIsNoMoreABuddyToggle: true });
+        if(itIs) this.setState({ userIsABuddyToggle: true })
         this.setState({
             isBuddy: itIs
         })
+    }
+
+    deleteAlert = () => {
+        this.setState({ deleteUserToggle: true })
     }
 
     render() {
@@ -154,7 +141,7 @@ export default class Settings extends Component {
                         <View style={styles.container}>
                             <Text style={styles.header}>Account</Text>
                             <ChangePassword nav={this.props.navigation}/>
-                            <DeleteAccount nav={this.props.navigation}/>
+                            <DeleteAccount nav={this.props.navigation} deleteAlert={this.deleteAlert}/>
 
                             <TouchableRipple onPress={() =>{
                                 this.setState({loadingDone: false})
@@ -169,6 +156,52 @@ export default class Settings extends Component {
 
                         </View>
                     </ScrollView>
+
+                    <Portal>
+                        <Dialog
+                            visible={this.state.userIsNoMoreABuddyToggle}
+                            onDismiss={() => this.setState({userIsNoMoreABuddyToggle: false})}>
+                            <Dialog.Title>You are no more a buddy</Dialog.Title>
+                            <Dialog.Content>
+                                <Paragraph>From this moment on the other travelers can't find you</Paragraph>
+                            </Dialog.Content>
+                            <Dialog.Actions>
+                                <Button onPress={() => this.setState({userIsNoMoreABuddyToggle: false})}>Done</Button>
+                            </Dialog.Actions>
+                        </Dialog>
+                    </Portal>
+                    <Portal>
+                        <Dialog
+                            visible={this.state.userIsABuddyToggle}
+                            onDismiss={() => this.setState({userIsABuddyToggle: false})}>
+                            <Dialog.Title>Now you are a buddy</Dialog.Title>
+                            <Dialog.Content>
+                                <Paragraph>From this moment on the other travelers can find you</Paragraph>
+                            </Dialog.Content>
+                            <Dialog.Actions>
+                                <Button onPress={() => this.setState({userIsABuddyToggle: false})}>Done</Button>
+                            </Dialog.Actions>
+                        </Dialog>
+                    </Portal>
+                    <Portal>
+                        <Dialog
+                            visible={this.state.deleteUserToggle}
+                            onDismiss={() => this.setState({deleteUserToggle: false})}>
+                            <Dialog.Title>Delete account</Dialog.Title>
+                            <Dialog.Content>
+                                <Paragraph>Are you sure you want to delete your account? The action will not be reversible</Paragraph>
+                            </Dialog.Content>
+                            <Dialog.Actions>
+                                <Button onPress={() => this.setState({deleteUserToggle: false})}>No</Button>
+                                <Button onPress={() => {
+                                    AccountHandler.deleteAccount().then(()=>{
+                                        this.setState({deleteUserToggle: false})
+                                        this.props.navigation.navigate('Loading')
+                                    })
+                                }}>Yes</Button>
+                            </Dialog.Actions>
+                        </Dialog>
+                    </Portal>
                 </View>
             )
         }else{

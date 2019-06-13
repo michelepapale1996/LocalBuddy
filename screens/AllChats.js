@@ -11,6 +11,7 @@ function Chat(props) {
     const lastMessageTime = props.getTime(props.item.createdAt)
     return(
         <TouchableRipple
+            style={{height:hp("12%")}}
             onLongPress={()=>{
                 props.setDialogIdToDelete(props.item.chatId)
                 props.show()
@@ -30,19 +31,21 @@ function Chat(props) {
                 <Image
                     style={styles.userPhoto}
                     source={{uri: props.item.urlPhotoOther}}/>
-                <View style={styles.singleChat}>
-                    <View style={{flexDirection: "row", justifyContent:"space-between"}}>
-                        <Text style={styles.text}>
-                            {props.item.nameAndSurname}
-                        </Text>
-                        <Text>
-                            {lastMessageTime}
-                        </Text>
-                    </View>
-                    <View style={{flexDirection: "row", justifyContent:"space-between"}}>
-                        <Text>
-                            {props.item.lastMessageText}
-                        </Text>
+                <View style={{borderBottomWidth: 1, borderColor:"grey", flex:1}}>
+                    <View style={styles.singleChat}>
+                        <View style={{flexDirection: "row", justifyContent:"space-between"}}>
+                            <Text style={styles.text}>
+                                {props.item.nameAndSurname}
+                            </Text>
+                            <Text>
+                                {lastMessageTime}
+                            </Text>
+                        </View>
+                        <View style={{flexDirection: "row", justifyContent:"space-between"}}>
+                            <Text>
+                                {props.item.lastMessageText}
+                            </Text>
+                        </View>
                     </View>
                 </View>
             </View>
@@ -236,16 +239,18 @@ const styles = StyleSheet.create({
         fontWeight: "bold"
     },
     singleChat: {
-        borderBottomWidth: 1,
-        borderColor:"grey",
         flex: 1,
         flexDirection: 'column',
-        marginLeft: wp("3%")
+        justifyContent:"center",
+        marginLeft: wp("3%"),
+        marginRight: wp("3%"),
     },
     singleChatContainer: {
+        flex:1,
         flexDirection: 'row',
-        margin: wp("3%"),
-        height: hp("10%")
+        alignItems:"center",
+        marginLeft: wp("3%"),
+        marginRight: wp("1%"),
     },
     userPhoto: {
         width: wp("15%"),

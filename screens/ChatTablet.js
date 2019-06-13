@@ -14,8 +14,6 @@ import { Header } from "react-native-elements"
 import LinearGradient from 'react-native-linear-gradient';
 
 function Chat(props) {
-    console.log("PORV")
-    console.log(props.item)
     const lastMessageTime = props.getTime(props.item.createdAt)
     return(
         <TouchableWithoutFeedback onPress={() => {
@@ -171,7 +169,7 @@ class SingleChat extends Component{
 
     render() {
         return (
-            <View style={{borderLeftWidth:0.5, borderColor:"grey", flex:1}}>
+            <View style={{borderLeftWidth:0.5, borderColor:"white", flex:1}}>
                 {
                     this.state.chatSelected &&
                     <View style={{flex:1}}>

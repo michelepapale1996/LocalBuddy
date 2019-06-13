@@ -5,20 +5,26 @@ import LoadingComponent from "../components/LoadingComponent";
 import { Text, TouchableRipple, Surface } from 'react-native-paper'
 import {widthPercentageToDP as wp, heightPercentageToDP as hp} from "react-native-responsive-screen"
 import StarRating from 'react-native-star-rating';
+import { Icon } from 'react-native-elements'
 
 function Buddy(props){
+    const birthdate = new Date(props.item.birthDate)
+    const years = new Date().getFullYear() - birthdate.getFullYear()
     return(
         <TouchableRipple onPress={() => props.nav.navigate('BuddyProfile', {idUser: props.item.id})}>
             <View style={styles.singleBuddyContainer}>
                 <Image
-                    style={styles.userPhoto}
+                    style={{marginRight: wp("5%"),...styles.userPhoto}}
                     source={{uri: props.item.urlPhoto}}/>
-                <View style={styles.singleBuddy}>
-                    <Text style={styles.text}>
-                        {props.item.name} {props.item.surname}
-                    </Text>
+                <View style={{flex: 1, flexDirection: 'column'}}>
+                    <View style={{flexDirection:"row", flex:1, alignItems:"center"}}>
+                        <Text style={{fontSize: 20, fontWeight: "bold"}}>{props.item.name} {props.item.surname}</Text>
+                        {props.item.sex === 'M' ? <Icon type={"material-community"} name='human-male'/> : <Icon type="material-community" name='human-female'/>}
+                    </View>
 
-                    <View style={{width:wp("10%"), alignItems:"center"}}>
+                    <Text style={{fontSize: 20}}>{years} years old</Text>
+
+                    <View style={{flexDirection:"row", flex:1, alignItems:"center"}}>
                         <StarRating
                             disabled={true}
                             maxStars={5}
@@ -27,6 +33,7 @@ function Buddy(props){
                             emptyStarColor={'#f1c40f'}
                             fullStarColor={'#f1c40f'}
                         />
+                        <Text style={{marginLeft:wp("1%"), ...styles.text}}>{props.item.numberOfFeedbacks}</Text>
                     </View>
                 </View>
             </View>
@@ -118,7 +125,7 @@ const styles = StyleSheet.create({
     },
     singleBuddyContainer: {
         flex:1,
-        justifyContent:"center",
+        justifyContent:"space-between",
         alignItems:"center",
         flexDirection: 'row',
         marginTop: hp('1%'),
@@ -131,12 +138,6 @@ const styles = StyleSheet.create({
         width: wp("20%"),
         height: wp("20%"),
         borderRadius: wp("20%")
-    },
-    singleBuddy: {
-        flex: 1,
-        flexDirection: 'column',
-        marginLeft: wp("3%"),
-        alignItems:"center"
     },
     bud:{
         margin: wp("2%"),
