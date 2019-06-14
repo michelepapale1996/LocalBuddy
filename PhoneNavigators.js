@@ -33,18 +33,6 @@ const SearchTab = createStackNavigator({
     },
 });
 
-const ChatTab = createStackNavigator({
-    AllChats: {
-        screen: AllChats,
-    },
-    SingleChat: {
-        screen: SingleChat,
-    },
-    BuddyProfile: {
-        screen: BuddyProfile
-    }
-});
-
 const MeetingsTab = createMaterialTopTabNavigator({
     CalendarView:{
         screen: CalendarView
@@ -104,6 +92,14 @@ const ProfileTabNavigator = createStackNavigator({
     }
 })
 
+const ChatTab = createStackNavigator({
+    AllChats: {
+        screen: AllChats,
+    },
+    BuddyProfile: {
+        screen: BuddyProfile
+    }
+});
 
 const TabNavigator = createBottomTabNavigator({
     Chat: {
@@ -143,12 +139,28 @@ const TabNavigator = createBottomTabNavigator({
     }
 });
 
+TabNavigator.navigationOptions = {
+    header: null,
+};
+
+const Main = createStackNavigator(
+    {
+        TabNavigator,
+        SingleChat: {
+            screen: SingleChat,
+        },
+    },
+    {
+        initialRouteName: 'TabNavigator',
+    }
+);
+
 const PhoneApp = createSwitchNavigator(
     {
         Loading,
         SignUp,
         Login,
-        TabNavigator
+        Main
     },
     {
         initialRouteName: 'Loading'
