@@ -5,7 +5,7 @@ import UserHandler from "../handler/UserHandler";
 import {Icon} from 'react-native-elements';
 import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen';
 import firebase from "react-native-firebase";
-import { Text, TextInput } from 'react-native-paper';
+import { Text, TextInput, IconButton, Searchbar, Snackbar } from 'react-native-paper';
 
 export default class CitiesOfBuddy extends Component {
     static navigationOptions = () => {
@@ -27,22 +27,24 @@ export default class CitiesOfBuddy extends Component {
         this.state = {
             loadingDone: false,
             foundCities: [],
-            cities: []
+            cities: [],
+            newCityDialogVisible: false,
+            removeCityDialogVisible: false,
+            removedCityName: null,
+            addedCityName: null,
+            cityToSearch: null
         }
     }
 
-    componentDidMount(){
+    async componentDidMount(){
         const idUser = firebase.auth().currentUser.uid
-        UserHandler.getCitiesOfTheBuddy(idUser).then(cities => {
-            if(cities != null){
-                this.setState({
-                    cities: cities,
-                    loadingDone: true
-                })
-            }else{
-                this.setState({loadingDone: true})
-            }
-        })
+        const cities = await UserHandler.getCitiesOfTheBuddy(idUser)
+        if(cities != null){
+            this.setState({
+                cities: cities,
+                loadingDone: true
+            })
+        }else this.setState({loadingDone: true})
     }
 
     getCities = (input) => {
@@ -71,9 +73,10 @@ export default class CitiesOfBuddy extends Component {
             }).catch(
                 err => console.log(err)
             )
-        }else{
+        }
+        if(input.length <= 3){
             this.setState({
-                foundCities: undefined
+                foundCities: []
             })
         }
     }
@@ -83,13 +86,15 @@ export default class CitiesOfBuddy extends Component {
             //city is the first one -> initialize the array
             if (prevState.cities == undefined) {
                 UserHandler.addCity(cityId, cityName)
-                return {cities: [{cityName: cityName, cityId: cityId}]}
+                return {cities: [{cityName: cityName, cityId: cityId}], newCityDialogVisible: true, foundCities: [], addedCityName: cityName}
             } else {
                 const toCheck = prevState.cities.filter(elem=>elem.cityName == cityName)
                 if(toCheck.length == 0){
                     UserHandler.addCity(cityId, cityName)
                     const cities = [...prevState.cities, {cityName: cityName, cityId: cityId}]
-                    return {cities: cities}
+                    return {cities: cities, newCityDialogVisible: true, foundCities: [], addedCityName: cityName}
+                }else{
+                    return {clickedOnCityWhereIsAlreadyBuddy: true, addedCityName: cityName}
                 }
             }
         })
@@ -99,11 +104,10 @@ export default class CitiesOfBuddy extends Component {
         UserHandler.deleteCity(cityId)
         this.setState((prevState) => {
             if(prevState.cities.length == 1){
-                return {cities: undefined}
+                return {cities: undefined, removeCityDialogVisible: true, removedCityName: cityName}
             }else{
                 let cities = prevState.cities.filter(val => val.cityName !== cityName)
-                console.log(cities)
-                return {cities: cities}
+                return {cities: cities, removeCityDialogVisible: true, removedCityName: cityName}
             }
         })
     }
@@ -115,17 +119,17 @@ export default class CitiesOfBuddy extends Component {
             if(this.state.cities != undefined && this.state.cities.length > 0){
                 citiesWhereIsAlreadyBuddy =
                     <View style={styles.viewContainer}>
-                        <Text style={styles.text}>Your current cities:</Text>
                         <FlatList
                             data={this.state.cities}
                             renderItem={({item}) =>
-                                <View  style={{ flexDirection: 'row', justifyContent: 'center' }}>
-                                    <Text style={styles.text}>
-                                        {item.cityName}
-                                    </Text>
-                                    <Icon name="close"
-                                          onPress={() => this.deleteCity(item.cityId, item.cityName)}/>
-                                </View>}
+                                <View  style={{flexDirection: 'row', alignItems:"center", marginLeft:wp("1%"), marginRight:wp("2%"), marginBottom:hp("1%"), marginTop:hp("1%")}}>
+                                    <IconButton icon={"location-on"}/>
+                                    <View style={{flex:1}}>
+                                        <Text style={{width: wp("70%"), ...styles.text}}>{item.cityName}</Text>
+                                    </View>
+                                    <IconButton icon="delete" onPress={() => this.deleteCity(item.cityId, item.cityName)}/>
+                                </View>
+                            }
                             keyExtractor={(item, index) => index.toString()}
                             extraData={this.state.cities}
                             showsVerticalScrollIndicator={false}
@@ -136,42 +140,58 @@ export default class CitiesOfBuddy extends Component {
                     <Text style={styles.text}>You do not have any city yet.</Text>
                 </View>
             }
+            var foundCities = <FlatList
+                data={this.state.foundCities}
+                renderItem={({item}) =>
+                    <View  style={{flexDirection: 'row', alignItems:"center", marginLeft:wp("1%"), marginRight:wp("2%"), marginBottom:hp("1%"), marginTop:hp("1%")}}>
+                        <IconButton icon={"location-on"}/>
+                        <View style={{flex:1}}>
+                            <Text style={{width: wp("70%"), ...styles.text}}>{item.name}</Text>
+                        </View>
+                        <IconButton icon="add" onPress={() => {this.addCity(item.cityId, item.name)}}/>
+                    </View>}
+                keyExtractor={(item, index) => index.toString()}
+                extraData={this.state.foundCities}
+                showsVerticalScrollIndicator={false}
+            />
             return(
-                <ScrollView contentContainerStyle={styles.container}>
-                    <View style={styles.viewContainer}>
+                <View style={{flex: 1, flexDirection: "column", justifyContent:"space-between", ...styles.viewContainer}}>
+                    <ScrollView contentContainerStyle={styles.container}>
                         <View style={styles.alreadyBuddyContainer}>
-                            {citiesWhereIsAlreadyBuddy}
-                        </View>
-
-                        <View style={styles.newCitiesContainer}>
-                            <Text style={styles.text}>Search a city to start being buddy there!</Text>
-                            <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
-                                <TextInput
-                                    label="Insert the city name"
-                                    onChangeText={(input) => this.getCities(input)}
-                                    style={{
-                                        borderBottomWidth: 1,
-                                        fontSize:20,
-                                        borderColor: 'white',
-                                        marginLeft: 20,
-                                        marginRight:20,
-                                        flex: 1
-                                    }}
-                                />
-                            </View>
-                            <FlatList
-                                data={this.state.foundCities}
-                                renderItem={({item}) =>
-                                    <Text style={styles.text} onPress={() => this.addCity(item.cityId, item.name)}>
-                                        {item.name}
-                                    </Text>}
-                                keyExtractor={(item, index) => index.toString()}
-                                extraData={this.state.foundCities}
-                                showsVerticalScrollIndicator={false}
+                            <Searchbar
+                                placeholder="Search a city to start being buddy"
+                                onChangeText={(input) =>{
+                                    this.setState({cityToSearch: input})
+                                    this.getCities(input)}
+                                }
+                                value={this.state.cityToSearch}
                             />
+                            {this.state.foundCities.length > 0 ? foundCities : citiesWhereIsAlreadyBuddy}
+
                         </View>
-                    </View>
-                </ScrollView>
+                    </ScrollView>
+
+                    <Snackbar
+                        visible={this.state.newCityDialogVisible}
+                        onDismiss={() => this.setState({ newCityDialogVisible: false })}
+                    >
+                        Now you are buddy in {this.state.addedCityName}
+                    </Snackbar>
+
+                    <Snackbar
+                        visible={this.state.removeCityDialogVisible}
+                        onDismiss={() => this.setState({ removeCityDialogVisible: false })}
+                    >
+                        From now on you are not a buddy in {this.state.removedCityName}
+                    </Snackbar>
+
+                    <Snackbar
+                        visible={this.state.clickedOnCityWhereIsAlreadyBuddy}
+                        onDismiss={() => this.setState({ clickedOnCityWhereIsAlreadyBuddy: false })}
+                    >
+                        You are already a buddy in {this.state.addedCityName}
+                    </Snackbar>
+                </View>
             )
         }else{
             return(<LoadingComponent/>)
@@ -185,22 +205,21 @@ const styles = StyleSheet.create({
     },
     text: {
         fontSize: 20,
-        textAlign: 'center',
-        margin: 10,
+        flexWrap: "wrap",
     },
     textInput: {
         height: 40,
-        width: '90%',
+        width: wp('90%'),
         borderColor: 'gray',
         borderWidth: 1,
         marginTop: 8
     },
     alreadyBuddyContainer: {
-        borderColor: 'black',
-        borderRadius: 7,
-        borderWidth: 0.5,
         width: wp("95%"),
-        margin: hp("1%")
+        marginLeft:wp("1%"),
+        marginRight:wp("1%"),
+        marginBottom:hp("1%"),
+        marginTop:hp("1%")
     },
     newCitiesContainer:{
         borderColor: 'black',

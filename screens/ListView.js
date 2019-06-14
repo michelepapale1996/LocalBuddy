@@ -180,7 +180,7 @@ export default class ListView extends Component{
                                                 <TouchableRipple key={index} onPress={()=>{
                                                     this.props.navigation.navigate({routeName: "MeetingInfo",params: { meeting: m }, key: m.idOpponent})
                                                 }}>
-                                                    <View style={{flexDirection: "row", alignItems:"center", marginLeft:wp("10%"), marginRight:wp("5%"), justifyContent:"space-between"}}>
+                                                    <View style={{flexDirection: "row", alignItems:"center", marginLeft:wp("10%"), marginTop:hp("1%"), marginBottom:hp("1%"),marginRight:wp("5%"), justifyContent:"space-between"}}>
                                                         <Text style={styles.text}>{m.date} {m.time}</Text>
                                                         {isFuture == 1 && m.isFixed != 0 && <Button style={styles.button} mode="outlined" disabled>Fixed</Button>}
                                                         {isFuture == 1 && m.isPending != 0 && <Button style={styles.button} mode="outlined" disabled>Pending</Button>}
