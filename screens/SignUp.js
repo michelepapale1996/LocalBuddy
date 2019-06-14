@@ -1,8 +1,8 @@
 import React from 'react'
-import { StyleSheet, View, ScrollView } from 'react-native'
+import { StyleSheet, View, ScrollView, TextInput } from 'react-native'
 import firebase from 'react-native-firebase'
 import AccountHandler from "../handler/AccountHandler";
-import { Text, TextInput, RadioButton, Button } from 'react-native-paper';
+import { Text, RadioButton, Button, IconButton } from 'react-native-paper';
 import DateTimePicker from "react-native-modal-datetime-picker";
 import ConnectyCubeHandler from "../handler/ConnectyCubeHandler"
 import LoadingComponent from "../components/LoadingComponent";
@@ -86,69 +86,82 @@ export default class SignUp extends React.Component {
     render() {
         if(!this.state.buttonClicked){
             return (
-                <ScrollView>
-                    <View style={styles.container}>
+                <View style={styles.container}>
+                    <ScrollView style={{flex:1}}>
                         <View style={styles.header}>
                             {this.state.errorMessage &&
                             <Text style={{ color: 'red' }}>
                                 {this.state.errorMessage}
                             </Text>}
-                            <Text style={styles.title}>SignUp</Text>
-                            <TextInput
-                                label="Name"
-                                mode={"outlined"}
-                                autoCapitalize="none"
-                                style={styles.textInput}
-                                onChangeText={name => this.setState({ name })}
-                                value={this.state.name}
-                            />
-                            <TextInput
-                                label="Surname"
-                                mode={"outlined"}
-                                autoCapitalize="none"
-                                style={styles.textInput}
-                                onChangeText={surname => this.setState({ surname })}
-                                value={this.state.surname}
-                            />
-                            <TextInput
-                                label="Email"
-                                mode={"outlined"}
-                                autoCapitalize="none"
-                                style={styles.textInput}
-                                onChangeText={email => this.setState({ email })}
-                                value={this.state.email}
-                            />
-                            <TextInput
-                                secureTextEntry
-                                mode={"outlined"}
-                                label="Password"
-                                autoCapitalize="none"
-                                style={styles.textInput}
-                                onChangeText={password => this.setState({ password })}
-                                value={this.state.password}
-                            />
-                            <View  style={{flexDirection:"row"}}>
-                                <Text style={styles.text}>Select your sex:</Text>
-                                <RadioButton.Group
-                                    onValueChange={value => this.setState({ sex: value })}
-                                    value={this.state.sex}
-                                >
-                                    <View>
-                                        <Text>Male</Text>
-                                        <RadioButton value="M" />
-                                    </View>
-                                    <View>
-                                        <Text>Female</Text>
-                                        <RadioButton value="F" />
-                                    </View>
-                                </RadioButton.Group>
+                            <View style={{flexDirection:"row", alignItems:"center"}}>
+                                <IconButton icon={"person"} disabled color={"white"}/>
+                                <TextInput
+                                    placeholder="Name"
+                                    placeholderTextColor={"white"}
+                                    autoCapitalize="none"
+                                    style={styles.textInput}
+                                    onChangeText={name => this.setState({ name })}
+                                    value={this.state.name}
+                                />
+                            </View>
+                            <View style={{flexDirection:"row", alignItems:"center"}}>
+                                <IconButton icon={"person"} disabled color={"white"}/>
+                                <TextInput
+                                    placeholder="Surname"
+                                    placeholderTextColor={"white"}
+                                    autoCapitalize="none"
+                                    style={styles.textInput}
+                                    onChangeText={surname => this.setState({ surname })}
+                                    value={this.state.surname}
+                                />
+                            </View>
+                            <View style={{flexDirection:"row", alignItems:"center"}}>
+                                <IconButton icon={"mail-outline"} disabled color={"white"}/>
+                                <TextInput
+                                    placeholder="Email"
+                                    placeholderTextColor={"white"}
+                                    autoCapitalize="none"
+                                    style={styles.textInput}
+                                    onChangeText={email => this.setState({ email })}
+                                    value={this.state.email}
+                                />
+                            </View>
+                            <View style={{flexDirection:"row", alignItems:"center"}}>
+                                <IconButton icon={"lock-outline"} disabled color={"white"}/>
+                                <TextInput
+                                    secureTextEntry
+                                    placeholder="Password"
+                                    placeholderTextColor={"white"}
+                                    autoCapitalize="none"
+                                    style={styles.textInput}
+                                    onChangeText={password => this.setState({ password })}
+                                    value={this.state.password}
+                                />
+                            </View>
+                            <View style={{marginTop: wp("2%"), width: wp("80%"), flexDirection:"row", justifyContent:"center", alignItems:"center"}}>
+                                <View style={{flexDirection:"row"}}>
+                                    <RadioButton.Group
+                                        onValueChange={value => this.setState({ sex: value })}
+                                        value={this.state.sex}
+                                    >
+                                        <View style={{flexDirection:"row", alignItems:"center"}}>
+                                            <RadioButton value="M" color={"white"} uncheckedColor={"white"}/>
+                                            <Text style={styles.text}>Male</Text>
+                                        </View>
+                                        <View style={{flexDirection:"row", alignItems:"center"}}>
+                                            <RadioButton value="F" color={"white"} uncheckedColor={"white"}/>
+                                            <Text style={styles.text}>Female</Text>
+                                        </View>
+                                    </RadioButton.Group>
+                                </View>
                             </View>
 
                             <Button
+                                mode={"contained"}
                                 style={styles.button}
-                                mode={"outlined"}
+                                color={"white"}
                                 onPress={this.showDateTimePicker}>
-                                Select your birthdate
+                                Birthdate
                             </Button>
                             <DateTimePicker
                                 mode={"date"}
@@ -159,23 +172,25 @@ export default class SignUp extends React.Component {
                             />
                         </View>
 
-                        <View>
+                        <View style={{alignItems:"center", marginTop:hp("10%")}}>
                             <Button
+                                mode={"contained"}
                                 style={styles.button}
-                                mode={"outlined"}
+                                color={"white"}
                                 onPress={this.handleSignUp}>
                                 SignUp
                             </Button>
                             <Button
+                                mode={"text"}
                                 style={styles.button}
-                                mode={"outlined"}
+                                color={"white"}
                                 onPress={() => this.props.navigation.navigate('Login')}
                             >
                                 Already have an account? Login
                             </Button>
                         </View>
-                    </View>
-                </ScrollView>
+                    </ScrollView>
+                </View>
             )
         } else {
             return <LoadingComponent/>
@@ -188,17 +203,19 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: 'white',
+        backgroundColor: '#2c3e50',
     },
     textInput: {
-        height: hp("7%"),
-        width: wp('90%'),
-        marginTop: 8
+        width: wp('80%'),
+        backgroundColor:"transparent",
+        borderBottomWidth: 1,
+        borderColor: "white",
+        color:"white"
     },
     button:{
-        marginLeft:0,
-        marginRight:0,
-        borderRadius: 25
+        marginTop:hp("2%"),
+        width: wp("80%"),
+        borderRadius: 5
     },
     header: {
         flex: 1,
@@ -208,8 +225,8 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center'
     },
-    title:{
+    text:{
+        color:"white",
         fontSize: 20,
-        fontWeight: "bold"
     },
 })

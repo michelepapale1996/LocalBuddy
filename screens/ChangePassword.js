@@ -1,7 +1,7 @@
 import React from 'react'
-import { View, StyleSheet } from 'react-native'
+import { View, StyleSheet, TextInput } from 'react-native'
 import AccountHandler from "../handler/AccountHandler"
-import { Text, TextInput, Button } from 'react-native-paper'
+import { Text, Button, IconButton } from 'react-native-paper'
 import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen'
 
 export default class ChangePassword extends React.Component {
@@ -33,31 +33,43 @@ export default class ChangePassword extends React.Component {
                 <Text style={{ color: 'red' }}>
                     {this.state.errorMessage}
                 </Text>}
-                <TextInput
-                    secureTextEntry
-                    label="Old password"
-                    autoCapitalize="none"
-                    style={styles.textInput}
-                    onChangeText={oldPassword => this.setState({ oldPassword })}
-                    value={this.state.oldPassword}
-                />
-                <TextInput
-                    secureTextEntry
-                    label="New password"
-                    autoCapitalize="none"
-                    style={styles.textInput}
-                    onChangeText={newPassword => this.setState({ newPassword })}
-                    value={this.state.newPassword}
-                />
-                <TextInput
-                    secureTextEntry
-                    label="Repeat new password"
-                    autoCapitalize="none"
-                    style={styles.textInput}
-                    onChangeText={repeatNewPassword => this.setState({ repeatNewPassword })}
-                    value={this.state.repeatNewPassword}
-                />
-                <Button mode={"outlined"} onPress={this.handleChangePassword}>Change password</Button>
+
+                <View style={{marginBottom:hp("20%")}}>
+                    <View style={{flexDirection:"row", alignItems:"center"}}>
+                        <IconButton icon={"lock-outline"} disabled color={"black"}/>
+                        <TextInput
+                            secureTextEntry
+                            placeholder="Password"
+                            autoCapitalize="none"
+                            style={styles.textInput}
+                            onChangeText={oldPassword => this.setState({ oldPassword })}
+                            value={this.state.oldPassword}
+                        />
+                    </View>
+                    <View style={{flexDirection:"row", alignItems:"center"}}>
+                        <IconButton icon={"lock-outline"} disabled color={"black"}/>
+                        <TextInput
+                            secureTextEntry
+                            placeholder="New password"
+                            autoCapitalize="none"
+                            style={styles.textInput}
+                            onChangeText={newPassword => this.setState({ newPassword })}
+                            value={this.state.newPassword}
+                        />
+                    </View>
+                    <View style={{flexDirection:"row", alignItems:"center"}}>
+                        <IconButton icon={"lock-outline"} disabled color={"black"}/>
+                        <TextInput
+                            secureTextEntry
+                            placeholder="Repeat new password"
+                            autoCapitalize="none"
+                            style={styles.textInput}
+                            onChangeText={repeatNewPassword => this.setState({ repeatNewPassword })}
+                            value={this.state.repeatNewPassword}
+                        />
+                    </View>
+                </View>
+                <Button onPress={this.handleChangePassword}>Change password</Button>
             </View>
         )
     }
@@ -70,8 +82,10 @@ const styles = StyleSheet.create({
         backgroundColor: 'white',
     },
     textInput: {
-        height: hp("7%"),
-        width: wp('90%'),
-        marginTop: 8
-    }
+        width: wp('80%'),
+        backgroundColor:"transparent",
+        borderBottomWidth: 1,
+        borderColor: "grey",
+        color:"white"
+    },
 })

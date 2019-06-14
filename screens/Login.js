@@ -1,7 +1,7 @@
 import React from 'react'
-import { StyleSheet, View } from 'react-native'
+import { StyleSheet, View, TextInput, Image } from 'react-native'
 import firebase from 'react-native-firebase'
-import { Text, TextInput, Button } from 'react-native-paper'
+import { Text, Button, IconButton, TouchableRipple } from 'react-native-paper'
 import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen'
 import LoadingHandler from "../handler/LoadingHandler";
 import LoadingComponent from "../components/LoadingComponent";
@@ -123,45 +123,65 @@ export default class Login extends React.Component {
         if (!this.state.buttonClicked) {
             return (
                 <View style={styles.container}>
-                    <Text style={styles.title}>Login</Text>
                     {this.state.errorMessage &&
                     <Text style={{color: 'red'}}>
                         {this.state.errorMessage}
                     </Text>}
-                    <TextInput
-                        mode={"outlined"}
-                        label="Email"
-                        onChangeText={email => this.setState({email})}
-                        value={this.state.email}
-                        style={styles.textInput}
-                    />
-                    <TextInput
-                        mode={"outlined"}
-                        secureTextEntry
-                        label="Password"
-                        onChangeText={password => this.setState({password})}
-                        value={this.state.password}
-                        style={styles.textInput}
-                    />
-                    <Button
-                        mode={"outlined"}
-                        style={styles.button}
-                        onPress={this.handleLogin}>
-                        Login
-                    </Button>
-                    <Button
-                        mode={"outlined"}
-                        style={styles.button}
-                        onPress={this.handleFacebookLogin}>
-                        Login with Facebook
-                    </Button>
-                    <Button
-                        mode={"outlined"}
-                        style={styles.button}
-                        onPress={() => this.props.navigation.navigate('SignUp')}
-                    >
-                        Don't have an account? Sign Up
-                    </Button>
+                    <Image style={{marginTop: hp("10%"),width: wp("40%"), height:wp("40%"), borderRadius:wp("90%")}} source={require('../img/logo.jpg')}/>
+                    <Text style={styles.text}>LocalBuddy</Text>
+                    <View>
+                        <View style={{flexDirection:"row", alignItems:"center"}}>
+                            <IconButton icon={"mail-outline"} disabled color={"white"}/>
+                            <TextInput
+                                placeholder="Email"
+                                placeholderTextColor={"white"}
+                                color={"white"}
+                                onChangeText={email => this.setState({email})}
+                                value={this.state.email}
+                                style={styles.textInput}
+                            />
+                        </View>
+                        <View style={{flexDirection:"row", alignItems:"center"}}>
+                            <IconButton icon={"lock-outline"} disabled color={"white"}/>
+                            <TextInput
+                                secureTextEntry
+                                placeholder="Password"
+                                placeholderTextColor={"white"}
+                                underlineColor={"white"}
+                                onChangeText={password => this.setState({password})}
+                                value={this.state.password}
+                                style={styles.textInput}
+                            />
+                        </View>
+                    </View>
+                    <View style={{marginBottom:hp("10%"), alignItems:"center"}}>
+                        <Button
+                            mode={"contained"}
+                            style={styles.button}
+                            color={"white"}
+                            onPress={this.handleLogin}>
+                            Login
+                        </Button>
+
+                        <Text style={styles.text}> or </Text>
+
+                        <TouchableRipple style={{marginTop: hp("1%"), width:wp("80%"), backgroundColor:"white", borderRadius:5}} rippleColor="grey" onPress={this.handleFacebookLogin}>
+                            <View style={{flexDirection:"row", alignItems: "center", justifyContent:"center"}}>
+                                <Image style={{width: wp("10%"), height:hp("6%"), marginRight:wp("7%"), borderRadius:5}} source={require('../img/facebook_logo.jpeg')}/>
+                                <Text style={{color:"black", fontSize: 17}}>
+                                    Login with Facebook
+                                </Text>
+                            </View>
+                        </TouchableRipple>
+                        <Button
+                            mode={"text"}
+                            style={styles.button}
+                            color={"white"}
+                            onPress={() => this.props.navigation.navigate('SignUp')}
+                        >
+                            Don't have an account? Sign Up
+                        </Button>
+                    </View>
                 </View>
             )
         } else {
@@ -172,22 +192,24 @@ export default class Login extends React.Component {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        justifyContent: 'center',
+        justifyContent: 'space-between',
         alignItems: 'center',
-        backgroundColor: 'white',
+        backgroundColor: '#2c3e50',
     },
     textInput: {
-        height: hp("7%"),
-        width: wp('90%'),
-        marginTop: 8
+        width: wp('80%'),
+        backgroundColor:"transparent",
+        borderBottomWidth: 1,
+        borderColor: "white",
+        color:"white"
     },
     button:{
-        marginLeft:0,
-        marginRight:0,
-        borderRadius: 25
+        marginTop:hp("3%"),
+        width: wp("80%"),
+        borderRadius: 5
     },
-    title:{
+    text:{
+        color:"white",
         fontSize: 20,
-        fontWeight: "bold"
     },
 })
