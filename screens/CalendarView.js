@@ -5,9 +5,9 @@ import {Icon} from 'react-native-elements'
 import { Button, FAB, TouchableRipple } from 'react-native-paper'
 import MeetingsHandler from "../handler/MeetingsHandler"
 import UserHandler from "../handler/UserHandler"
-import {heightPercentageToDP as hp, widthPercentageToDP as wp} from "react-native-responsive-screen"
+import {widthPercentageToDP as wp, heightPercentageToDP as hp, listenOrientationChange as loc, removeOrientationListener as rol} from 'react-native-responsive-screen';
 import DateHandler from "../handler/DateHandler"
-import MeetingsUpdatesHandler from "../handler/MeetingsUpdatesHandler"
+import MeetingsUpdatesHandler from "../updater/MeetingsUpdatesHandler"
 import LocalStateHandler from "../handler/LocalStateHandler"
 import LoadingComponent from "../components/LoadingComponent";
 
@@ -26,6 +26,7 @@ export default class CalendarView extends Component {
     }
 
     componentWillUnmount(){
+        rol()
         //remove listeners for this UI
         MeetingsUpdatesHandler.removeAcceptedMeetingListener(this.acceptedMeeting)
         MeetingsUpdatesHandler.removeDeniedMeetingListener(this.deniedMeeting)
@@ -35,6 +36,7 @@ export default class CalendarView extends Component {
     }
 
     async componentDidMount(){
+        loc(this)
         MeetingsUpdatesHandler.setNewPendingMeetingListener(this.addPendingMeeting)
         MeetingsUpdatesHandler.setAcceptedMeetingListener(this.acceptedMeeting)
         MeetingsUpdatesHandler.setDeniedMeetingListener(this.deniedMeeting)
@@ -157,7 +159,13 @@ export default class CalendarView extends Component {
                     }}
                 />
                 <FAB
-                    style={styles.fab}
+                    style={{
+                        position: 'absolute',
+                        margin: 16,
+                        right: 0,
+                        bottom: 0,
+                        backgroundColor: "#52c8ff"
+                    }}
                     color={"white"}
                     icon="add"
                     onPress={() => this.props.navigation.navigate('NewMeeting')}
@@ -178,6 +186,28 @@ export default class CalendarView extends Component {
 
     renderItem(item) {
         const isFuture = !DateHandler.isInThePast(item.date, item.time)
+
+        const styles = StyleSheet.create({
+            item: {
+                backgroundColor: 'white',
+                borderRadius: 5,
+                padding: 10,
+                marginRight: 10,
+                marginTop: 17
+            },
+            userPhoto: {
+                width: wp("15%"),
+                height: wp("15%"),
+                borderRadius: wp("15%")
+            },
+            text: {
+                fontSize: 20,
+            },
+            button:{
+                borderRadius: 5,
+            }
+        })
+
         return (
             <View style={styles.item}>
                 <TouchableRipple onPress={()=>this.props.navigation.navigate({routeName: "MeetingInfo", params: {meeting: item}, key:item.idOpponent})}>
@@ -185,11 +215,11 @@ export default class CalendarView extends Component {
                         <View style={{flex: 1}}>
                             <View style={{flex: 1, flexDirection: "row", alignItems:"center", justifyContent:"space-between", marginRight:wp("5%")}}>
                                 <Text>{item.time}</Text>
-                                    {isFuture && item.isFixed != 0 &&
+                                    {isFuture==1 && item.isFixed != 0 &&
                                     <Button style={styles.button} mode="outlined" disabled>Fixed</Button>}
-                                    {isFuture && item.isPending != 0 &&
+                                    {isFuture==1 && item.isPending != 0 &&
                                     <Button style={styles.button} mode="outlined" disabled>Pending</Button>}
-                                    {isFuture && !item.isFixed != 0 && !item.isPending != 0 &&
+                                    {isFuture==1 && !item.isFixed != 0 && !item.isPending != 0 &&
                                     <Button style={styles.button} mode="outlined" disabled>Waiting for you</Button>}
                             </View>
                             <Text style={styles.text}>{item.nameAndSurname}</Text>
@@ -217,42 +247,3 @@ export default class CalendarView extends Component {
         return date.toISOString().split('T')[0];
     }
 }
-
-const styles = StyleSheet.create({
-    item: {
-        backgroundColor: 'white',
-        borderRadius: 5,
-        padding: 10,
-        marginRight: 10,
-        marginTop: 17
-    },
-    emptyDate: {
-        height: 15,
-        flex:1,
-        paddingTop: 30
-    },
-    userPhoto: {
-        width: wp("15%"),
-        height: wp("15%"),
-        borderRadius: wp("15%")
-    },
-    userContainer: {
-        flex: 1,
-        flexDirection: 'row',
-        margin: wp("3%"),
-        height: hp("10%")
-    },
-    text: {
-        fontSize: 20,
-    },
-    button:{
-        borderRadius: 5,
-    },
-    fab: {
-        position: 'absolute',
-        margin: 16,
-        right: 0,
-        bottom: 0,
-        backgroundColor: "#52c8ff"
-    },
-})

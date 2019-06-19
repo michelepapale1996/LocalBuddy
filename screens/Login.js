@@ -1,8 +1,8 @@
 import React from 'react'
-import { StyleSheet, View, TextInput, Image } from 'react-native'
+import { StyleSheet, View, TextInput, Image, ScrollView } from 'react-native'
 import firebase from 'react-native-firebase'
-import { Text, Button, IconButton, TouchableRipple } from 'react-native-paper'
-import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen'
+import { Text, Button, IconButton, TouchableRipple, Snackbar } from 'react-native-paper'
+import {widthPercentageToDP as wp, heightPercentageToDP as hp, listenOrientationChange as loc, removeOrientationListener as rol} from 'react-native-responsive-screen';
 import LoadingHandler from "../handler/LoadingHandler";
 import LoadingComponent from "../components/LoadingComponent";
 import {AccessToken, GraphRequest, LoginManager, GraphRequestManager} from 'react-native-fbsdk';
@@ -16,13 +16,14 @@ export default class Login extends React.Component {
         email: '',
         password: '',
         errorMessage: null,
-        buttonClicked: false
+        buttonClicked: false,
+        isPresentError: false
     }
 
     handleLogin = () => {
         const {email, password} = this.state;
         if(email == "" || password == ""){
-            this.setState({errorMessage: "Make sure you have filled all the fields."})
+            this.setState({isPresentError: true, errorMessage: "Make sure you have filled all the fields."})
         }else{
             this.setState({buttonClicked: true})
             firebase.auth().signInWithEmailAndPassword(email, password).then(async () => {
@@ -34,9 +35,18 @@ export default class Login extends React.Component {
                 })
             }).catch(error => this.setState({
                 errorMessage: error.message,
+                isPresentError: true,
                 buttonClicked: false
             }))
         }
+    }
+
+    componentDidMount(){
+        loc(this)
+    }
+
+    componentWillUnmount(){
+        rol()
     }
 
     handleFacebookLogin = async () => {
@@ -113,20 +123,42 @@ export default class Login extends React.Component {
                         LoadingHandler.initApp(userId).then(()=>{
                             this.props.navigation.navigate('Chat')
                         })
-                    }).catch(error => this.setState({errorMessage: error.message}))
+                    }).catch(error => this.setState({isPresentError: true, errorMessage: error.message}))
                 })
             }
         })
     }
 
     render() {
+        const styles = StyleSheet.create({
+            container: {
+                flex: 1,
+                justifyContent: 'space-between',
+                alignItems: 'center',
+            },
+            textInput: {
+                width: wp('80%'),
+                backgroundColor:"transparent",
+                borderBottomWidth: 1,
+                borderColor: "white",
+                color:"white"
+            },
+            button:{
+                marginTop:hp("3%"),
+                width: wp("80%"),
+                borderRadius: 5,
+                height: hp("6%")
+            },
+            text:{
+                color:"white",
+                fontSize: 20,
+            },
+        })
+
         if (!this.state.buttonClicked) {
             return (
+                <ScrollView style={{flex:1, backgroundColor: '#2c3e50'}}>
                 <View style={styles.container}>
-                    {this.state.errorMessage &&
-                    <Text style={{color: 'red'}}>
-                        {this.state.errorMessage}
-                    </Text>}
                     <Image style={{marginTop: hp("10%"),width: wp("40%"), height:wp("40%"), borderRadius:wp("90%")}} source={require('../img/logo.jpg')}/>
                     <Text style={styles.text}>LocalBuddy</Text>
                     <View>
@@ -165,7 +197,7 @@ export default class Login extends React.Component {
 
                         <Text style={styles.text}> or </Text>
 
-                        <TouchableRipple style={{marginTop: hp("1%"), width:wp("80%"), backgroundColor:"white", borderRadius:5}} rippleColor="grey" onPress={this.handleFacebookLogin}>
+                        <TouchableRipple style={{marginTop: hp("1%"), height:hp("6%"), justifyContent:"center", width:wp("80%"), backgroundColor:"white", borderRadius:5}} rippleColor="grey" onPress={this.handleFacebookLogin}>
                             <View style={{flexDirection:"row", alignItems: "center", justifyContent:"center"}}>
                                 <Image style={{width: wp("10%"), height:hp("6%"), marginRight:wp("7%"), borderRadius:5}} source={require('../img/facebook_logo.jpeg')}/>
                                 <Text style={{color:"black", fontSize: 17}}>
@@ -182,34 +214,23 @@ export default class Login extends React.Component {
                             Don't have an account? Sign Up
                         </Button>
                     </View>
+                    <Snackbar
+                        visible={this.state.isPresentError}
+                        onDismiss={() => this.setState({ isPresentError: false })}
+                        action={{
+                            label: 'Ok',
+                            onPress: () => {
+                                this.setState({ isPresentError: false })
+                            },
+                        }}
+                    >
+                        {this.state.errorMessage}
+                    </Snackbar>
                 </View>
+                </ScrollView>
             )
         } else {
             return <LoadingComponent/>
         }
     }
 }
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        backgroundColor: '#2c3e50',
-    },
-    textInput: {
-        width: wp('80%'),
-        backgroundColor:"transparent",
-        borderBottomWidth: 1,
-        borderColor: "white",
-        color:"white"
-    },
-    button:{
-        marginTop:hp("3%"),
-        width: wp("80%"),
-        borderRadius: 5
-    },
-    text:{
-        color:"white",
-        fontSize: 20,
-    },
-})

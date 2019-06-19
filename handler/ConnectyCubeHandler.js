@@ -1,6 +1,6 @@
 import cc from "connectycube-reactnative"
 import UserHandler from "./UserHandler"
-import MessagesUpdatesHandler from "./MessagesUpdatesHandler"
+import MessagesUpdatesHandler from "../updater/MessagesUpdatesHandler"
 import DeviceInfo from 'react-native-device-info'
 
 const CREDENTIALS = {

@@ -2,23 +2,23 @@ import React, {Component} from 'react';
 import {StyleSheet, View, Image, ScrollView, TouchableWithoutFeedback, FlatList} from 'react-native';
 import firebase from "react-native-firebase"
 import ImagePicker from 'react-native-image-picker';
-import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen';
+import {widthPercentageToDP as wp, heightPercentageToDP as hp, listenOrientationChange as loc, removeOrientationListener as rol} from 'react-native-responsive-screen';
 import {Icon} from 'react-native-elements';
 import LoadingComponent from "../components/LoadingComponent";
 import { IconButton, Colors, Text, Surface, TouchableRipple } from 'react-native-paper';
 import UserHandler from "../handler/UserHandler";
 import StarRating from 'react-native-star-rating';
+import LocalStateHandler from "../handler/LocalStateHandler";
 
 function Biography(props){
-
     modifyBiography = ()=>{
         props.nav.navigate("NewBiography", {"newBiography": props.newBiography, "oldText": props.bio})
     }
 
     return(
-        <View style={styles.biographyContainer}>
+        <View style={props.styles.biographyContainer}>
             <TouchableRipple onPress={modifyBiography} rippleColor="rgba(0, 0, 0, .32)">
-                <View style={styles.biography}>
+                <View style={props.styles.biography}>
                     <View style={{flexDirection:"row", flex: 1, justifyContent: 'flex-end'}}>
                         <Icon name='pencil' type='evilicon' size={30}/>
 
@@ -26,8 +26,8 @@ function Biography(props){
 
                     {
                         props.bio != ""
-                            ? <Text style={styles.biographyText}>{props.bio}</Text>
-                            : <Text style={styles.biographyText}>You do not have any biography yet. Tap to modify!</Text>
+                            ? <Text style={props.styles.biographyText}>{props.bio}</Text>
+                            : <Text style={props.styles.biographyText}>You do not have any biography yet. Tap to modify!</Text>
                     }
                 </View>
             </TouchableRipple>
@@ -39,11 +39,11 @@ function UserInfo(props) {
     const birthdate = new Date(props.userInfo.birthDate)
     const years = new Date().getFullYear() - birthdate.getFullYear()
     return(
-        <View style={styles.infoUser}>
-            <Text style={styles.nameAndSurnameText}>
+        <View style={props.styles.infoUser}>
+            <Text style={props.styles.nameAndSurnameText}>
                 {props.userInfo.name} {props.userInfo.surname}
             </Text>
-            <Text style={styles.infoUserText}>{years} years old</Text>
+            <Text style={props.styles.infoUserText}>{years} years old</Text>
             {props.userInfo.numberOfFeedbacks > 0 && <View style={{flexDirection:"row", flex:1, justifyContent:"center", marginTop:hp("1%"), alignItems:"center"}}>
                 <StarRating
                     disabled={true}
@@ -53,7 +53,7 @@ function UserInfo(props) {
                     emptyStarColor={'#f1c40f'}
                     fullStarColor={'#f1c40f'}
                 />
-                <Text style={{marginLeft:wp("1%"), ...styles.text}}>{props.userInfo.numberOfFeedbacks}</Text>
+                <Text style={{marginLeft:wp("1%"), ...props.styles.text}}>{props.userInfo.numberOfFeedbacks}</Text>
             </View>}
         </View>
     )
@@ -82,7 +82,7 @@ function PhotoProfile(props) {
 
     return(
         <TouchableWithoutFeedback onPress={uploadImg}>
-            <Image style={styles.avatar} source={{uri: props.photoPath}}/>
+            <Image style={props.styles.avatar} source={{uri: props.photoPath}}/>
         </TouchableWithoutFeedback>
     )
 }
@@ -91,7 +91,7 @@ function Feedback(props){
     return(
         <View style={{flexDirection:"row", margin:10, alignItems:"center"}}>
             <Image
-                style={styles.photoTravelerProfile}
+                style={props.styles.photoTravelerProfile}
                 source={{uri: props.feedback.url}}/>
             <View style={{margin:5, flex:1}}>
 
@@ -115,7 +115,7 @@ function Feedback(props){
 
 function Feedbacks(props){
     return(
-        <View style={styles.feedbacksContainer}>
+        <View style={props.styles.feedbacksContainer}>
             <Text style={{fontWeight:"bold", fontSize:wp("6%"), marginLeft:wp("5%")}}>Feedbacks</Text>
                 {
                     props.feedbacks != "" && props.feedbacks != undefined && props.feedbacks != null
@@ -123,11 +123,11 @@ function Feedbacks(props){
                             <FlatList
                                 data={props.feedbacks}
                                 keyExtractor={(item, index) => index.toString()}
-                                renderItem={({item}) => <Surface style={styles.feedbacks}>
-                                    <Feedback key={item.opponentId} feedback={item}/>
+                                renderItem={({item}) => <Surface style={props.styles.feedbacks}>
+                                    <Feedback key={item.opponentId} styles={props.styles} feedback={item}/>
                                 </Surface>
                             }/>
-                        : <Text style={styles.biographyText}>
+                        : <Text style={props.styles.biographyText}>
                             You do not have any feedback yet.
                         </Text>
                 }
@@ -155,11 +155,11 @@ export default class ProfileTab extends Component {
     }
 
     async componentDidMount(){
+        loc(this)
         const id = firebase.auth().currentUser.uid
-        var user = await UserHandler.getUserInfo(id)
-
+        //var user = await UserHandler.getUserInfo(id)
         const citiesWhereIsBuddy = await UserHandler.getCitiesOfTheBuddy(id)
-        //var user = await LocalStateHandler.getUserInfo()
+        var user = await LocalStateHandler.getUserInfo()
         if(user.feedbacks != null){
             var total = 0
             user.feedbacks.forEach(elem => total += elem.rating)
@@ -174,6 +174,10 @@ export default class ProfileTab extends Component {
         })
     }
 
+    componentWillUnmount(){
+        rol()
+    }
+
     newBiography = (text) => {
         this.setState(prevState => {
             let newState = prevState
@@ -183,6 +187,96 @@ export default class ProfileTab extends Component {
     }
 
     render() {
+        const styles = StyleSheet.create({
+            container:{
+                backgroundColor: 'white',
+                marginBottom:2,
+                shadowColor: "#000000",
+                shadowOpacity: 0.8,
+                shadowRadius: 2,
+                shadowOffset: {
+                    height: 1,
+                    width: 1
+                }
+            },
+            biographyContainer: {
+                fontSize: hp("30%"),
+                width: wp("95%"),
+                margin: hp("1%"),
+            },
+            feedbacksContainer: {
+                fontSize: hp("30%"),
+                width: wp("95%"),
+                margin: hp("1%"),
+            },
+            biography:{
+                margin: wp("4%")
+            },
+            biographyText:{
+                textAlign: "center",
+                fontSize:wp("4%"),
+                flex: 1,
+            },
+            feedbacks:{
+                margin: wp("1%"),
+                borderRadius: 5,
+                elevation:2
+            },
+            infoUser:{
+                flex: 1,
+                width: wp("80%"),
+                fontWeight:'600',
+                marginTop: hp("5%"),
+            },
+            nameAndSurnameText:{
+                fontSize:wp("7%"),
+                flex: 1,
+                fontWeight:'600',
+                textAlign:"center"
+            },
+            infoUserText:{
+                fontSize:wp("5%"),
+                flex: 1,
+                fontWeight:'300',
+                marginLeft: 0,
+                textAlign:"center"
+            },
+            nameAndSurname:{
+                flex:1
+            },
+            photoTravelerProfile:{
+                width: wp("20%"),
+                height: wp("20%"),
+                borderRadius: wp("20%")
+            },
+            header:{
+                backgroundColor: "#2fa1ff",
+                height:hp("30%"),
+            },
+            bodyContent: {
+                flex: 1,
+                alignItems: 'center',
+                padding:hp("10%"),
+                backgroundColor: "white"
+            },
+            avatar: {
+                width: wp("50%"),
+                height: wp("50%"),
+                borderRadius: wp("40%"),
+                borderWidth: 4,
+                borderColor: "white",
+                alignSelf:'center',
+                position: 'absolute',
+                marginTop:wp("20%"),
+                zIndex:9
+            },
+            settingsButton:{
+                position: 'absolute',
+                marginTop:hp("5%"),
+                marginLeft:wp("85%")
+            },
+        });
+
         if (this.state.loadingDone){
             return(
                 <View style={styles.container}>
@@ -195,11 +289,11 @@ export default class ProfileTab extends Component {
                             size={30}
                             onPress={() => this.props.navigation.navigate('Settings')}
                         />
-                        <PhotoProfile photoPath={this.state.user.urlPhoto} updatePhoto={this.updateUserPhoto} userId={this.state.user.id}/>
+                        <PhotoProfile styles={styles} photoPath={this.state.user.urlPhoto} updatePhoto={this.updateUserPhoto} userId={this.state.user.id}/>
 
                         <View style={styles.bodyContent}>
-                            <UserInfo userInfo={this.state.user}/>
-                            <Biography bio={this.state.user.bio} nav={this.props.navigation} newBiography={this.newBiography}/>
+                            <UserInfo styles={styles} userInfo={this.state.user}/>
+                            <Biography styles={styles} bio={this.state.user.bio} nav={this.props.navigation} newBiography={this.newBiography}/>
 
                             {
                                 this.state.citiesWhereIsBuddy != undefined && this.state.citiesWhereIsBuddy.length > 0 ?
@@ -224,7 +318,7 @@ export default class ProfileTab extends Component {
                                 <View/>
                             }
 
-                            <Feedbacks feedbacks={this.state.user.feedbacks}/>
+                            <Feedbacks styles={styles} feedbacks={this.state.user.feedbacks}/>
 
                         </View>
                     </ScrollView>
@@ -235,93 +329,3 @@ export default class ProfileTab extends Component {
         }
     }
 }
-
-const styles = StyleSheet.create({
-    container:{
-        backgroundColor: 'white',
-        marginBottom:2,
-        shadowColor: "#000000",
-        shadowOpacity: 0.8,
-        shadowRadius: 2,
-        shadowOffset: {
-            height: 1,
-            width: 1
-        }
-    },
-    biographyContainer: {
-        fontSize: hp("30%"),
-        width: wp("95%"),
-        margin: hp("1%"),
-    },
-    feedbacksContainer: {
-        fontSize: hp("30%"),
-        width: wp("95%"),
-        margin: hp("1%"),
-    },
-    biography:{
-        margin: wp("4%")
-    },
-    biographyText:{
-        textAlign: "center",
-        fontSize:wp("4%"),
-        flex: 1,
-    },
-    feedbacks:{
-        margin: wp("1%"),
-        borderRadius: 5,
-        elevation:2
-    },
-    infoUser:{
-        flex: 1,
-        width: wp("80%"),
-        fontWeight:'600',
-        marginTop: hp("5%"),
-    },
-    nameAndSurnameText:{
-        fontSize:wp("7%"),
-        flex: 1,
-        fontWeight:'600',
-        textAlign:"center"
-    },
-    infoUserText:{
-        fontSize:wp("5%"),
-        flex: 1,
-        fontWeight:'300',
-        marginLeft: 0,
-        textAlign:"center"
-    },
-    nameAndSurname:{
-        flex:1
-    },
-    photoTravelerProfile:{
-        width: wp("20%"),
-        height: wp("20%"),
-        borderRadius: wp("20%")
-    },
-    header:{
-        backgroundColor: "#2fa1ff",
-        height:hp("30%"),
-    },
-    bodyContent: {
-        flex: 1,
-        alignItems: 'center',
-        padding:hp("10%"),
-        backgroundColor: "white"
-    },
-    avatar: {
-        width: wp("50%"),
-        height: wp("50%"),
-        borderRadius: wp("40%"),
-        borderWidth: 4,
-        borderColor: "white",
-        alignSelf:'center',
-        position: 'absolute',
-        marginTop:wp("20%"),
-        zIndex:9
-    },
-    settingsButton:{
-        position: 'absolute',
-        marginTop:hp("5%"),
-        marginLeft:wp("85%")
-    },
-});

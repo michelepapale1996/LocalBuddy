@@ -1,11 +1,12 @@
 import React, {Component} from 'react'
 import {StyleSheet, View, FlatList, Image } from 'react-native'
-import {widthPercentageToDP as wp, heightPercentageToDP as hp} from "react-native-responsive-screen"
+import {widthPercentageToDP as wp, heightPercentageToDP as hp, listenOrientationChange as loc, removeOrientationListener as rol} from "react-native-responsive-screen"
 import ChatsHandler from "../handler/ChatsHandler"
-import MessagesUpdatesHandler from "../handler/MessagesUpdatesHandler"
+import MessagesUpdatesHandler from "../updater/MessagesUpdatesHandler"
 import LoadingComponent from '../components/LoadingComponent'
 import { Text, TouchableRipple, Portal, Dialog, Button, Paragraph } from 'react-native-paper'
 import ConnectyCubeHandler from "../handler/ConnectyCubeHandler";
+import LocalStateHandler from "../handler/LocalStateHandler";
 
 function Chat(props) {
     const lastMessageTime = props.getTime(props.item.createdAt)
@@ -27,14 +28,14 @@ function Chat(props) {
                         opponentUserId: props.item.opponentUserId
                     }})
             }}>
-            <View style={styles.singleChatContainer}>
+            <View style={props.styles.singleChatContainer}>
                 <Image
-                    style={styles.userPhoto}
+                    style={props.styles.userPhoto}
                     source={{uri: props.item.urlPhotoOther}}/>
                 <View style={{borderBottomWidth: 1, borderColor:"grey", flex:1}}>
-                    <View style={styles.singleChat}>
+                    <View style={props.styles.singleChat}>
                         <View style={{flexDirection: "row", justifyContent:"space-between"}}>
-                            <Text style={styles.text}>
+                            <Text style={props.styles.text}>
                                 {props.item.nameAndSurname}
                             </Text>
                             <Text>
@@ -76,6 +77,7 @@ export default class AllChats extends Component {
     };
 
     componentWillUnmount(){
+        rol()
         MessagesUpdatesHandler.removeListeners(this.onMessageRcvd)
     }
 
@@ -160,8 +162,10 @@ export default class AllChats extends Component {
     setDialogIdToDelete = (dialogID) => this.setState({ dialogIdToDelete: dialogID})
 
     componentDidMount(){
+        loc(this)
         MessagesUpdatesHandler.addListener(this.onMessageRcvd)
-        ChatsHandler.getChats().then(chats => {
+        //ChatsHandler.getChats().then(chats => {
+        LocalStateHandler.getChats().then(chats => {
             this.setState({
                 chats: chats,
                 loadingDone: true
@@ -170,6 +174,38 @@ export default class AllChats extends Component {
     }
 
     render() {
+        const styles = StyleSheet.create({
+            container: {
+                flex: 1,
+                justifyContent: 'center',
+                alignItems: 'center',
+                backgroundColor: 'white',
+            },
+            text: {
+                fontSize: 20,
+                fontWeight: "bold"
+            },
+            singleChat: {
+                flex: 1,
+                flexDirection: 'column',
+                justifyContent:"center",
+                marginLeft: wp("3%"),
+                marginRight: wp("3%"),
+            },
+            singleChatContainer: {
+                flex:1,
+                flexDirection: 'row',
+                alignItems:"center",
+                marginLeft: wp("3%"),
+                marginRight: wp("1%"),
+            },
+            userPhoto: {
+                width: wp("15%"),
+                height: wp("15%"),
+                borderRadius: wp("15%")
+            }
+        });
+
         if(this.state.loadingDone != false){
             if(this.state.chats.length != 0) {
                 return (
@@ -178,7 +214,7 @@ export default class AllChats extends Component {
                             data={this.state.chats}
                             renderItem={
                                 ({item}) => (
-                                    <Chat item={item} getTime={this.getTime} show={this._showDialog} setDialogIdToDelete={this.setDialogIdToDelete} nav={this.props.navigation} userName={this.state.username}/>
+                                    <Chat styles={styles} item={item} getTime={this.getTime} show={this._showDialog} setDialogIdToDelete={this.setDialogIdToDelete} nav={this.props.navigation} userName={this.state.username}/>
                                 )
                             }
                             keyExtractor={(item, index) => index.toString()}
@@ -226,35 +262,3 @@ export default class AllChats extends Component {
         }
     }
 }
-
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: 'white',
-    },
-    text: {
-        fontSize: 20,
-        fontWeight: "bold"
-    },
-    singleChat: {
-        flex: 1,
-        flexDirection: 'column',
-        justifyContent:"center",
-        marginLeft: wp("3%"),
-        marginRight: wp("3%"),
-    },
-    singleChatContainer: {
-        flex:1,
-        flexDirection: 'row',
-        alignItems:"center",
-        marginLeft: wp("3%"),
-        marginRight: wp("1%"),
-    },
-    userPhoto: {
-        width: wp("15%"),
-        height: wp("15%"),
-        borderRadius: wp("15%")
-    }
-});

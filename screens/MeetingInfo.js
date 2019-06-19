@@ -1,12 +1,12 @@
 import React, {Component} from 'react'
-import {StyleSheet, View, Image, ScrollView, FlatList} from 'react-native'
-import { Button, IconButton } from 'react-native-paper'
+import {StyleSheet, View } from 'react-native'
+import { Button } from 'react-native-paper'
 import LoadingComponent from '../components/LoadingComponent'
-import {heightPercentageToDP as hp, widthPercentageToDP as wp} from "react-native-responsive-screen"
+import {widthPercentageToDP as wp, heightPercentageToDP as hp, listenOrientationChange as loc, removeOrientationListener as rol} from 'react-native-responsive-screen';
 import { Text } from 'react-native-paper'
 import DateHandler from "../handler/DateHandler";
 import MeetingsHandler from "../handler/MeetingsHandler";
-import MeetingsUpdatesHandler from "../handler/MeetingsUpdatesHandler";
+import MeetingsUpdatesHandler from "../updater/MeetingsUpdatesHandler";
 
 export default class MeetingInfo extends Component{
     constructor(props){
@@ -49,7 +49,74 @@ export default class MeetingInfo extends Component{
         })
     }
 
+    componentDidMount(){
+        loc(this)
+    }
+
+    componentWillUnmount(){
+        rol()
+    }
+
     render() {
+        const styles = StyleSheet.create({
+            mainContainer: {
+                flex:1,
+                marginTop: hp("5%"),
+                marginLeft: wp("3%"),
+                marginRight: wp("3%"),
+                height: hp("30%"),
+                backgroundColor: 'white',
+                justifyContent:"space-between"
+            },
+            container:{
+                justifyContent: 'center',
+                margin:hp("2%"),
+                borderBottomColor: 'grey',
+                borderBottomWidth: 1,
+            },
+            singleOptionContainer:{
+                flex:1,
+                margin: wp("3%"),
+                height: hp("5%")
+            },
+            text: {
+                fontSize: 20,
+            },
+            header:{
+                height: hp("5%"),
+                fontSize: 20,
+                fontWeight:"bold"
+            },
+            userPhoto: {
+                width: wp("15%"),
+                height: wp("15%"),
+                borderRadius: wp("15%")
+            },
+            userContainer: {
+                flex: 1,
+                flexDirection: 'row',
+                margin: wp("3%"),
+                height: hp("10%")
+            },
+            userInfoContainer: {
+                flex:1,
+                margin: wp("1%"),
+                height: hp("10%")
+            },
+            button:{
+                marginLeft:0,
+                marginRight:0,
+                borderRadius: 5
+            },
+            fab: {
+                position: 'absolute',
+                margin: 16,
+                right: 0,
+                bottom: 0,
+                backgroundColor: "#52c8ff"
+            },
+        });
+
         if(this.state.loadingDone != false) {
             const isFuture = !DateHandler.isInThePast(this.state.meeting.date, this.state.meeting.time)
             if(isFuture){
@@ -175,62 +242,3 @@ export default class MeetingInfo extends Component{
         }
     }
 }
-
-const styles = StyleSheet.create({
-    mainContainer: {
-        flex:1,
-        marginTop: hp("5%"),
-        marginLeft: wp("3%"),
-        marginRight: wp("3%"),
-        height: hp("30%"),
-        backgroundColor: 'white',
-        justifyContent:"space-between"
-    },
-    container:{
-        justifyContent: 'center',
-        margin:hp("2%"),
-        borderBottomColor: 'grey',
-        borderBottomWidth: 1,
-    },
-    singleOptionContainer:{
-        flex:1,
-        margin: wp("3%"),
-        height: hp("5%")
-    },
-    text: {
-        fontSize: 20,
-    },
-    header:{
-        height: hp("5%"),
-        fontSize: 20,
-        fontWeight:"bold"
-    },
-    userPhoto: {
-        width: wp("15%"),
-        height: wp("15%"),
-        borderRadius: wp("15%")
-    },
-    userContainer: {
-        flex: 1,
-        flexDirection: 'row',
-        margin: wp("3%"),
-        height: hp("10%")
-    },
-    userInfoContainer: {
-        flex:1,
-        margin: wp("1%"),
-        height: hp("10%")
-    },
-    button:{
-        marginLeft:0,
-        marginRight:0,
-        borderRadius: 5
-    },
-    fab: {
-        position: 'absolute',
-        margin: 16,
-        right: 0,
-        bottom: 0,
-        backgroundColor: "#52c8ff"
-    },
-});

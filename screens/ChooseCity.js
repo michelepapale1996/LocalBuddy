@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import {StyleSheet, View, FlatList} from 'react-native'
-import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen'
+import {widthPercentageToDP as wp, heightPercentageToDP as hp, listenOrientationChange as loc, removeOrientationListener as rol} from "react-native-responsive-screen"
 import { Searchbar, Text, TouchableRipple, Card, Title, IconButton, FAB } from 'react-native-paper';
 import Geocoder from "react-native-geocoding";
 
@@ -51,6 +51,14 @@ export default class ChooseCity extends Component {
         }
     };
 
+    componentDidMount(){
+        loc(this)
+    }
+
+    componentWillUnmount(){
+        rol()
+    }
+
     getCities = (input) => {
         const ApiKey = "AIzaSyBRfBut3xLOq-gimCV4mT2zalmchEppB6U"
         const sessionToken = "1234567890"
@@ -79,6 +87,29 @@ export default class ChooseCity extends Component {
     }
 
     render() {
+        const styles = StyleSheet.create({
+            container: {
+                flex: 1,
+                backgroundColor: 'white',
+            },
+            text: {
+                fontSize: 20,
+                margin: 10,
+                fontWeight: "bold"
+            },
+            searchBar:{
+                backgroundColor:"#2fa1ff",
+                height:hp("9%")
+            },
+            fab: {
+                backgroundColor: "#52c8ff",
+                position: 'absolute',
+                margin: 16,
+                right: 0,
+                bottom: 0,
+            }
+        })
+
         return (
             <View style={styles.container}>
                 <Searchbar
@@ -149,26 +180,3 @@ export default class ChooseCity extends Component {
         );
     }
 }
-
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: 'white',
-    },
-    text: {
-        fontSize: 20,
-        margin: 10,
-        fontWeight: "bold"
-    },
-    searchBar:{
-        backgroundColor:"#2fa1ff",
-        height:hp("8%")
-    },
-    fab: {
-        backgroundColor: "#52c8ff",
-        position: 'absolute',
-        margin: 16,
-        right: 0,
-        bottom: 0,
-    }
-})

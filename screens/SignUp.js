@@ -2,14 +2,15 @@ import React from 'react'
 import { StyleSheet, View, ScrollView, TextInput } from 'react-native'
 import firebase from 'react-native-firebase'
 import AccountHandler from "../handler/AccountHandler";
-import { Text, RadioButton, Button, IconButton } from 'react-native-paper';
+import { Text, RadioButton, Button, IconButton, Snackbar } from 'react-native-paper';
 import DateTimePicker from "react-native-modal-datetime-picker";
 import ConnectyCubeHandler from "../handler/ConnectyCubeHandler"
 import LoadingComponent from "../components/LoadingComponent";
-import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen'
+import {widthPercentageToDP as wp, heightPercentageToDP as hp, listenOrientationChange as loc, removeOrientationListener as rol} from 'react-native-responsive-screen';
 import LoadingHandler from "../handler/LoadingHandler";
 import LocalStateHandler from "../handler/LocalStateHandler";
 import UserHandler from "../handler/UserHandler";
+import DateHandler from "../handler/DateHandler";
 
 export default class SignUp extends React.Component {
     constructor(props){
@@ -17,13 +18,15 @@ export default class SignUp extends React.Component {
         this.state = {
             email: "",
             password: "",
+            passwordRepeated: "",
             errorMessage: null ,
             name: "",
             surname: "",
             sex: "M",
             isDateTimePickerVisible: false,
             birthDate:null,
-            buttonClicked:false
+            buttonClicked:false,
+            isPresentError: false
         }
     }
 
@@ -37,20 +40,21 @@ export default class SignUp extends React.Component {
 
 
     handleDatePicked = date => {
-        this.setState({
-            birthDate: date
-        })
+        this.setState({birthDate: date})
         this.hideDateTimePicker();
     };
 
     handleSignUp = () => {
+        if(this.state.password !== this.state.passwordRepeated){
+            this.setState({isPresentError: true, errorMessage: "The passwords you typed are different"})
+        }
         // check that the name and the password are not empty
-        if(this.state.name === "" ||
+        else if(this.state.name === "" ||
             this.state.username === "" ||
             this.state.email === "" ||
             this.state.password === "" ||
             this.state.birthDate === null) {
-            this.setState({errorMessage: "Make sure you have filled all the fields."})
+            this.setState({isPresentError: true, errorMessage: "Make sure you have filled all the fields."})
         }else{
             this.setState({buttonClicked: true})
             firebase.auth().createUserWithEmailAndPassword(this.state.email, this.state.password).then(async () => {
@@ -76,6 +80,7 @@ export default class SignUp extends React.Component {
                 this.props.navigation.navigate('Chat')
             }).catch(error => {
                 this.setState({
+                    isPresentError: true,
                     errorMessage: error.message,
                     buttonClicked: false
                 })
@@ -83,16 +88,53 @@ export default class SignUp extends React.Component {
         }
     }
 
+    componentDidMount(){
+        loc(this)
+    }
+
+    componentWillUnmount(){
+        rol()
+    }
+
     render() {
+        const styles = StyleSheet.create({
+            container: {
+                flex: 1,
+                justifyContent: 'center',
+                alignItems: 'center',
+                backgroundColor: '#2c3e50',
+            },
+            textInput: {
+                width: wp('80%'),
+                backgroundColor:"transparent",
+                borderBottomWidth: 1,
+                borderColor: "white",
+                color:"white"
+            },
+            button:{
+                marginTop:hp("2%"),
+                width: wp("80%"),
+                borderRadius: 5
+            },
+            header: {
+                flex: 1,
+                marginTop: hp("10%"),
+                marginBottom: hp("10%"),
+                width: wp('90%'),
+                justifyContent: 'center',
+                alignItems: 'center'
+            },
+            text:{
+                color:"white",
+                fontSize: 20,
+            },
+        })
+
         if(!this.state.buttonClicked){
             return (
                 <View style={styles.container}>
                     <ScrollView style={{flex:1}}>
                         <View style={styles.header}>
-                            {this.state.errorMessage &&
-                            <Text style={{ color: 'red' }}>
-                                {this.state.errorMessage}
-                            </Text>}
                             <View style={{flexDirection:"row", alignItems:"center"}}>
                                 <IconButton icon={"person"} disabled color={"white"}/>
                                 <TextInput
@@ -138,6 +180,18 @@ export default class SignUp extends React.Component {
                                     value={this.state.password}
                                 />
                             </View>
+                            <View style={{flexDirection:"row", alignItems:"center"}}>
+                                <IconButton icon={"lock-outline"} disabled color={"white"}/>
+                                <TextInput
+                                    secureTextEntry
+                                    placeholder="Repeat Password"
+                                    placeholderTextColor={"white"}
+                                    autoCapitalize="none"
+                                    style={styles.textInput}
+                                    onChangeText={passwordRepeated => this.setState({ passwordRepeated })}
+                                    value={this.state.passwordRepeated}
+                                />
+                            </View>
                             <View style={{marginTop: wp("2%"), width: wp("80%"), flexDirection:"row", justifyContent:"center", alignItems:"center"}}>
                                 <View style={{flexDirection:"row"}}>
                                     <RadioButton.Group
@@ -161,7 +215,7 @@ export default class SignUp extends React.Component {
                                 style={styles.button}
                                 color={"white"}
                                 onPress={this.showDateTimePicker}>
-                                Birthdate
+                                {this.state.birthDate !== null ? DateHandler.dateToString(this.state.birthDate) : "Birthdate"}
                             </Button>
                             <DateTimePicker
                                 mode={"date"}
@@ -190,6 +244,18 @@ export default class SignUp extends React.Component {
                             </Button>
                         </View>
                     </ScrollView>
+                    <Snackbar
+                        visible={this.state.isPresentError}
+                        onDismiss={() => this.setState({ isPresentError: false })}
+                        action={{
+                            label: 'Ok',
+                            onPress: () => {
+                                this.setState({ isPresentError: false })
+                            },
+                        }}
+                    >
+                        {this.state.errorMessage}
+                    </Snackbar>
                 </View>
             )
         } else {
@@ -198,35 +264,3 @@ export default class SignUp extends React.Component {
     }
 
 }
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: '#2c3e50',
-    },
-    textInput: {
-        width: wp('80%'),
-        backgroundColor:"transparent",
-        borderBottomWidth: 1,
-        borderColor: "white",
-        color:"white"
-    },
-    button:{
-        marginTop:hp("2%"),
-        width: wp("80%"),
-        borderRadius: 5
-    },
-    header: {
-        flex: 1,
-        marginTop: hp("10%"),
-        marginBottom: hp("10%"),
-        width: wp('90%'),
-        justifyContent: 'center',
-        alignItems: 'center'
-    },
-    text:{
-        color:"white",
-        fontSize: 20,
-    },
-})

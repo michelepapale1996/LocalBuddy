@@ -3,7 +3,7 @@ import {StyleSheet, View, FlatList, Image} from 'react-native';
 import CityHandler from "../handler/CityHandler";
 import LoadingComponent from "../components/LoadingComponent";
 import { Text, TouchableRipple, Surface } from 'react-native-paper'
-import {widthPercentageToDP as wp, heightPercentageToDP as hp} from "react-native-responsive-screen"
+import {widthPercentageToDP as wp, heightPercentageToDP as hp, listenOrientationChange as loc, removeOrientationListener as rol} from 'react-native-responsive-screen';
 import StarRating from 'react-native-star-rating';
 import { Icon } from 'react-native-elements'
 
@@ -12,9 +12,9 @@ function Buddy(props){
     const years = new Date().getFullYear() - birthdate.getFullYear()
     return(
         <TouchableRipple onPress={() => props.nav.navigate('BuddyProfile', {idUser: props.item.id})}>
-            <View style={styles.singleBuddyContainer}>
+            <View style={props.styles.singleBuddyContainer}>
                 <Image
-                    style={{marginRight: wp("5%"),...styles.userPhoto}}
+                    style={{marginRight: wp("5%"),...props.styles.userPhoto}}
                     source={{uri: props.item.urlPhoto}}/>
                 <View style={{flex: 1, flexDirection: 'column'}}>
                     <View style={{flexDirection:"row", flex:1, alignItems:"center"}}>
@@ -33,7 +33,7 @@ function Buddy(props){
                             emptyStarColor={'#f1c40f'}
                             fullStarColor={'#f1c40f'}
                         />
-                        <Text style={{marginLeft:wp("1%"), ...styles.text}}>{props.item.numberOfFeedbacks}</Text>
+                        <Text style={{marginLeft:wp("1%"), ...props.styles.text}}>{props.item.numberOfFeedbacks}</Text>
                     </View>
                 </View>
             </View>
@@ -56,6 +56,7 @@ export default class CityChosen extends Component {
     }
 
     componentDidMount(){
+        loc(this)
         CityHandler.getFilteredCity(this.cityId).then(response => {
             //response status is 200
             if(response != null){
@@ -67,7 +68,10 @@ export default class CityChosen extends Component {
                 this.setState({loadingDone: true})
             }
         })
+    }
 
+    componentWillUnmount(){
+        rol()
     }
 
     static navigationOptions = ({ navigation }) => {
@@ -84,6 +88,41 @@ export default class CityChosen extends Component {
     };
 
     render(){
+        const styles = StyleSheet.create({
+            container: {
+                flex: 1,
+                justifyContent:"center",
+                alignItems: 'center',
+                backgroundColor: 'white',
+            },
+            text: {
+                fontSize: 20,
+                textAlign: 'center',
+                fontWeight: "bold"
+            },
+            singleBuddyContainer: {
+                flex:1,
+                justifyContent:"space-between",
+                alignItems:"center",
+                flexDirection: 'row',
+                marginTop: hp('1%'),
+                marginBottom: hp('1%'),
+                marginLeft: wp("4%"),
+                marginRight: wp('5%'),
+                height: hp("13%")
+            },
+            userPhoto: {
+                width: wp("20%"),
+                height: wp("20%"),
+                borderRadius: wp("20%")
+            },
+            bud:{
+                margin: wp("2%"),
+                borderRadius: 10,
+                elevation:4
+            },
+        });
+
         if(this.state.loadingDone != false) {
             if (this.state.buddies != null) {
                 return (
@@ -91,7 +130,7 @@ export default class CityChosen extends Component {
                         data={this.state.buddies}
                         renderItem={({item}) =>
                             <Surface style={styles.bud}>
-                                <Buddy nav={this.props.navigation} item={item}/>
+                                <Buddy styles={styles} nav={this.props.navigation} item={item}/>
                             </Surface>
                         }
                         keyExtractor={(item, index) => index.toString()}
@@ -110,38 +149,3 @@ export default class CityChosen extends Component {
         }
     }
 }
-
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        justifyContent:"center",
-        alignItems: 'center',
-        backgroundColor: 'white',
-    },
-    text: {
-        fontSize: 20,
-        textAlign: 'center',
-        fontWeight: "bold"
-    },
-    singleBuddyContainer: {
-        flex:1,
-        justifyContent:"space-between",
-        alignItems:"center",
-        flexDirection: 'row',
-        marginTop: hp('1%'),
-        marginBottom: hp('1%'),
-        marginLeft: wp("4%"),
-        marginRight: wp('5%'),
-        height: hp("13%")
-    },
-    userPhoto: {
-        width: wp("20%"),
-        height: wp("20%"),
-        borderRadius: wp("20%")
-    },
-    bud:{
-        margin: wp("2%"),
-        borderRadius: 10,
-        elevation:4
-    },
-});

@@ -1,4 +1,4 @@
-import MeetingsUpdatesHandler from "./MeetingsUpdatesHandler";
+import MeetingsUpdatesHandler from "../updater/MeetingsUpdatesHandler";
 
 var PushNotification = require('react-native-push-notification');
 class MeetingsNotificationsHandler{

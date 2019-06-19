@@ -2,7 +2,7 @@ import React, {Component} from 'react';
 import {StyleSheet, View, Image, ScrollView, TouchableWithoutFeedback, FlatList} from 'react-native';
 import firebase from "react-native-firebase"
 import ImagePicker from 'react-native-image-picker';
-import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen';
+import {widthPercentageToDP as wp, heightPercentageToDP as hp, listenOrientationChange as loc, removeOrientationListener as rol} from 'react-native-responsive-screen';
 import {Icon} from 'react-native-elements';
 import LoadingComponent from "../components/LoadingComponent";
 import { IconButton, Colors, Text, Surface, TouchableRipple, Avatar } from 'react-native-paper';
@@ -140,7 +140,12 @@ export default class ProfileTablet extends Component {
         })
     }
 
+    componentWillUnmount(){
+        rol()
+    }
+
     async componentDidMount(){
+        loc(this)
         /*const id = firebase.auth().currentUser.uid
         UserHandler.getUserInfo(id).then(user => {
             this.setState({
@@ -164,6 +169,83 @@ export default class ProfileTablet extends Component {
     }
 
     render() {
+        const styles = StyleSheet.create({
+            container:{
+                backgroundColor: 'white',
+                flex:1,
+                marginBottom:2,
+                shadowColor: "#000000",
+                shadowOpacity: 0.8,
+                shadowRadius: 2,
+                shadowOffset: {
+                    height: 1,
+                    width: 1
+                }
+            },
+            biographyContainer: {
+                fontSize: wp("5%"),
+                margin: hp("1%"),
+            },
+            feedbacksContainer: {
+                textAlign: "center",
+                width: wp("60%"),
+            },
+            biography:{
+                margin: wp("4%")
+            },
+            biographyText:{
+                textAlign: "center",
+                fontSize:wp("2%"),
+                flex: 1,
+            },
+            feedbacks:{
+                margin: wp("1%"),
+                borderRadius: 5,
+                elevation:2
+            },
+            nameAndSurnameText:{
+                fontSize:wp("3%"),
+                flex: 1,
+                fontWeight:'bold',
+                textAlign:"center"
+            },
+            infoUserText:{
+                fontSize:wp("2%"),
+                textAlign:"center"
+            },
+            photoTravelerProfile:{
+                width: wp("10%"),
+                height: wp("10%"),
+                borderRadius: wp("20%")
+            },
+            header:{
+                backgroundColor: "#2fa1ff",
+                height:hp("20%"),
+            },
+            bodyContent: {
+                flex: 1,
+                padding:hp("10%"),
+                backgroundColor: "white"
+            },
+            avatar: {
+                width: wp("25%"),
+                height: wp("25%"),
+                borderRadius: wp("40%"),
+                borderWidth: 4,
+                borderColor: "white",
+                alignSelf:'flex-start',
+                position: 'absolute',
+                marginLeft: wp("7%"),
+                marginTop:hp("2%"),
+                zIndex:9
+            },
+            settingsButton:{
+                position: 'absolute',
+                marginTop:hp("5%"),
+                marginLeft:wp("95%")
+            }
+        });
+
         if (this.state.loadingDone){
             return(
                 <View style={styles.container}>
@@ -193,80 +275,3 @@ export default class ProfileTablet extends Component {
         }
     }
 }
-
-const styles = StyleSheet.create({
-    container:{
-        backgroundColor: 'white',
-        flex:1,
-        marginBottom:2,
-        shadowColor: "#000000",
-        shadowOpacity: 0.8,
-        shadowRadius: 2,
-        shadowOffset: {
-            height: 1,
-            width: 1
-        }
-    },
-    biographyContainer: {
-        fontSize: wp("5%"),
-        margin: hp("1%"),
-    },
-    feedbacksContainer: {
-        textAlign: "center",
-        width: wp("60%"),
-    },
-    biography:{
-        margin: wp("4%")
-    },
-    biographyText:{
-        textAlign: "center",
-        fontSize:wp("2%"),
-        flex: 1,
-    },
-    feedbacks:{
-        margin: wp("1%"),
-        borderRadius: 5,
-        elevation:2
-    },
-    nameAndSurnameText:{
-        fontSize:wp("3%"),
-        flex: 1,
-        fontWeight:'bold',
-        textAlign:"center"
-    },
-    infoUserText:{
-        fontSize:wp("2%"),
-        textAlign:"center"
-    },
-    photoTravelerProfile:{
-        width: wp("10%"),
-        height: wp("10%"),
-        borderRadius: wp("20%")
-    },
-    header:{
-        backgroundColor: "#2fa1ff",
-        height:hp("20%"),
-    },
-    bodyContent: {
-        flex: 1,
-        padding:hp("10%"),
-        backgroundColor: "white"
-    },
-    avatar: {
-        width: wp("25%"),
-        height: wp("25%"),
-        borderRadius: wp("40%"),
-        borderWidth: 4,
-        borderColor: "white",
-        alignSelf:'flex-start',
-        position: 'absolute',
-        marginLeft: wp("7%"),
-        marginTop:hp("2%"),
-        zIndex:9
-    },
-    settingsButton:{
-        position: 'absolute',
-        marginTop:hp("5%"),
-        marginLeft:wp("95%")
-    }
-});

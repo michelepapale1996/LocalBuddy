@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import { StyleSheet, View, Image, ScrollView, FlatList } from 'react-native';
-import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen';
+import {widthPercentageToDP as wp, heightPercentageToDP as hp, listenOrientationChange as loc, removeOrientationListener as rol} from 'react-native-responsive-screen';
 import UserHandler from "../handler/UserHandler";
 import SingleChatHandler from "../handler/SingleChatHandler";
 import LoadingComponent from "../components/LoadingComponent";
@@ -100,17 +100,8 @@ export default class ProfileTab extends Component {
         }
     }
 
-    componentDidMount(){
-        UserHandler.getUserInfo(idUser).then(user => {
-            this.setState({
-                user: user,
-                chatId: null,
-                loadingDone: true
-            })
-        })
-    }
-
     async componentDidMount(){
+        loc(this)
         const idBuddy = this.props.navigation.getParam('idUser', 'Error')
         const buddy = await UserHandler.getUserInfo(idBuddy)
         const connectyCubeChatId = await SingleChatHandler.getChatId(idBuddy)
@@ -122,6 +113,10 @@ export default class ProfileTab extends Component {
             chatId: connectyCubeChatId
 
         })
+    }
+
+    componentWillUnmount(){
+        rol()
     }
 
     static navigationOptions = ({ navigation }) => {
@@ -138,6 +133,97 @@ export default class ProfileTab extends Component {
     };
 
     render() {
+        const styles = StyleSheet.create({
+            container:{
+                backgroundColor: 'white',
+                flex:1,
+                marginBottom:2,
+                shadowColor: "#000000",
+                shadowOpacity: 0.8,
+                shadowRadius: 2,
+                shadowOffset: {
+                    height: 1,
+                    width: 1
+                }
+            },
+            biographyContainer: {
+                fontSize: wp("5%"),
+                margin: hp("1%"),
+            },
+            feedbacksContainer: {
+                textAlign: "center",
+                width: wp("60%"),
+            },
+            biography:{
+                margin: wp("4%")
+            },
+            biographyText:{
+                textAlign: "center",
+                fontSize: wp("2%")
+            },
+            feedbacks:{
+                margin: wp("1%"),
+                borderRadius: 5,
+                elevation:2
+            },
+            nameAndSurnameText:{
+                fontSize:wp("3%"),
+                fontWeight:'bold',
+                textAlign:"center"
+            },
+            infoUserText:{
+                fontSize:wp("2%"),
+                textAlign:"center"
+            },
+            photoTravelerProfile:{
+                width: wp("10%"),
+                height: wp("10%"),
+                borderRadius: wp("20%")
+            },
+            header:{
+                backgroundColor: "#2fa1ff",
+                height:hp("20%"),
+            },
+            bodyContent: {
+                flex: 1,
+                padding:hp("10%"),
+                backgroundColor: "white"
+            },
+            avatar: {
+                width: wp("25%"),
+                height: wp("25%"),
+                borderRadius: wp("30%"),
+                borderWidth: 4,
+                borderColor: "white",
+                alignSelf:'flex-start',
+                position: 'absolute',
+                marginLeft: wp("7%"),
+                marginTop:hp("3%"),
+                zIndex:9
+            },
+            settingsButton:{
+                position: 'absolute',
+                marginTop:hp("5%"),
+                marginLeft:wp("85%")
+            },
+            photoButton:{
+                width: wp("10%"),
+                height: wp("10%"),
+                borderRadius: wp("10%"),
+                position: 'absolute',
+                marginTop:hp("15%"),
+                marginLeft:wp("70%"),
+                zIndex:10,
+            },
+            fab: {
+                position: 'absolute',
+                right: wp("3%"),
+                top: hp("70%"),
+                backgroundColor: "#52c8ff"
+            },
+        });
+
+
         if (this.state.loadingDone){
             return(
                 <View style={styles.container}>
@@ -194,93 +280,3 @@ export default class ProfileTab extends Component {
         }
     }
 }
-
-const styles = StyleSheet.create({
-    container:{
-        backgroundColor: 'white',
-        flex:1,
-        marginBottom:2,
-        shadowColor: "#000000",
-        shadowOpacity: 0.8,
-        shadowRadius: 2,
-        shadowOffset: {
-            height: 1,
-            width: 1
-        }
-    },
-    biographyContainer: {
-        fontSize: wp("5%"),
-        margin: hp("1%"),
-    },
-    feedbacksContainer: {
-        textAlign: "center",
-        width: wp("60%"),
-    },
-    biography:{
-        margin: wp("4%")
-    },
-    biographyText:{
-        textAlign: "center",
-        fontSize: wp("2%")
-    },
-    feedbacks:{
-        margin: wp("1%"),
-        borderRadius: 5,
-        elevation:2
-    },
-    nameAndSurnameText:{
-        fontSize:wp("3%"),
-        fontWeight:'bold',
-        textAlign:"center"
-    },
-    infoUserText:{
-        fontSize:wp("2%"),
-        textAlign:"center"
-    },
-    photoTravelerProfile:{
-        width: wp("10%"),
-        height: wp("10%"),
-        borderRadius: wp("20%")
-    },
-    header:{
-        backgroundColor: "#2fa1ff",
-        height:hp("20%"),
-    },
-    bodyContent: {
-        flex: 1,
-        padding:hp("10%"),
-        backgroundColor: "white"
-    },
-    avatar: {
-        width: wp("25%"),
-        height: wp("25%"),
-        borderRadius: wp("30%"),
-        borderWidth: 4,
-        borderColor: "white",
-        alignSelf:'flex-start',
-        position: 'absolute',
-        marginLeft: wp("7%"),
-        marginTop:hp("3%"),
-        zIndex:9
-    },
-    settingsButton:{
-        position: 'absolute',
-        marginTop:hp("5%"),
-        marginLeft:wp("85%")
-    },
-    photoButton:{
-        width: wp("10%"),
-        height: wp("10%"),
-        borderRadius: wp("10%"),
-        position: 'absolute',
-        marginTop:hp("15%"),
-        marginLeft:wp("70%"),
-        zIndex:10,
-    },
-    fab: {
-        position: 'absolute',
-        right: wp("3%"),
-        top: hp("70%"),
-        backgroundColor: "#52c8ff"
-    },
-});

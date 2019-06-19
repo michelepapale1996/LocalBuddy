@@ -2,15 +2,28 @@ import React, {Component} from 'react'
 import {StyleSheet, View} from "react-native"
 import { GiftedChat, InputToolbar } from 'react-native-gifted-chat'
 import SingleChatHandler from "../handler/SingleChatHandler"
-import MessagesUpdatesHandler from "../handler/MessagesUpdatesHandler"
+import MessagesUpdatesHandler from "../updater/MessagesUpdatesHandler"
 import LinearGradient from 'react-native-linear-gradient';
 import { Text, TouchableRipple } from 'react-native-paper'
-import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen'
+import {widthPercentageToDP as wp, heightPercentageToDP as hp, listenOrientationChange as loc, removeOrientationListener as rol} from 'react-native-responsive-screen';
 import UserHandler from "../handler/UserHandler";
 import firebase from 'react-native-firebase'
 
 export default class SingleChat extends Component {
     static navigationOptions = ({ navigation }) => {
+        const styles = StyleSheet.create({
+            header: {
+                flex: 1,
+                justifyContent: 'center',
+                width: wp("80%")
+            },
+            title: {
+                fontSize: 20,
+                fontWeight: "bold",
+                color:"white"
+            }
+        })
+
         return {
             headerTintColor: 'white',
             headerStyle: {
@@ -50,6 +63,7 @@ export default class SingleChat extends Component {
     }
 
     componentDidMount() {
+        loc(this)
         const urlPhotoOther = this.state.urlPhotoOther
         const userId = firebase.auth().currentUser.uid
 
@@ -65,13 +79,12 @@ export default class SingleChat extends Component {
     }
 
     componentWillUnmount(){
+        rol()
         MessagesUpdatesHandler.removeListeners(this.onMessageRcvd)
     }
 
     //local parameter is a bool that is true if the msg is sent from the loggedUser
     onMessageRcvd = (payload, local)=>{
-        console.log(payload)
-
         var id = 1
         //depending on the message (local/remote), the message is in text or body
         var message = payload.text
@@ -138,16 +151,3 @@ export default class SingleChat extends Component {
         )
     }
 }
-
-const styles = StyleSheet.create({
-    header: {
-        flex: 1,
-        justifyContent: 'center',
-        width: wp("80%")
-    },
-    title: {
-        fontSize: 20,
-        fontWeight: "bold",
-        color:"white"
-    }
-})

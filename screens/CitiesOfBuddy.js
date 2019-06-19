@@ -2,8 +2,7 @@ import {StyleSheet, View, FlatList, ScrollView} from "react-native"
 import React, {Component} from "react";
 import LoadingComponent from "./../components/LoadingComponent"
 import UserHandler from "../handler/UserHandler";
-import {Icon} from 'react-native-elements';
-import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen';
+import {widthPercentageToDP as wp, heightPercentageToDP as hp, listenOrientationChange as loc, removeOrientationListener as rol} from 'react-native-responsive-screen';
 import firebase from "react-native-firebase";
 import { Text, TextInput, IconButton, Searchbar, Snackbar } from 'react-native-paper';
 
@@ -37,6 +36,7 @@ export default class CitiesOfBuddy extends Component {
     }
 
     async componentDidMount(){
+        loc(this)
         const idUser = firebase.auth().currentUser.uid
         const cities = await UserHandler.getCitiesOfTheBuddy(idUser)
         if(cities != null){
@@ -45,6 +45,10 @@ export default class CitiesOfBuddy extends Component {
                 loadingDone: true
             })
         }else this.setState({loadingDone: true})
+    }
+
+    componentWillUnmount(){
+        rol()
     }
 
     getCities = (input) => {
@@ -85,12 +89,10 @@ export default class CitiesOfBuddy extends Component {
         this.setState((prevState) => {
             //city is the first one -> initialize the array
             if (prevState.cities == undefined) {
-                UserHandler.addCity(cityId, cityName)
                 return {cities: [{cityName: cityName, cityId: cityId}], newCityDialogVisible: true, foundCities: [], addedCityName: cityName}
             } else {
                 const toCheck = prevState.cities.filter(elem=>elem.cityName == cityName)
                 if(toCheck.length == 0){
-                    UserHandler.addCity(cityId, cityName)
                     const cities = [...prevState.cities, {cityName: cityName, cityId: cityId}]
                     return {cities: cities, newCityDialogVisible: true, foundCities: [], addedCityName: cityName}
                 }else{
@@ -98,6 +100,7 @@ export default class CitiesOfBuddy extends Component {
                 }
             }
         })
+        UserHandler.addCity(cityId, cityName)
     }
 
     deleteCity = (cityId, cityName) => {
@@ -113,6 +116,39 @@ export default class CitiesOfBuddy extends Component {
     }
 
     render() {
+        const styles = StyleSheet.create({
+            container: {
+                alignItems: 'center',
+                backgroundColor: 'white',
+            },
+            text: {
+                fontSize: 20,
+                flexWrap: "wrap",
+            },
+            textInput: {
+                height: 40,
+                width: wp('90%'),
+                borderColor: 'gray',
+                borderWidth: 1,
+                marginTop: 8
+            },
+            alreadyBuddyContainer: {
+                width: wp("95%"),
+                marginLeft:wp("1%"),
+                marginRight:wp("1%"),
+                marginBottom:hp("1%"),
+                marginTop:hp("1%")
+            },
+            newCitiesContainer:{
+                borderColor: 'black',
+                borderRadius: 7,
+                borderWidth: 0.5,
+                width: wp("95%"),
+                margin: hp("1%")
+            }
+        })
+
+
         if(this.state.loadingDone != false) {
             //show the cities in which the user is already a buddy
             let citiesWhereIsAlreadyBuddy
@@ -174,6 +210,13 @@ export default class CitiesOfBuddy extends Component {
                     <Snackbar
                         visible={this.state.newCityDialogVisible}
                         onDismiss={() => this.setState({ newCityDialogVisible: false })}
+                        duration={4000}
+                        action={{
+                            label: 'Ok',
+                            onPress: () => {
+                                this.setState({ newCityDialogVisible: false })
+                            },
+                        }}
                     >
                         Now you are buddy in {this.state.addedCityName}
                     </Snackbar>
@@ -181,6 +224,13 @@ export default class CitiesOfBuddy extends Component {
                     <Snackbar
                         visible={this.state.removeCityDialogVisible}
                         onDismiss={() => this.setState({ removeCityDialogVisible: false })}
+                        duration={4000}
+                        action={{
+                            label: 'Ok',
+                            onPress: () => {
+                                this.setState({ removeCityDialogVisible: false })
+                            },
+                        }}
                     >
                         From now on you are not a buddy in {this.state.removedCityName}
                     </Snackbar>
@@ -188,6 +238,13 @@ export default class CitiesOfBuddy extends Component {
                     <Snackbar
                         visible={this.state.clickedOnCityWhereIsAlreadyBuddy}
                         onDismiss={() => this.setState({ clickedOnCityWhereIsAlreadyBuddy: false })}
+                        duration={4000}
+                        action={{
+                            label: 'Ok',
+                            onPress: () => {
+                                this.setState({ clickedOnCityWhereIsAlreadyBuddy: false })
+                            },
+                        }}
                     >
                         You are already a buddy in {this.state.addedCityName}
                     </Snackbar>
@@ -198,34 +255,3 @@ export default class CitiesOfBuddy extends Component {
         }
     }
 }
-const styles = StyleSheet.create({
-    container: {
-        alignItems: 'center',
-        backgroundColor: 'white',
-    },
-    text: {
-        fontSize: 20,
-        flexWrap: "wrap",
-    },
-    textInput: {
-        height: 40,
-        width: wp('90%'),
-        borderColor: 'gray',
-        borderWidth: 1,
-        marginTop: 8
-    },
-    alreadyBuddyContainer: {
-        width: wp("95%"),
-        marginLeft:wp("1%"),
-        marginRight:wp("1%"),
-        marginBottom:hp("1%"),
-        marginTop:hp("1%")
-    },
-    newCitiesContainer:{
-        borderColor: 'black',
-        borderRadius: 7,
-        borderWidth: 0.5,
-        width: wp("95%"),
-        margin: hp("1%")
-    }
-})

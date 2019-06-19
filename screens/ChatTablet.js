@@ -1,15 +1,15 @@
 import React, {Component} from 'react'
 import {StyleSheet, View, FlatList, Image, TouchableWithoutFeedback } from 'react-native'
-import {widthPercentageToDP as wp, heightPercentageToDP as hp} from "react-native-responsive-screen"
+import {widthPercentageToDP as wp, heightPercentageToDP as hp, listenOrientationChange as loc, removeOrientationListener as rol} from "react-native-responsive-screen"
 import ChatsHandler from "../handler/ChatsHandler"
-import MessagesUpdatesHandler from "../handler/MessagesUpdatesHandler"
+import MessagesUpdatesHandler from "../updater/MessagesUpdatesHandler"
 import LoadingComponent from '../components/LoadingComponent'
 import { Text, TouchableRipple, Button } from 'react-native-paper'
 import {GiftedChat, Day} from "react-native-gifted-chat";
 import firebase from "react-native-firebase";
 import UserHandler from "../handler/UserHandler";
 import SingleChatHandler from "../handler/SingleChatHandler";
-import ChatTabletHandler from "../handler/ChatTabletHandler";
+import ChatTabletHandler from "../updater/ChatTabletHandler";
 import { Header } from "react-native-elements"
 import LinearGradient from 'react-native-linear-gradient';
 
@@ -231,6 +231,7 @@ export default class ChatTablet extends Component {
     };
 
     componentWillUnmount(){
+        rol()
         MessagesUpdatesHandler.removeListeners(this.onMessageRcvd)
     }
 
@@ -309,6 +310,7 @@ export default class ChatTablet extends Component {
     }
 
     componentDidMount(){
+        loc(this)
         MessagesUpdatesHandler.addListener(this.onMessageRcvd)
         ChatsHandler.getChats().then(chats => {
             this.setState({
@@ -329,6 +331,56 @@ export default class ChatTablet extends Component {
     }
 
     render() {
+        const styles = StyleSheet.create({
+            container: {
+                flex: 1,
+                justifyContent: 'center',
+                alignItems: 'center',
+                backgroundColor: 'white',
+            },
+            text: {
+                fontSize: 20,
+                fontWeight: "bold"
+            },
+            singleChat: {
+                borderBottomWidth: 1,
+                borderColor:"grey",
+                flex: 1,
+                flexDirection: 'column',
+                marginLeft: wp("1%")
+            },
+            singleChatContainer: {
+                justifyContent: "space-between",
+                flex:1,
+                flexDirection: 'row',
+                height: hp("9%"),
+                marginLeft: wp("0.5%"),
+                marginTop: hp("1%"),
+            },
+            singleChatContainerSelected: {
+                justifyContent: "space-between",
+                flex:1,
+                flexDirection: 'row',
+                height: hp("9%"),
+                marginLeft: wp("0.5%"),
+                marginTop: hp("1%"),
+            },
+            userPhoto: {
+                width: wp("5%"),
+                height: wp("5%"),
+                borderRadius: wp("15%")
+            },
+            button:{
+                marginLeft:0,
+                marginRight:0,
+                borderRadius: 5,
+                borderColor: "white"
+            },
+            linearGradient: {
+                flex: 1
+            },
+        })
+
         if(this.state.loadingDone != false){
             return(
                 <View style={{flex:1, flexDirection:"row"}}>
@@ -341,55 +393,3 @@ export default class ChatTablet extends Component {
         }
     }
 }
-
-
-
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: 'white',
-    },
-    text: {
-        fontSize: 20,
-        fontWeight: "bold"
-    },
-    singleChat: {
-        borderBottomWidth: 1,
-        borderColor:"grey",
-        flex: 1,
-        flexDirection: 'column',
-        marginLeft: wp("1%")
-    },
-    singleChatContainer: {
-        justifyContent: "space-between",
-        flex:1,
-        flexDirection: 'row',
-        height: hp("9%"),
-        marginLeft: wp("0.5%"),
-        marginTop: hp("1%"),
-    },
-    singleChatContainerSelected: {
-        justifyContent: "space-between",
-        flex:1,
-        flexDirection: 'row',
-        height: hp("9%"),
-        marginLeft: wp("0.5%"),
-        marginTop: hp("1%"),
-    },
-    userPhoto: {
-        width: wp("5%"),
-        height: wp("5%"),
-        borderRadius: wp("15%")
-    },
-    button:{
-        marginLeft:0,
-        marginRight:0,
-        borderRadius: 5,
-        borderColor: "white"
-    },
-    linearGradient: {
-        flex: 1
-    },
-});

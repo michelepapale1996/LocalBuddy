@@ -1,14 +1,14 @@
 import React, { Component } from "react"
 import { StyleSheet, View } from 'react-native'
 import DateTimePicker from "react-native-modal-datetime-picker"
-import { heightPercentageToDP as hp, widthPercentageToDP as wp } from "react-native-responsive-screen"
+import {widthPercentageToDP as wp, heightPercentageToDP as hp, listenOrientationChange as loc, removeOrientationListener as rol} from 'react-native-responsive-screen';
 import ChatsHandler from "../handler/ChatsHandler"
 import LoadingComponent from '../components/LoadingComponent'
 import RNPickerSelect from 'react-native-picker-select'
 import MeetingsHandler from "../handler/MeetingsHandler"
 import { Text, Button } from 'react-native-paper'
 import DateHandler from "../handler/DateHandler";
-import MeetingsUpdatesHandler from "../handler/MeetingsUpdatesHandler";
+import MeetingsUpdatesHandler from "../updater/MeetingsUpdatesHandler";
 
 export default class NewMeeting extends Component {
     static navigationOptions = ({ navigation }) => {
@@ -96,6 +96,7 @@ export default class NewMeeting extends Component {
     }
 
     async componentDidMount() {
+        loc(this)
         //user can arrive here or from the profile of the other user or from the meetings handler.
         //in the former case, nameAndSurnameOpponent and idOpponent is setted
         //in the latter, we have to retrieve all the users with whom the user has a chat
@@ -120,7 +121,61 @@ export default class NewMeeting extends Component {
         }
     }
 
+    componentWillUnmount(){
+        rol()
+    }
+
     render() {
+        const styles = StyleSheet.create({
+            mainContainer: {
+                flex: 1,
+                backgroundColor: 'white',
+            },
+            container:{
+                marginTop:hp("5%"),
+                marginLeft:wp("5%"),
+                marginRight:wp("5%"),
+                borderBottomWidth:1,
+                borderColor: "grey"
+            },
+            singleOptionContainer:{
+                flex:1,
+                margin: wp("3%"),
+                height: hp("5%")
+            },
+            text: {
+                fontSize: 20,
+                fontWeight: "bold",
+            },
+            header:{
+                fontSize: 20,
+                color: "green",
+                fontWeight:"bold"
+            },
+            userPhoto: {
+                width: wp("15%"),
+                height: wp("15%"),
+                borderRadius: wp("15%")
+            },
+            userContainer: {
+                flex: 1,
+                flexDirection: 'row',
+                margin: wp("3%"),
+                height: hp("10%")
+            },
+            userInfoContainer: {
+                flex:1,
+                margin: wp("1%"),
+                height: hp("10%")
+            },
+            button:{
+                marginLeft:0,
+                marginRight:0,
+                borderRadius: 5,
+                borderColor: "white"
+            }
+        });
+
         if (this.state.loadingDone != false) {
             return (
                 <View style={styles.mainContainer}>
@@ -173,56 +228,6 @@ export default class NewMeeting extends Component {
         }
     }
 }
-
-const styles = StyleSheet.create({
-    mainContainer: {
-        flex: 1,
-        backgroundColor: 'white',
-    },
-    container:{
-        marginTop:hp("5%"),
-        marginLeft:wp("5%"),
-        marginRight:wp("5%"),
-        borderBottomWidth:1,
-        borderColor: "grey"
-    },
-    singleOptionContainer:{
-        flex:1,
-        margin: wp("3%"),
-        height: hp("5%")
-    },
-    text: {
-        fontSize: 20,
-        fontWeight: "bold",
-    },
-    header:{
-        fontSize: 20,
-        color: "green",
-        fontWeight:"bold"
-    },
-    userPhoto: {
-        width: wp("15%"),
-        height: wp("15%"),
-        borderRadius: wp("15%")
-    },
-    userContainer: {
-        flex: 1,
-        flexDirection: 'row',
-        margin: wp("3%"),
-        height: hp("10%")
-    },
-    userInfoContainer: {
-        flex:1,
-        margin: wp("1%"),
-        height: hp("10%")
-    },
-    button:{
-        marginLeft:0,
-        marginRight:0,
-        borderRadius: 5,
-        borderColor: "white"
-    }
-});
 
 const pickerSelectStyles = StyleSheet.create({
     inputIOS: {

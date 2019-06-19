@@ -1,5 +1,5 @@
-//import {AsyncStorage} from '@react-native-community/async-storage'
-import {AsyncStorage} from 'react-native'
+import AsyncStorage from '@react-native-community/async-storage'
+//import {AsyncStorage} from 'react-native'
 import UserHandler from "./UserHandler";
 
 class LocalStateHandler {
@@ -20,6 +20,19 @@ class LocalStateHandler {
             const value = await AsyncStorage.getItem('user')
             if (value !== null) {
                 return JSON.parse(value)
+            }
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
+    static async getChats(){
+        try {
+            const value = await AsyncStorage.getItem('chats')
+            if (value !== null) {
+                return JSON.parse(value)
+            }else{
+                return []
             }
         } catch (error) {
             console.log(error)

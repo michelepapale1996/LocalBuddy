@@ -1,6 +1,6 @@
 import React, {Component} from "react";
 import { StyleSheet, View } from 'react-native';
-import {heightPercentageToDP as hp, widthPercentageToDP as wp} from "react-native-responsive-screen"
+import {widthPercentageToDP as wp, heightPercentageToDP as hp, listenOrientationChange as loc, removeOrientationListener as rol} from 'react-native-responsive-screen';
 import LoadingComponent from '../components/LoadingComponent'
 import { TextInput, Text, Button } from 'react-native-paper';
 import UserHandler from "../handler/UserHandler";
@@ -49,12 +49,66 @@ export default class NewBiography extends Component {
     }
 
     componentDidMount() {
+        loc(this)
         this.setState({
             loadingDone:true
         })
     }
 
+    componentWillUnmount(){
+        rol()
+    }
+
     render() {
+        const styles = StyleSheet.create({
+            container:{
+                flex: 1,
+                backgroundColor: 'white',
+                margin:hp("2%"),
+            },
+            singleOptionContainer:{
+                flex:1,
+                margin: wp("3%"),
+                height: hp("5%")
+            },
+            text: {
+                fontSize: 20,
+                fontWeight: "bold",
+                textAlign:"center"
+            },
+            textInput: {
+                width: wp('90%'),
+                marginTop: 8
+            },
+            header:{
+                fontSize: 20,
+                color: "green",
+                fontWeight:"bold"
+            },
+            userPhoto: {
+                width: wp("15%"),
+                height: wp("15%"),
+                borderRadius: wp("15%")
+            },
+            userContainer: {
+                flex: 1,
+                flexDirection: 'row',
+                margin: wp("3%"),
+                height: hp("10%")
+            },
+            userInfoContainer: {
+                flex:1,
+                margin: wp("1%"),
+                height: hp("10%")
+            },
+            button:{
+                marginLeft:0,
+                marginRight:0,
+                borderRadius: 20,
+                borderColor: "white"
+            }
+        })
+
         if (this.state.loadingDone != false) {
             return (
                 <View style={styles.container}>
@@ -74,52 +128,3 @@ export default class NewBiography extends Component {
         }
     }
 }
-
-const styles = StyleSheet.create({
-    container:{
-        flex: 1,
-        backgroundColor: 'white',
-        margin:hp("2%"),
-    },
-    singleOptionContainer:{
-        flex:1,
-        margin: wp("3%"),
-        height: hp("5%")
-    },
-    text: {
-        fontSize: 20,
-        fontWeight: "bold",
-        textAlign:"center"
-    },
-    textInput: {
-        width: wp('90%'),
-        marginTop: 8
-    },
-    header:{
-        fontSize: 20,
-        color: "green",
-        fontWeight:"bold"
-    },
-    userPhoto: {
-        width: wp("15%"),
-        height: wp("15%"),
-        borderRadius: wp("15%")
-    },
-    userContainer: {
-        flex: 1,
-        flexDirection: 'row',
-        margin: wp("3%"),
-        height: hp("10%")
-    },
-    userInfoContainer: {
-        flex:1,
-        margin: wp("1%"),
-        height: hp("10%")
-    },
-    button:{
-        marginLeft:0,
-        marginRight:0,
-        borderRadius: 20,
-        borderColor: "white"
-    }
-})
