@@ -1,6 +1,6 @@
 import IP_ADDRESS from '../ip'
 import firebase from "react-native-firebase"
-import LocalStateHandler from "./LocalStateHandler";
+import LocalUserHandler from "../LocalHandler/LocalUserHandler";
 import ConnectyCubeHandler from "./ConnectyCubeHandler";
 import ChatsHandler from "./ChatsHandler";
 import UserHandler from "./UserHandler";
@@ -106,7 +106,7 @@ class AccountHandler {
         }).then(()=> {
             ConnectyCubeHandler.deleteAllSubscriptions()
         }).then(()=>{
-            LocalStateHandler.clearStorage()
+            LocalUserHandler.clearStorage()
             return firebase.auth().signOut()
         }).catch(function(error) {
             console.log("Error in retrieving idToken from firebase.auth()", error)
@@ -116,7 +116,7 @@ class AccountHandler {
 
     static logOut = ()=>{
         return UserHandler.deletePushNotificationSubscriptionForThisDevice().then(()=>{
-            LocalStateHandler.clearStorage()
+            LocalUserHandler.clearStorage()
             ConnectyCubeHandler.deletePushNotificationSubscriptionForThisDevice()
             return firebase.auth().signOut()
         })

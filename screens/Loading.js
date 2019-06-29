@@ -5,7 +5,6 @@ import LoadingHandler from "../handler/LoadingHandler";
 import MessagesNotificationsHandler from "../handler/MessagesNotificationsHandler";
 import MeetingsNotificationsHandler from "../handler/MeetingsNotificationsHandler";
 import UserHandler from "../handler/UserHandler";
-import LocalStateHandler from "../handler/LocalStateHandler";
 var PushNotification = require('react-native-push-notification');
 
 export default class Loading extends React.Component {
@@ -61,7 +60,7 @@ export default class Loading extends React.Component {
                     /*check if the user exists
                     check to be done beacause if the user deletes himself and has multiple devices -> the authentication still works
                     const userInfo = await UserHandler.getUserInfo(user.uid)
-                    LocalStateHandler.storeUserInfo(userInfo)
+                    LocalUserHandler.storeUserInfo(userInfo)
                     if (userInfo) {
                         //user is logged
                         LoadingHandler.initApp(user.uid).then(() => {

@@ -8,7 +8,7 @@ import LoadingComponent from "../components/LoadingComponent";
 import { IconButton, Colors, Text, Surface, TouchableRipple, Avatar } from 'react-native-paper';
 import UserHandler from "../handler/UserHandler";
 import StarRating from 'react-native-star-rating';
-import LocalStateHandler from "../handler/LocalStateHandler";
+import LocalUserHandler from "../LocalHandler/LocalUserHandler";
 
 function Biography(props){
 
@@ -153,7 +153,7 @@ export default class ProfileTablet extends Component {
                 loadingDone: true
             })
         })*/
-        const user = await LocalStateHandler.getUserInfo()
+        const user = await LocalUserHandler.getUserInfo()
         this.setState({
             user: user,
             loadingDone: true

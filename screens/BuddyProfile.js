@@ -112,7 +112,7 @@ export default class ProfileTab extends Component {
         var buddy = await UserHandler.getUserInfo(idBuddy)
 
         const citiesWhereIsBuddy = await UserHandler.getCitiesOfTheBuddy(idBuddy)
-        //var user = await LocalStateHandler.getUserInfo()
+        //var user = await LocalUserHandler.getUserInfo()
         var total = 0
         buddy.feedbacks.forEach(elem => total += elem.rating)
         buddy.rating = total / buddy.feedbacks.length

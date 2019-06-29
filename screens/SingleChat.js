@@ -8,6 +8,7 @@ import { Text, TouchableRipple } from 'react-native-paper'
 import {widthPercentageToDP as wp, heightPercentageToDP as hp, listenOrientationChange as loc, removeOrientationListener as rol} from 'react-native-responsive-screen';
 import UserHandler from "../handler/UserHandler";
 import firebase from 'react-native-firebase'
+import LocalChatsHandler from "../LocalHandler/LocalChatsHandler";
 
 export default class SingleChat extends Component {
     static navigationOptions = ({ navigation }) => {
@@ -62,7 +63,7 @@ export default class SingleChat extends Component {
         this.props.navigation.setParams({buddyId: this.state.opponentId})
     }
 
-    componentDidMount() {
+    async componentDidMount() {
         loc(this)
         const urlPhotoOther = this.state.urlPhotoOther
         const userId = firebase.auth().currentUser.uid
@@ -73,7 +74,9 @@ export default class SingleChat extends Component {
         })
 
         if(this.state.chatId != null){
-            SingleChatHandler.retrieveChatHistory(this.state.chatId, 100, null, urlPhotoOther).then(messages => this.setState({messages: messages}))
+            var messages = await SingleChatHandler.retrieveChatHistory(this.state.chatId, 100, null, urlPhotoOther)
+            //var messages = await LocalChatsHandler.getMessagesWith(this.state.chatId)
+            this.setState({messages: messages})
         }
         MessagesUpdatesHandler.addListener(this.onMessageRcvd)
     }
@@ -85,21 +88,16 @@ export default class SingleChat extends Component {
 
     //local parameter is a bool that is true if the msg is sent from the loggedUser
     onMessageRcvd = (payload, local)=>{
-        var id = 1
-        //depending on the message (local/remote), the message is in text or body
-        var message = payload.text
-        var chatId = payload.chatId
-        if(!local){
-            id = 2
-            message = payload.body
-            chatId = payload.dialog_id
-        }
+        if(payload.chatId == this.state.chatId){
+            var id = 1
+            if(!local){
+                id = 2
+            }
 
-        if(chatId == this.state.chatId){
             const msg = {
                 _id: Math.floor(Math.random() * 10000),
-                text: message,
-                createdAt: new Date().getTime(),
+                text: payload.text,
+                createdAt: payload.createdAt,
                 user: {
                     _id: id,
                     avatar: this.state.urlPhotoOther

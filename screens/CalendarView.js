@@ -3,13 +3,12 @@ import React, {Component} from 'react';
 import { View, StyleSheet, Text, Image } from 'react-native';
 import {Icon} from 'react-native-elements'
 import { Button, FAB, TouchableRipple } from 'react-native-paper'
-import MeetingsHandler from "../handler/MeetingsHandler"
 import UserHandler from "../handler/UserHandler"
 import {widthPercentageToDP as wp, heightPercentageToDP as hp, listenOrientationChange as loc, removeOrientationListener as rol} from 'react-native-responsive-screen';
 import DateHandler from "../handler/DateHandler"
 import MeetingsUpdatesHandler from "../updater/MeetingsUpdatesHandler"
-import LocalStateHandler from "../handler/LocalStateHandler"
-import LoadingComponent from "../components/LoadingComponent";
+import LocalMeetingsHandler from "../LocalHandler/LocalMeetingsHandler";
+import MeetingsHandler from "../handler/MeetingsHandler";
 
 export default class CalendarView extends Component {
     static navigationOptions ={
@@ -43,79 +42,52 @@ export default class CalendarView extends Component {
         MeetingsUpdatesHandler.setNewMeetingListener(this.newMeeting)
         MeetingsUpdatesHandler.setFromFutureToPastMeeting(this.changeFromFutureToPastMeeting)
 
-        //const info = await LocalStateHandler.getUserInfo()
-        //var infoMeetings = info.meetings
-        const infoMeetings = await MeetingsHandler.getMeetings()
-        if(infoMeetings != null){
-            let promises = infoMeetings.map(meeting => {
-                return UserHandler.getNameAndSurname(meeting.idOpponent)
-            })
-
-            Promise.all(promises).then(results=>{
-                infoMeetings.forEach((meeting,index)=>{
-                    meeting.nameAndSurname = results[index]
-                })
-                return infoMeetings
-            }).then(meetings=>{
-                this.setState(prevState => {
-                    meetings.forEach(elem => {
-                        if(prevState.items[elem.date] == undefined){
-                            prevState.items[elem.date] = [elem]
-                        }else{
-                            prevState.items[elem.date].push(elem)
-                        }
-                    })
-                    return {
-                        items: prevState.items,
+        //const meetings = await MeetingsHandler.getMeetings()
+        const meetings = await LocalMeetingsHandler.getMeetings()
+        if(meetings != null){
+            this.setState(prevState => {
+                meetings.forEach(elem => {
+                    if(prevState.items[elem.date] == undefined){
+                        prevState.items[elem.date] = [elem]
+                    }else{
+                        prevState.items[elem.date].push(elem)
                     }
                 })
+                return {
+                    items: prevState.items,
+                }
             })
         }
     }
 
-    newMeeting = (date, time, opponentId) => {
-        this.createMeeting(date, time, opponentId, 0, 0)
+    newMeeting = (meeting) => {
+        this.createMeeting(meeting)
     }
 
-    addPendingMeeting = (date, time, opponentId) => {
-        this.createMeeting(date, time, opponentId, 0, 1)
+    addPendingMeeting = (meeting) => {
+        this.createMeeting(meeting)
     }
 
-    createMeeting = (date, time, opponentId, isFixed, isPending) => {
-        const promises = [UserHandler.getNameAndSurname(opponentId), UserHandler.getUrlPhoto(opponentId)]
-        Promise.all(promises).then(results => {
-            this.setState(prevState => {
-                const singleMeeting = {
-                    idOpponent: opponentId,
-                    date: date,
-                    time: time,
-                    isFixed: isFixed,
-                    isPending: isPending,
-                    nameAndSurname: results[0],
-                    urlPhoto: results[1]
-                }
+    createMeeting = (meeting) => {
+        this.setState(prevState => {
+            if(prevState.items[meeting.date] == undefined) prevState.items[meeting.date] = [meeting]
+            else prevState.items[meeting.date].push(meeting)
 
-                if(prevState.items[date] == undefined){
-                    prevState.items[date] = [singleMeeting]
-                }else{
-                    prevState.items[date].push(singleMeeting)
-                }
-
-                return {
-                    items: prevState.items
-                }
-            })
+            return { items: prevState.items }
         })
     }
 
     acceptedMeeting = (date, time, idOpponent) => {
-        var meetingToUpdate = this.state.items[date].filter(elem => elem.idOpponent == idOpponent && elem.time == time)[0]
+        var meetingToUpdate = this.state.items[date].filter(elem => elem.idOpponent == idOpponent && elem.date == date && elem.time == time)[0]
         meetingToUpdate.isFixed = 1
         meetingToUpdate.isPending = 0
+
         this.deniedMeeting(date, time, idOpponent)
 
         this.setState(prevState => {
-            prevState.items[date] = prevState.items[date].filter(elem => elem.idOpponent != idOpponent && elem.time != time)
+            prevState.items[date] = prevState.items[date].filter(elem =>
+                elem.idOpponent != idOpponent || (elem.idOpponent == idOpponent && elem.date != date) || (elem.idOpponent == idOpponent && elem.date == date && elem.time != time)
+            )
             prevState.items[date].push(meetingToUpdate)
 
             return {
@@ -126,7 +98,9 @@ export default class CalendarView extends Component {
 
     deniedMeeting = (date, time, idOpponent) => {
         this.setState((prevState) => {
-            prevState.items[date] = prevState.items[date].filter(elem => elem.idOpponent != idOpponent && elem.time != time)
+            prevState.items[date] = prevState.items[date].filter(elem =>
+                elem.idOpponent != idOpponent || (elem.idOpponent == idOpponent && elem.date != date) || (elem.idOpponent == idOpponent && elem.date == date && elem.time != time)
+            )
             return {
                 items: prevState.items
             }

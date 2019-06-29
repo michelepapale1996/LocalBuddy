@@ -18,7 +18,12 @@ export default class NewMeeting extends Component {
                 <Button
                     mode={"outlined"}
                     onPress={()=> navigation.getParam("saveMeeting", null)()}
-                    style={styles.button}
+                    style={{
+                        marginLeft:0,
+                        marginRight:0,
+                        borderRadius: 5,
+                        borderColor: "white"
+                    }}
                     color={"white"}
                 >
                     Save

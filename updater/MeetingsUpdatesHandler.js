@@ -1,3 +1,6 @@
+import LocalMeetingsHandler from "../LocalHandler/LocalMeetingsHandler";
+import UserHandler from "../handler/UserHandler";
+
 class MeetingsUpdatesHandler{
     static newMeetingListener = []
     static acceptedMeetingListener = []
@@ -46,14 +49,30 @@ class MeetingsUpdatesHandler{
     }
 
     static newMeeting(date, time, opponentId){
-        this.newMeetingListener.forEach(fn => fn(date, time, opponentId))
+        const promises = [UserHandler.getNameAndSurname(opponentId), UserHandler.getUrlPhoto(opponentId)]
+        Promise.all(promises).then(results => {
+            const singleMeeting = {
+                idOpponent: opponentId,
+                date: date,
+                time: time,
+                isFixed: 0,
+                isPending: 0,
+                nameAndSurname: results[0],
+                urlPhoto: results[1]
+            }
+
+            this.newMeetingListener.forEach(fn => fn(singleMeeting))
+            LocalMeetingsHandler.addMeeting(singleMeeting)
+        })
     }
 
     static deniedMeeting(date, time, idOpponent){
+        LocalMeetingsHandler.removeMeeting(date, time, idOpponent)
         this.deniedMeetingListener.forEach(fn => fn(date, time, idOpponent))
     }
 
     static acceptedMeeting(date, time, idOpponent){
+        LocalMeetingsHandler.updateMeeting(date, time, idOpponent)
         this.acceptedMeetingListener.forEach(fn => fn(date, time, idOpponent))
     }
 
@@ -62,7 +81,21 @@ class MeetingsUpdatesHandler{
     }
 
     static newPendingMeeting(date, time, opponentId){
-        this.newPendingMeetingListener.forEach(fn => fn(date, time, opponentId))
+        const promises = [UserHandler.getNameAndSurname(opponentId), UserHandler.getUrlPhoto(opponentId)]
+        Promise.all(promises).then(results => {
+            const singleMeeting = {
+                idOpponent: opponentId,
+                date: date,
+                time: time,
+                isFixed: 0,
+                isPending: 1,
+                nameAndSurname: results[0],
+                urlPhoto: results[1]
+            }
+
+            this.newMeetingListener.forEach(fn => fn(singleMeeting))
+            LocalMeetingsHandler.addMeeting(singleMeeting)
+        })
     }
 }
 MeetingsUpdatesHandler.shared = new MeetingsUpdatesHandler()

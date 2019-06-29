@@ -8,7 +8,7 @@ import { Text, Button, Surface, TouchableRipple, FAB } from 'react-native-paper'
 import {Icon} from 'react-native-elements'
 import MeetingsUpdatesHandler from "../updater/MeetingsUpdatesHandler";
 import DateHandler from "../handler/DateHandler";
-import LocalStateHandler from "../handler/LocalStateHandler";
+import LocalMeetingsHandler from "../LocalHandler/LocalMeetingsHandler";
 
 export default class ListView extends Component{
     constructor(props){
@@ -45,9 +45,10 @@ export default class ListView extends Component{
         MeetingsUpdatesHandler.setNewMeetingListener(this.newMeeting)
         MeetingsUpdatesHandler.setFromFutureToPastMeeting(this.changeFromFutureToPastMeeting)
 
-        var meetings = await MeetingsHandler.getMeetings()
+        //var meetings = await MeetingsHandler.getMeetings()
+        var meetings = await LocalMeetingsHandler.getMeetings()
 
-        //get the id of the other person
+        //get the id of the others
         const peopleIds = []
         meetings.forEach(elem => {
             if(!peopleIds.includes(elem.idOpponent)) peopleIds.push(elem.idOpponent)
@@ -88,53 +89,41 @@ export default class ListView extends Component{
         })
     }
 
-    newMeeting = (date, time, opponentId) => {
-        this.createMeeting(date, time, opponentId, 0, 0)
+    newMeeting = (meeting) => {
+        this.createMeeting(meeting)
     }
 
-    addPendingMeeting = (date, time, opponentId) => {
-        this.createMeeting(date, time, opponentId, 0, 1)
+    addPendingMeeting = (meeting) => {
+        this.createMeeting(meeting)
     }
 
-    createMeeting = (date, time, opponentId, isFixed, isPending) => {
-        const promises = [UserHandler.getNameAndSurname(opponentId), UserHandler.getUrlPhoto(opponentId)]
-        Promise.all(promises).then(results => {
-            this.setState(prevState => {
-                var meetingsWithOpponent = prevState.meetings.filter(m => m.idOpponent == opponentId)[0]
-                const otherMeetings = prevState.meetings.filter(m => m.idOpponent != opponentId)
-                const singleMeeting = {
-                    idOpponent: opponentId,
-                    date: date,
-                    time: time,
-                    isFixed: isFixed,
-                    isPending: isPending,
-                    nameAndSurname: results[0],
-                    urlPhoto: results[1]
-                }
+    createMeeting = (meeting) => {
+        this.setState(prevState => {
+            var meetingsWithOpponent = prevState.meetings.filter(m => m.idOpponent == meeting.idOpponent)[0]
+            const otherMeetings = prevState.meetings.filter(m => m.idOpponent != meeting.idOpponent)
 
-                //if there exists already meetings with the opponent
-                if(meetingsWithOpponent !== undefined){
-                    meetingsWithOpponent.meetings.push(singleMeeting)
-                } else {
-                    meetingsWithOpponent = {
-                        idOpponent: opponentId,
-                        atLeastOnePassed: false,
-                        feedbackAlreadyGiven: 0,
-                        meetings: [singleMeeting]
-                    }
+            //if there exists already meetings with the opponent
+            if(meetingsWithOpponent !== undefined){
+                meetingsWithOpponent.meetings.push(meeting)
+            } else {
+                meetingsWithOpponent = {
+                    idOpponent: meeting.idOpponent,
+                    atLeastOnePassed: false,
+                    feedbackAlreadyGiven: 0,
+                    meetings: [meeting]
                 }
-                otherMeetings.push(meetingsWithOpponent)
-                return {
-                    meetings: otherMeetings
-                }
-            })
+            }
+            otherMeetings.push(meetingsWithOpponent)
+            return { meetings: otherMeetings }
         })
     }
 
     acceptedMeeting = (date, time, idOpponent) => {
         this.setState((prevState) => {
-            let meetingsWithOpponent = prevState.meetings.filter(elem => elem.idOpponent == idOpponent)[0]
-            const otherMeetings = prevState.meetings.filter(m => m.idOpponent != idOpponent)
+            let meetingsWithOpponent = prevState.meetings.filter(elem => elem.idOpponent == idOpponent && elem.date == date && elem.time == time)[0]
+            const otherMeetings = prevState.meetings.filter(m =>
+                elem.idOpponent != idOpponent || (elem.idOpponent == idOpponent && elem.date != date) || (elem.idOpponent == idOpponent && elem.date == date && elem.time != time)
+            )
             meetingsWithOpponent.meetings.forEach(m => {
                 if (m.isFixed == 0){
                     m.isFixed = 1
@@ -151,9 +140,25 @@ export default class ListView extends Component{
 
     deniedMeeting = (date, time, idOpponent) => {
         this.setState(prevState => {
-            const meetings = prevState.meetings.filter(elem => {
+            const meetingsWithOtherUsers = prevState.meetings.filter(elem => {
                 return elem.idOpponent != idOpponent
             })
+
+            var meetingsWithTheSameUser = prevState.meetings.filter(elem => {
+                return elem.idOpponent == idOpponent
+            })
+            meetingsWithTheSameUser = meetingsWithTheSameUser[0]
+
+            var filteredMeetingsWithTheSameUser = meetingsWithTheSameUser.meetings.filter(meeting => {
+                console.log(meeting)
+                return meeting.date != date || (meeting.date == date && meeting.time != time)
+            })
+
+            var meetings = meetingsWithOtherUsers
+            if(filteredMeetingsWithTheSameUser.length > 0){
+                meetingsWithTheSameUser.meetings = filteredMeetingsWithTheSameUser
+                meetings.push(meetingsWithTheSameUser)
+            }
 
             return {
                 meetings: meetings
@@ -238,6 +243,7 @@ export default class ListView extends Component{
                                 this.state.meetings.length > 0 &&
                                 <FlatList
                                     data={this.state.meetings}
+                                    extraData={this.state.meetings}
                                     renderItem={({item}) => {
                                         const meetings = item.meetings.map((m,index) => {
                                             const isFuture = !DateHandler.isInThePast(m.date, m.time)

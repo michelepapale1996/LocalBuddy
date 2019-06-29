@@ -2,6 +2,7 @@ import MeetingsNotificationsHandler from "./MeetingsNotificationsHandler";
 var PushNotification = require('react-native-push-notification');
 import { StackActions, NavigationActions } from 'react-navigation';
 import NavigationService from "./NavigationService";
+import LocalChatsHandler from "../LocalHandler/LocalChatsHandler";
 
 class MessagesNotificationsHandler{
     //it is an object containing {routeName:"", key:""}

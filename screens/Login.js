@@ -9,7 +9,12 @@ import {AccessToken, GraphRequest, LoginManager, GraphRequestManager} from 'reac
 import UserHandler from "../handler/UserHandler";
 import AccountHandler from "../handler/AccountHandler";
 import ConnectyCubeHandler from "../handler/ConnectyCubeHandler";
-import LocalStateHandler from "../handler/LocalStateHandler";
+import LocalUserHandler from "../LocalHandler/LocalUserHandler";
+import LocalMeetingsHandler from "../LocalHandler/LocalMeetingsHandler";
+import ChatsHandler from "../handler/ChatsHandler";
+import LocalChatsHandler from "../LocalHandler/LocalChatsHandler";
+import SingleChatHandler from "../handler/SingleChatHandler";
+import LocalStateUpdater from "../updater/LocalStateUpdater";
 
 export default class Login extends React.Component {
     state = {
@@ -29,7 +34,23 @@ export default class Login extends React.Component {
             firebase.auth().signInWithEmailAndPassword(email, password).then(async () => {
                 const userId = firebase.auth().currentUser.uid
                 const userInfo = await UserHandler.getUserInfo(userId)
-                LocalStateHandler.storeUserInfo(userInfo)
+
+                await ConnectyCubeHandler.setInstance()
+                await ConnectyCubeHandler.createSession(userId)
+
+                const CCUserId = ConnectyCubeHandler.getCCUserId()
+                SingleChatHandler.connectToChat(CCUserId, 'LocalBuddy')
+
+                LocalUserHandler.storeUserInfo(userInfo)
+                LocalMeetingsHandler.setMeetings(userInfo.meetings)
+
+                const citiesWhereIsBuddy = await UserHandler.getCitiesOfTheBuddy(userId)
+                LocalUserHandler.storeCitiesWhereIsBuddy(citiesWhereIsBuddy)
+
+                ChatsHandler.getChats().then(async chats => {
+                    await LocalChatsHandler.setChats(chats)
+                })
+
                 LoadingHandler.initApp(userId).then(() => {
                     this.props.navigation.navigate('Chat')
                 })
@@ -70,11 +91,26 @@ export default class Login extends React.Component {
         const firebaseUserCredential = await firebase.auth().signInWithCredential(credential);
 
         const userId = firebaseUserCredential.user._user.uid
-        UserHandler.getUserInfo(userId).then(userInfo => {
+        UserHandler.getUserInfo(userId).then(async userInfo => {
             if (userInfo) {
                 //user exists
+                await ConnectyCubeHandler.setInstance()
+                await ConnectyCubeHandler.createSession(userId)
+
+                const CCUserId = ConnectyCubeHandler.getCCUserId()
+                SingleChatHandler.connectToChat(CCUserId, 'LocalBuddy')
+
                 //save in local
-                LocalStateHandler.storeUserInfo(userInfo)
+                LocalUserHandler.storeUserInfo(userInfo)
+
+                const citiesWhereIsBuddy = await UserHandler.getCitiesOfTheBuddy(userId)
+                LocalUserHandler.storeCitiesWhereIsBuddy(citiesWhereIsBuddy)
+
+                LocalMeetingsHandler.setMeetings(userInfo.meetings)
+                ChatsHandler.getChats().then(async chats => {
+                    await LocalChatsHandler.setChats(chats)
+                })
+
                 LoadingHandler.initApp(userId).then(() => {
                     this.props.navigation.navigate('Chat')
                 })
@@ -116,9 +152,15 @@ export default class Login extends React.Component {
                     }).then(()=>{
                         return ConnectyCubeHandler.login(userId)
                     }).then(async () => {
+                        const CCUserId = ConnectyCubeHandler.getCCUserId()
+                        await SingleChatHandler.connectToChat(CCUserId, 'LocalBuddy')
+
                         //save in local
                         const user = await UserHandler.getUserInfo(userId)
-                        await LocalStateHandler.storeUserInfo(user)
+                        await LocalUserHandler.storeUserInfo(user)
+                        ChatsHandler.getChats().then(async chats => {
+                            await LocalChatsHandler.setChats(chats)
+                        })
 
                         LoadingHandler.initApp(userId).then(()=>{
                             this.props.navigation.navigate('Chat')

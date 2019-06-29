@@ -5,6 +5,7 @@ import UserHandler from "../handler/UserHandler";
 import {widthPercentageToDP as wp, heightPercentageToDP as hp, listenOrientationChange as loc, removeOrientationListener as rol} from 'react-native-responsive-screen';
 import firebase from "react-native-firebase";
 import { Text, TextInput, IconButton, Searchbar, Snackbar } from 'react-native-paper';
+import LocalUserHandler from "../LocalHandler/LocalUserHandler";
 
 export default class CitiesOfBuddy extends Component {
     static navigationOptions = () => {
@@ -37,8 +38,9 @@ export default class CitiesOfBuddy extends Component {
 
     async componentDidMount(){
         loc(this)
-        const idUser = firebase.auth().currentUser.uid
-        const cities = await UserHandler.getCitiesOfTheBuddy(idUser)
+        //const idUser = firebase.auth().currentUser.uid
+        //const cities = await UserHandler.getCitiesOfTheBuddy(idUser)
+        const cities = await LocalUserHandler.getCitiesOfTheBuddy()
         if(cities != null){
             this.setState({
                 cities: cities,
@@ -91,7 +93,8 @@ export default class CitiesOfBuddy extends Component {
             if (prevState.cities == undefined) {
                 return {cities: [{cityName: cityName, cityId: cityId}], newCityDialogVisible: true, foundCities: [], addedCityName: cityName}
             } else {
-                const toCheck = prevState.cities.filter(elem=>elem.cityName == cityName)
+                //check if the user is already a buddy in that city
+                const toCheck = prevState.cities.filter(elem => elem.cityId == cityId)
                 if(toCheck.length == 0){
                     const cities = [...prevState.cities, {cityName: cityName, cityId: cityId}]
                     return {cities: cities, newCityDialogVisible: true, foundCities: [], addedCityName: cityName}
@@ -100,11 +103,13 @@ export default class CitiesOfBuddy extends Component {
                 }
             }
         })
+        LocalUserHandler.addCityWhereIsBuddy(cityId, cityName)
         UserHandler.addCity(cityId, cityName)
     }
 
     deleteCity = (cityId, cityName) => {
         UserHandler.deleteCity(cityId)
+        LocalUserHandler.deleteCity(cityId)
         this.setState((prevState) => {
             if(prevState.cities.length == 1){
                 return {cities: undefined, removeCityDialogVisible: true, removedCityName: cityName}

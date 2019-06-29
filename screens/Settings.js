@@ -1,7 +1,6 @@
 import React, {Component} from 'react';
 import {StyleSheet, View, Alert, ScrollView } from 'react-native';
 import firebase from 'react-native-firebase'
-import LocalStateHandler from "../handler/LocalStateHandler";
 import UserHandler from "../handler/UserHandler";
 import {widthPercentageToDP as wp, heightPercentageToDP as hp, listenOrientationChange as loc, removeOrientationListener as rol} from 'react-native-responsive-screen';
 import LoadingComponent from '../components/LoadingComponent'
@@ -9,15 +8,18 @@ import CitiesOfBuddy from "./CitiesOfBuddy";
 import { Text, TouchableRipple, Portal, Dialog, Paragraph, Button, Switch, Surface, IconButton } from 'react-native-paper';
 import AccountHandler from "../handler/AccountHandler";
 import MultiSlider from "@ptomasroos/react-native-multi-slider/MultiSlider";
+import LocalUserHandler from "../LocalHandler/LocalUserHandler";
 
 function BuddyComponent(props){
     stopToBeBuddy = () => {
         UserHandler.stopToBeBuddy()
+        LocalUserHandler.isBuddy(0)
         props.isBuddyUpdater(0)
     }
 
     becomeBuddy = () => {
         UserHandler.becomeBuddy()
+        LocalUserHandler.isBuddy(1)
         props.isBuddyUpdater(1)
     }
 
@@ -154,15 +156,17 @@ export default class Settings extends Component {
 
     async componentDidMount(){
         loc(this)
-        const userId = firebase.auth().currentUser.uid;
-        const isBuddy = await UserHandler.isBuddy(userId)
-        const preferences = await UserHandler.getPreferences(userId)
+
+        var user = await LocalUserHandler.getUserInfo()
+        //const userId = firebase.auth().currentUser.uid;
+        //const isBuddy = await UserHandler.isBuddy(userId)
+        //const preferences = await UserHandler.getPreferences(userId)
         this.setState({
-            isBuddy: isBuddy,
+            isBuddy: user.isBuddy,
             loadingDone: true,
-            lowerRangeTouristAge: preferences.lowerRangeTouristAge,
-            upperRangeTouristAge: preferences.upperRangeTouristAge,
-            onlySameSex: preferences.onlySameSex,
+            lowerRangeTouristAge: user.preferences.lowerRangeTouristAge,
+            upperRangeTouristAge: user.preferences.upperRangeTouristAge,
+            onlySameSex: user.preferences.onlySameSex,
         })
     }
 
@@ -193,6 +197,7 @@ export default class Settings extends Component {
 
     onlySameSexChange = () => {
         UserHandler.savePreferences(this.state.lowerRangeTouristAge, this.state.upperRangeTouristAge, !this.state.onlySameSex)
+        LocalUserHandler.savePreferences(this.state.lowerRangeTouristAge, this.state.upperRangeTouristAge, !this.state.onlySameSex)
         this.setState({ onlySameSex: !this.state.onlySameSex });
     }
 

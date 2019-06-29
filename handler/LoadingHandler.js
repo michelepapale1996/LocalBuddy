@@ -2,21 +2,18 @@ import firebase from "react-native-firebase"
 import SingleChatHandler from "./SingleChatHandler"
 import ConnectyCubeHandler from "./ConnectyCubeHandler"
 import UserHandler from "./UserHandler";
-import LocalStateHandler from "./LocalStateHandler";
 import ChatsHandler from "./ChatsHandler";
+import LocalChatsHandler from "../LocalHandler/LocalChatsHandler";
+import MessagesUpdatesHandler from "../updater/MessagesUpdatesHandler";
+import LocalStateUpdater from "../updater/LocalStateUpdater";
 
 class LoadingHandler{
     static async initApp(userId){
-
-        var instance = ConnectyCubeHandler.getInstance()
-        //user does not come from sign up-> connect to connectycube
-        if (instance === null) {
-            await ConnectyCubeHandler.setInstance()
-            await ConnectyCubeHandler.createSession(userId)
-        }
-        const CCUserId = ConnectyCubeHandler.getCCUserId()
-        //SingleChatHandler.connectToChat(CCUserId, 'LocalBuddy')
-
+        await ConnectyCubeHandler.setInstance()
+        ConnectyCubeHandler.createSession(userId).then(()=>{
+            const CCUserId = ConnectyCubeHandler.getCCUserId()
+            SingleChatHandler.connectToChat(CCUserId, 'LocalBuddy')
+        })
         //push notifications
         firebase.messaging().hasPermission().then(enabled => {
             if (enabled) {

@@ -4,7 +4,7 @@ import {widthPercentageToDP as wp, heightPercentageToDP as hp, listenOrientation
 import LoadingComponent from '../components/LoadingComponent'
 import { TextInput, Text, Button } from 'react-native-paper';
 import UserHandler from "../handler/UserHandler";
-import LocalStateHandler from "../handler/LocalStateHandler";
+import LocalUserHandler from "../LocalHandler/LocalUserHandler";
 
 export default class NewBiography extends Component {
     static navigationOptions = ({ navigation }) => {
@@ -32,7 +32,7 @@ export default class NewBiography extends Component {
 
     saveBiography = async () => {
         await UserHandler.saveBiography(this.state.text)
-        LocalStateHandler.updateBio(this.state.text)
+        LocalUserHandler.updateBio(this.state.text)
         this.props.navigation.getParam("newBiography", null)(this.state.text)
         this.props.navigation.goBack()
     }

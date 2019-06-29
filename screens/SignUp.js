@@ -8,9 +8,10 @@ import ConnectyCubeHandler from "../handler/ConnectyCubeHandler"
 import LoadingComponent from "../components/LoadingComponent";
 import {widthPercentageToDP as wp, heightPercentageToDP as hp, listenOrientationChange as loc, removeOrientationListener as rol} from 'react-native-responsive-screen';
 import LoadingHandler from "../handler/LoadingHandler";
-import LocalStateHandler from "../handler/LocalStateHandler";
+import LocalUserHandler from "../LocalHandler/LocalUserHandler";
 import UserHandler from "../handler/UserHandler";
 import DateHandler from "../handler/DateHandler";
+import SingleChatHandler from "../handler/SingleChatHandler";
 
 export default class SignUp extends React.Component {
     constructor(props){
@@ -73,10 +74,12 @@ export default class SignUp extends React.Component {
                         this.state.birthDate)
                 //save in local
                 const user = await UserHandler.getUserInfo(userId)
-                await LocalStateHandler.storeUserInfo(user)
+                await LocalUserHandler.storeUserInfo(user)
 
                 await ConnectyCubeHandler.login(userId)
                 await LoadingHandler.initApp(userId)
+                const CCUserId = ConnectyCubeHandler.getCCUserId()
+                SingleChatHandler.connectToChat(CCUserId, 'LocalBuddy')
                 this.props.navigation.navigate('Chat')
             }).catch(error => {
                 this.setState({

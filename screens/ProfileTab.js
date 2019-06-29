@@ -8,7 +8,7 @@ import LoadingComponent from "../components/LoadingComponent";
 import { IconButton, Colors, Text, Surface, TouchableRipple } from 'react-native-paper';
 import UserHandler from "../handler/UserHandler";
 import StarRating from 'react-native-star-rating';
-import LocalStateHandler from "../handler/LocalStateHandler";
+import LocalUserHandler from "../LocalHandler/LocalUserHandler";
 
 function Biography(props){
     modifyBiography = ()=>{
@@ -156,10 +156,11 @@ export default class ProfileTab extends Component {
 
     async componentDidMount(){
         loc(this)
-        const id = firebase.auth().currentUser.uid
+        //const id = firebase.auth().currentUser.uid
         //var user = await UserHandler.getUserInfo(id)
-        const citiesWhereIsBuddy = await UserHandler.getCitiesOfTheBuddy(id)
-        var user = await LocalStateHandler.getUserInfo()
+        //const citiesWhereIsBuddy = await UserHandler.getCitiesOfTheBuddy(id)
+        const citiesWhereIsBuddy = await LocalUserHandler.getCitiesOfTheBuddy()
+        var user = await LocalUserHandler.getUserInfo()
         if(user.feedbacks != null){
             var total = 0
             user.feedbacks.forEach(elem => total += elem.rating)

@@ -6,7 +6,8 @@ import MessagesUpdatesHandler from "../updater/MessagesUpdatesHandler"
 import LoadingComponent from '../components/LoadingComponent'
 import { Text, TouchableRipple, Portal, Dialog, Button, Paragraph } from 'react-native-paper'
 import ConnectyCubeHandler from "../handler/ConnectyCubeHandler";
-import LocalStateHandler from "../handler/LocalStateHandler";
+import LocalChatsHandler from "../LocalHandler/LocalChatsHandler";
+import LocalStateUpdater from "../updater/LocalStateUpdater";
 
 function Chat(props) {
     const lastMessageTime = props.getTime(props.item.createdAt)
@@ -94,7 +95,7 @@ export default class AllChats extends Component {
                 minutes = time.getMinutes()
             }
             lastMessageTime = time.getHours() + ":" + minutes
-        }else if(time.getDate() + 1== now.getDate()){
+        }else if(time.getDate() + 1 == now.getDate()){
             lastMessageTime = "Yesterday"
         }else{
             lastMessageTime = time.getDate() + "/" + (time.getMonth()+1) + "/" + time.getFullYear()
@@ -106,7 +107,7 @@ export default class AllChats extends Component {
         this.setState(prevState => {
             if(isLocal) {
                 var toUpdate = prevState.chats.filter((elem) => elem.chatId == payload.chatId)[0]
-                var otherChats = prevState.chats.filter((elem) => elem.CCopponentUserId != payload.ccOpponentUserId)
+                var otherChats = prevState.chats.filter((elem) => elem.chatId != payload.chatId)
                 //if the user is starting a new conversation, toUpdate will be null
                 if (toUpdate == null || toUpdate == undefined) {
                     toUpdate = {
@@ -130,8 +131,8 @@ export default class AllChats extends Component {
                 })
             } else {
                 //new message from another user
-                toUpdate = prevState.chats.filter((elem) => elem.chatId == payload.dialog_id)[0]
-                otherChats = prevState.chats.filter((elem) => elem.chatId != payload.dialog_id)
+                toUpdate = prevState.chats.filter((elem) => elem.chatId == payload.chatId)[0]
+                otherChats = prevState.chats.filter((elem) => elem.chatId != payload.chatId)
 
                 //if the user is starting a new conversation, toUpdate will be null
                 if(toUpdate == null || toUpdate == undefined){
@@ -139,9 +140,9 @@ export default class AllChats extends Component {
                         this.setState({chats})
                     })
                 } else {
-                    toUpdate.lastMessageText = payload.body
-                    var time = new Date(0); // The 0 there is the key, which sets the date to the epoch
-                    time.setUTCSeconds(payload.extension.date_sent);
+                    toUpdate.lastMessageText = payload.text
+                    toUpdate.createdAt = payload.createdAt
+
                     var allChats = [toUpdate]
                     //if the user has not other chats
                     if (otherChats.length != 0){
@@ -161,15 +162,21 @@ export default class AllChats extends Component {
 
     setDialogIdToDelete = (dialogID) => this.setState({ dialogIdToDelete: dialogID})
 
-    componentDidMount(){
+    async componentDidMount(){
         loc(this)
         MessagesUpdatesHandler.addListener(this.onMessageRcvd)
-        //ChatsHandler.getChats().then(chats => {
-        LocalStateHandler.getChats().then(chats => {
+        LocalChatsHandler.getChats().then(chats => {
             this.setState({
                 chats: chats,
                 loadingDone: true
             })
+        })
+
+    }
+
+    stateUpdater = (chats) => {
+        this.setState({
+            chats: chats
         })
     }
 
