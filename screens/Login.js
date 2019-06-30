@@ -15,6 +15,7 @@ import ChatsHandler from "../handler/ChatsHandler";
 import LocalChatsHandler from "../LocalHandler/LocalChatsHandler";
 import SingleChatHandler from "../handler/SingleChatHandler";
 import LocalStateUpdater from "../updater/LocalStateUpdater";
+import OrientationHandler from "../handler/OrientationHandler";
 
 export default class Login extends React.Component {
     state = {
@@ -39,7 +40,7 @@ export default class Login extends React.Component {
                 await ConnectyCubeHandler.createSession(userId)
 
                 const CCUserId = ConnectyCubeHandler.getCCUserId()
-                SingleChatHandler.connectToChat(CCUserId, 'LocalBuddy')
+                //SingleChatHandler.connectToChat(CCUserId, 'LocalBuddy')
 
                 LocalUserHandler.storeUserInfo(userInfo)
                 LocalMeetingsHandler.setMeetings(userInfo.meetings)
@@ -172,36 +173,104 @@ export default class Login extends React.Component {
     }
 
     render() {
-        const styles = StyleSheet.create({
-            container: {
-                flex: 1,
-                justifyContent: 'space-between',
-                alignItems: 'center',
-            },
-            textInput: {
-                width: wp('80%'),
-                backgroundColor:"transparent",
-                borderBottomWidth: 1,
-                borderColor: "white",
-                color:"white"
-            },
-            button:{
-                marginTop:hp("3%"),
-                width: wp("80%"),
-                borderRadius: 5,
-                height: hp("6%")
-            },
-            text:{
-                color:"white",
-                fontSize: 20,
-            },
-        })
+        var styles;
+        if(OrientationHandler.orientation == "portrait") {
+            styles = StyleSheet.create({
+                container: {
+                    flex: 1,
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                },
+                textInput: {
+                    width: wp('80%'),
+                    backgroundColor: "transparent",
+                    borderBottomWidth: 1,
+                    borderColor: "white",
+                    color: "white"
+                },
+                button: {
+                    marginTop: hp("3%"),
+                    width: wp("80%"),
+                    borderRadius: 5,
+                    height: hp("6%")
+                },
+                text: {
+                    color: "white",
+                    fontSize: 20,
+                },
+                logo: {
+                    marginTop: hp("10%"),
+                    width: wp("40%"),
+                    height:wp("40%"),
+                    borderRadius:wp("90%")
+                },
+                facebookButton: {
+                    marginTop: hp("1%"),
+                    height:hp("6%"),
+                    justifyContent:"center",
+                    width:wp("80%"),
+                    backgroundColor:"white",
+                    borderRadius:5
+                },
+                facebookLogo:{
+                    width: wp("10%"),
+                    height:hp("6%"),
+                    marginRight:wp("7%"),
+                    borderRadius:5
+                }
+            })
+        } else {
+            styles = StyleSheet.create({
+                container: {
+                    flex: 1,
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                },
+                textInput: {
+                    width: wp('80%'),
+                    backgroundColor: "transparent",
+                    borderBottomWidth: 1,
+                    borderColor: "white",
+                    color: "white"
+                },
+                button: {
+                    marginTop: hp("3%"),
+                    width: wp("80%"),
+                    borderRadius: 5,
+                    height: hp("10%")
+                },
+                text: {
+                    color: "white",
+                    fontSize: 20,
+                },
+                logo: {
+                    marginTop: hp("5%"),
+                    width: wp("20%"),
+                    height:wp("20%"),
+                    borderRadius:wp("90%")
+                },
+                facebookButton: {
+                    marginTop: hp("1%"),
+                    height:hp("10%"),
+                    justifyContent:"center",
+                    width:wp("80%"),
+                    backgroundColor:"white",
+                    borderRadius:5
+                },
+                facebookLogo:{
+                    width: wp("5%"),
+                    height:hp("10%"),
+                    marginRight:wp("7%"),
+                    borderRadius:5
+                }
+            })
+        }
 
         if (!this.state.buttonClicked) {
             return (
                 <ScrollView style={{flex:1, backgroundColor: '#2c3e50'}}>
                 <View style={styles.container}>
-                    <Image style={{marginTop: hp("10%"),width: wp("40%"), height:wp("40%"), borderRadius:wp("90%")}} source={require('../img/logo.jpg')}/>
+                    <Image style={styles.logo} source={require('../img/logo.jpg')}/>
                     <Text style={styles.text}>LocalBuddy</Text>
                     <View>
                         <View style={{flexDirection:"row", alignItems:"center"}}>
@@ -239,9 +308,9 @@ export default class Login extends React.Component {
 
                         <Text style={styles.text}> or </Text>
 
-                        <TouchableRipple style={{marginTop: hp("1%"), height:hp("6%"), justifyContent:"center", width:wp("80%"), backgroundColor:"white", borderRadius:5}} rippleColor="grey" onPress={this.handleFacebookLogin}>
+                        <TouchableRipple style={styles.facebookButton} rippleColor="grey" onPress={this.handleFacebookLogin}>
                             <View style={{flexDirection:"row", alignItems: "center", justifyContent:"center"}}>
-                                <Image style={{width: wp("10%"), height:hp("6%"), marginRight:wp("7%"), borderRadius:5}} source={require('../img/facebook_logo.jpeg')}/>
+                                <Image style={styles.facebookLogo} source={require('../img/facebook_logo.jpeg')}/>
                                 <Text style={{color:"black", fontSize: 17}}>
                                     Login with Facebook
                                 </Text>

@@ -7,13 +7,13 @@ import LoadingComponent from '../components/LoadingComponent'
 import { Text, TouchableRipple, Portal, Dialog, Button, Paragraph } from 'react-native-paper'
 import ConnectyCubeHandler from "../handler/ConnectyCubeHandler";
 import LocalChatsHandler from "../LocalHandler/LocalChatsHandler";
-import LocalStateUpdater from "../updater/LocalStateUpdater";
+import OrientationHandler from "../handler/OrientationHandler";
 
 function Chat(props) {
     const lastMessageTime = props.getTime(props.item.createdAt)
     return(
         <TouchableRipple
-            style={{height:hp("12%")}}
+            style={props.styles.mainChatContainer}
             onLongPress={()=>{
                 props.setDialogIdToDelete(props.item.chatId)
                 props.show()
@@ -174,44 +174,79 @@ export default class AllChats extends Component {
 
     }
 
-    stateUpdater = (chats) => {
-        this.setState({
-            chats: chats
-        })
-    }
-
     render() {
-        const styles = StyleSheet.create({
-            container: {
-                flex: 1,
-                justifyContent: 'center',
-                alignItems: 'center',
-                backgroundColor: 'white',
-            },
-            text: {
-                fontSize: 20,
-                fontWeight: "bold"
-            },
-            singleChat: {
-                flex: 1,
-                flexDirection: 'column',
-                justifyContent:"center",
-                marginLeft: wp("3%"),
-                marginRight: wp("3%"),
-            },
-            singleChatContainer: {
-                flex:1,
-                flexDirection: 'row',
-                alignItems:"center",
-                marginLeft: wp("3%"),
-                marginRight: wp("1%"),
-            },
-            userPhoto: {
-                width: wp("15%"),
-                height: wp("15%"),
-                borderRadius: wp("15%")
-            }
-        });
+        var styles;
+        if(OrientationHandler.orientation == "portrait"){
+            styles = StyleSheet.create({
+                container: {
+                    flex: 1,
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    backgroundColor: 'white',
+                },
+                text: {
+                    fontSize: 20,
+                    fontWeight: "bold"
+                },
+                singleChat: {
+                    flex: 1,
+                    flexDirection: 'column',
+                    justifyContent:"center",
+                    marginLeft: wp("3%"),
+                    marginRight: wp("3%"),
+                },
+                singleChatContainer: {
+                    flex:1,
+                    flexDirection: 'row',
+                    alignItems:"center",
+                    marginLeft: wp("3%"),
+                    marginRight: wp("1%"),
+                },
+                userPhoto: {
+                    width: wp("15%"),
+                    height: wp("15%"),
+                    borderRadius: wp("15%")
+                },
+                mainChatContainer:{
+                    height:hp("12%")
+                }
+            })
+        }else{
+            styles = StyleSheet.create({
+                container: {
+                    flex: 1,
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    backgroundColor: 'white',
+                },
+                text: {
+                    fontSize: 20,
+                    fontWeight: "bold"
+                },
+                singleChat: {
+                    flex: 1,
+                    flexDirection: 'column',
+                    justifyContent:"center",
+                    marginLeft: wp("3%"),
+                    marginRight: wp("3%"),
+                },
+                singleChatContainer: {
+                    flex:1,
+                    flexDirection: 'row',
+                    alignItems:"center",
+                    marginLeft: wp("3%"),
+                    marginRight: wp("1%"),
+                },
+                userPhoto: {
+                    width: wp("10%"),
+                    height: wp("10%"),
+                    borderRadius: wp("15%")
+                },
+                mainChatContainer:{
+                    height:hp("20%")
+                }
+            })
+        }
 
         if(this.state.loadingDone != false){
             if(this.state.chats.length != 0) {
@@ -260,7 +295,8 @@ export default class AllChats extends Component {
             } else {
                 return(
                     <View style={styles.container}>
-                        <Text style={styles.text}>You do not have any chat yet!</Text>
+                        <Text style={styles.text}>You do not have any chat yet</Text>
+                        <Button mode={"outlined"} onPress={()=>this.props.navigation.navigate("Search")}>To start chatting, look for a new buddy</Button>
                     </View>
                 )
             }

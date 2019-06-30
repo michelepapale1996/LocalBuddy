@@ -9,7 +9,7 @@ const CREDENTIALS = {
     authSecret: '64hACuSZBc2aEVT'
 };
 const CONFIG = {
-    debug: { mode: 1 } // enable DEBUG mode (mode 0 is logs off, mode 1 -> console.log())
+    debug: { mode: 0 } // enable DEBUG mode (mode 0 is logs off, mode 1 -> console.log())
 };
 
 class ConnectyCubeHandler{

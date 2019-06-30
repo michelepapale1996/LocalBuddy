@@ -79,7 +79,7 @@ export default class SignUp extends React.Component {
                 await ConnectyCubeHandler.login(userId)
                 await LoadingHandler.initApp(userId)
                 const CCUserId = ConnectyCubeHandler.getCCUserId()
-                SingleChatHandler.connectToChat(CCUserId, 'LocalBuddy')
+                //SingleChatHandler.connectToChat(CCUserId, 'LocalBuddy')
                 this.props.navigation.navigate('Chat')
             }).catch(error => {
                 this.setState({

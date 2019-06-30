@@ -9,6 +9,7 @@ import {Icon} from 'react-native-elements'
 import MeetingsUpdatesHandler from "../updater/MeetingsUpdatesHandler";
 import DateHandler from "../handler/DateHandler";
 import LocalMeetingsHandler from "../LocalHandler/LocalMeetingsHandler";
+import OrientationHandler from "../handler/OrientationHandler";
 
 export default class ListView extends Component{
     constructor(props){
@@ -171,73 +172,139 @@ export default class ListView extends Component{
     }
 
     render() {
-        const styles = StyleSheet.create({
-            mainContainer: {
-                flex: 1,
-                backgroundColor: 'white',
-            },
-            container:{
-                justifyContent: 'center',
-                flex:1,
-            },
-            singleOptionContainer:{
-                flex:1,
-                margin: wp("3%"),
-                height: hp("5%")
-            },
-            text: {
-                fontSize: 20,
-            },
-            header:{
-                height: hp("5%"),
-                fontSize: 20,
-                fontWeight:"bold"
-            },
-            userPhoto: {
-                width: wp("15%"),
-                height: wp("15%"),
-                marginRight: wp("5%"),
-                borderRadius: wp("15%")
-            },
-            userContainer: {
-                flex: 1,
-                flexDirection: 'row',
-                alignItems:"center",
-                margin: wp("3%"),
-                height: hp("10%")
-            },
-            userInfoContainer: {
-                flex:1,
-                margin: wp("1%"),
-                height: hp("10%")
-            },
-            button:{
-                marginLeft:0,
-                marginRight:0,
-                borderRadius: 5,
-                borderWidth: 1,
-            },
-            opponentMeetings:{
-                elevation: 5,
-                marginBottom: hp("1%"),
-                marginTop: hp("1%"),
-                marginLeft: wp("1%"),
-                marginRight: wp("1%"),
-                borderRadius: 4
-            },
-            fab: {
-                position: 'absolute',
-                margin: 16,
-                right: 0,
-                bottom: 0,
-                backgroundColor: "#52c8ff"
-            },
-        });
+        var styles;
+        if(OrientationHandler.orientation == "portrait") {
+            styles = StyleSheet.create({
+                mainContainer: {
+                    flex: 1,
+                    backgroundColor: 'white',
+                },
+                container: {
+                    justifyContent: 'center',
+                    flex: 1,
+                },
+                singleOptionContainer: {
+                    flex: 1,
+                    margin: wp("3%"),
+                    height: hp("5%")
+                },
+                text: {
+                    fontSize: 20,
+                },
+                header: {
+                    height: hp("5%"),
+                    fontSize: 20,
+                    fontWeight: "bold"
+                },
+                userPhoto: {
+                    width: wp("15%"),
+                    height: wp("15%"),
+                    marginRight: wp("5%"),
+                    borderRadius: wp("15%")
+                },
+                userContainer: {
+                    flex: 1,
+                    flexDirection: 'row',
+                    alignItems: "center",
+                    margin: wp("3%"),
+                    height: hp("10%")
+                },
+                userInfoContainer: {
+                    flex: 1,
+                    margin: wp("1%"),
+                    height: hp("10%")
+                },
+                button: {
+                    marginLeft: 0,
+                    marginRight: 0,
+                    borderRadius: 5,
+                    borderWidth: 1,
+                },
+                opponentMeetings: {
+                    elevation: 5,
+                    marginBottom: hp("1%"),
+                    marginTop: hp("1%"),
+                    marginLeft: wp("1%"),
+                    marginRight: wp("1%"),
+                    borderRadius: 4
+                },
+                fab: {
+                    position: 'absolute',
+                    margin: 16,
+                    right: 0,
+                    bottom: 0,
+                    backgroundColor: "#52c8ff"
+                },
+            })
+        } else {
+            styles = StyleSheet.create({
+                mainContainer: {
+                    flex: 1,
+                    backgroundColor: 'white',
+                },
+                container: {
+                    justifyContent: 'center',
+                    flex: 1,
+                },
+                singleOptionContainer: {
+                    flex: 1,
+                    margin: wp("3%"),
+                    height: hp("5%")
+                },
+                text: {
+                    fontSize: 20,
+                },
+                header: {
+                    height: hp("5%"),
+                    fontSize: 20,
+                    fontWeight: "bold"
+                },
+                userPhoto: {
+                    width: wp("10%"),
+                    height: wp("10%"),
+                    marginRight: wp("5%"),
+                    borderRadius: wp("15%")
+                },
+                userContainer: {
+                    flex: 1,
+                    flexDirection: 'row',
+                    alignItems: "center",
+                    margin: wp("3%"),
+                    height: hp("10%")
+                },
+                userInfoContainer: {
+                    flex: 1,
+                    margin: wp("1%"),
+                    height: hp("10%")
+                },
+                button: {
+                    marginLeft: 0,
+                    marginRight: 0,
+                    borderRadius: 5,
+                    borderWidth: 1,
+                },
+                opponentMeetings: {
+                    elevation: 5,
+                    marginBottom: hp("1%"),
+                    marginTop: hp("1%"),
+                    marginLeft: wp("1%"),
+                    marginRight: wp("1%"),
+                    borderRadius: 4
+                },
+                fab: {
+                    position: 'absolute',
+                    margin: 16,
+                    right: 0,
+                    bottom: 0,
+                    backgroundColor: "#52c8ff"
+                },
+            })
+        }
 
         if(this.state.loadingDone != false) {
             return (
                 <View style={styles.mainContainer}>
-                    <ScrollView>
+                    <ScrollView contentContainerStyle={{flex: 1}}>
                         <View style={styles.container}>
                             {
                                 this.state.meetings.length > 0 &&
@@ -285,7 +352,7 @@ export default class ListView extends Component{
                             {
                                 this.state.meetings.length == 0 &&
                                 <View style={{flex: 1, alignItems:"center", justifyContent: 'center'}}>
-                                    <Text style={{fontWeight:"bold", textAlign: 'center', ...styles.text}}>You do not have any meeting yet.</Text>
+                                    <Text style={{fontWeight:"bold", textAlign: 'center', ...styles.text}}>You do not have any meeting yet</Text>
                                 </View>
                             }
                         </View>

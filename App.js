@@ -7,6 +7,7 @@ import MessagesNotificationsHandler from "./handler/MessagesNotificationsHandler
 import NavigationService from "./handler/NavigationService"
 import PhoneApp from "./PhoneNavigators"
 import TabletApp from "./TabletNavigators"
+import OrientationHandler from "./handler/OrientationHandler";
 
 var AppContainer
 if(Dimensions.get('window').width < 600){
@@ -26,6 +27,15 @@ const theme = {
     }
 };
 class Application extends React.Component {
+    componentDidMount(){
+        OrientationHandler.getOrientation()
+        Dimensions.addEventListener("change", () => OrientationHandler.getOrientation())
+    }
+
+    componentWillUnmount(){
+        Dimensions.removeEventListener("change");
+    }
+
     // gets the current screen from navigation state
     getActiveRouteName = (navigationState)=> {
         if (!navigationState) {

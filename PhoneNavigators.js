@@ -1,6 +1,8 @@
 import { createBottomTabNavigator, createSwitchNavigator, createStackNavigator, createMaterialTopTabNavigator } from 'react-navigation'
+import { Badge } from 'react-native-elements';
 import React from 'react'
 import {Icon} from 'react-native-elements'
+import {View} from "react-native"
 import SingleChat from "./screens/SingleChat";
 import Settings from "./screens/Settings";
 import ChangePassword from "./screens/ChangePassword";
@@ -101,11 +103,27 @@ const ChatTab = createStackNavigator({
     }
 });
 
+/*<Badge
+                    badgeStyle={{
+                            borderRadius: 9,
+                            height: 15,
+                            minWidth: 0,
+                            width: 15}}
+                    status="error"
+                    containerStyle={{
+                        position: "absolute",
+                        top: -4,
+                        right: -8
+                    }}
+                />*/
+
 const TabNavigator = createBottomTabNavigator({
     Chat: {
         screen: ChatTab,
         navigationOptions:{
-            tabBarIcon: ({tintColor}) =>  <Icon name="chat" size={35} color={tintColor}/>
+            tabBarIcon: ({tintColor}) => <View style={{flexDirection: "row"}}>
+                <Icon name="chat" size={35} color={tintColor}/>
+            </View>
         }
     },
     MyMeetings: {
