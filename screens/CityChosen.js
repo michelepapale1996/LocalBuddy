@@ -71,7 +71,7 @@ export default class CityChosen extends Component {
     }
 
     componentWillUnmount(){
-        rol()
+        rol(this)
     }
 
     static navigationOptions = ({ navigation }) => {

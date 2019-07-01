@@ -66,7 +66,7 @@ export default class Feedback extends Component {
     }
 
     componentWillUnmount(){
-        rol()
+        rol(this)
     }
 
     render() {

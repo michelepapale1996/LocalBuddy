@@ -1,8 +1,8 @@
 import React, {Component} from "react";
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, View, TextInput } from 'react-native';
 import {widthPercentageToDP as wp, heightPercentageToDP as hp, listenOrientationChange as loc, removeOrientationListener as rol} from 'react-native-responsive-screen';
 import LoadingComponent from '../components/LoadingComponent'
-import { TextInput, Text, Button } from 'react-native-paper';
+import { Text, Button } from 'react-native-paper';
 import UserHandler from "../handler/UserHandler";
 import LocalUserHandler from "../LocalHandler/LocalUserHandler";
 
@@ -13,7 +13,12 @@ export default class NewBiography extends Component {
             headerRight: (
                 <Button
                     onPress={()=>navigation.getParam("saveBiography", null)()}
-                    style={styles.button}
+                    style={{
+                        marginLeft:0,
+                        marginRight:0,
+                        borderRadius: 5,
+                        borderColor: "white"
+                    }}
                     mode={"outlined"}
                     color={"white"}
                 >
@@ -56,7 +61,7 @@ export default class NewBiography extends Component {
     }
 
     componentWillUnmount(){
-        rol()
+        rol(this)
     }
 
     render() {
@@ -65,6 +70,7 @@ export default class NewBiography extends Component {
                 flex: 1,
                 backgroundColor: 'white',
                 margin:hp("2%"),
+                alignItems:"center"
             },
             singleOptionContainer:{
                 flex:1,
@@ -72,13 +78,14 @@ export default class NewBiography extends Component {
                 height: hp("5%")
             },
             text: {
-                fontSize: 20,
+                fontSize: 25,
                 fontWeight: "bold",
                 textAlign:"center"
             },
             textInput: {
                 width: wp('90%'),
-                marginTop: 8
+                marginTop: 8,
+                fontSize: 20
             },
             header:{
                 fontSize: 20,
@@ -112,14 +119,12 @@ export default class NewBiography extends Component {
         if (this.state.loadingDone != false) {
             return (
                 <View style={styles.container}>
-                    <Text style={styles.text}>Insert the biography</Text>
                     <TextInput
                         multiline={true}
                         onChangeText={(text) => this.setState({text})}
                         style={styles.textInput}
                         value={this.state.text}
-                        selectionColor={"white"}
-                        underlineColor={"white"}
+                        underlineColorAndroid={"#2fa1ff"}
                     />
                 </View>
             )

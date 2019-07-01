@@ -78,7 +78,7 @@ export default class AllChats extends Component {
     };
 
     componentWillUnmount(){
-        rol()
+        rol(this)
         MessagesUpdatesHandler.removeListeners(this.onMessageRcvd)
     }
 

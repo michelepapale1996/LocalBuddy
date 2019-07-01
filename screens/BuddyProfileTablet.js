@@ -116,7 +116,7 @@ export default class ProfileTab extends Component {
     }
 
     componentWillUnmount(){
-        rol()
+        rol(this)
     }
 
     static navigationOptions = ({ navigation }) => {

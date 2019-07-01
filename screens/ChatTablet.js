@@ -231,7 +231,7 @@ export default class ChatTablet extends Component {
     };
 
     componentWillUnmount(){
-        rol()
+        rol(this)
         MessagesUpdatesHandler.removeListeners(this.onMessageRcvd)
     }
 

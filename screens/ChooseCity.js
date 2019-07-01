@@ -60,7 +60,7 @@ export default class ChooseCity extends Component {
     }
 
     componentWillUnmount(){
-        rol()
+        rol(this)
     }
 
     getCities = (input) => {

@@ -101,7 +101,6 @@ export default class NewMeeting extends Component {
     }
 
     async componentDidMount() {
-        loc(this)
         //user can arrive here or from the profile of the other user or from the meetings handler.
         //in the former case, nameAndSurnameOpponent and idOpponent is setted
         //in the latter, we have to retrieve all the users with whom the user has a chat
@@ -124,10 +123,6 @@ export default class NewMeeting extends Component {
         }else{
             this.setState({loadingDone: true})
         }
-    }
-
-    componentWillUnmount(){
-        rol()
     }
 
     render() {

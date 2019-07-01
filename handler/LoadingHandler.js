@@ -10,10 +10,10 @@ import LocalStateUpdater from "../updater/LocalStateUpdater";
 class LoadingHandler{
     static async initApp(userId){
         await ConnectyCubeHandler.setInstance()
-        ConnectyCubeHandler.createSession(userId).then(()=>{
-            const CCUserId = ConnectyCubeHandler.getCCUserId()
-            //SingleChatHandler.connectToChat(CCUserId, 'LocalBuddy')
-        })
+        await ConnectyCubeHandler.createSession(userId)
+        const CCUserId = ConnectyCubeHandler.getCCUserId()
+        SingleChatHandler.connectToChat(CCUserId, 'LocalBuddy')
+
         //push notifications
         firebase.messaging().hasPermission().then(enabled => {
             if (enabled) {

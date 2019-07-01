@@ -6,10 +6,8 @@ class OrientationHandler{
     static getOrientation = () => {
             if(Dimensions.get("window").width < Dimensions.get("window").height){
                 OrientationHandler.orientation = "portrait"
-                console.log("portrait")
             }else{
                 OrientationHandler.orientation = "landscape"
-                console.log("landscape")
             }
         }
 }

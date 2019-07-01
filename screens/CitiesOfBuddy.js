@@ -50,7 +50,7 @@ export default class CitiesOfBuddy extends Component {
     }
 
     componentWillUnmount(){
-        rol()
+        rol(this)
     }
 
     getCities = (input) => {
@@ -124,6 +124,7 @@ export default class CitiesOfBuddy extends Component {
         const styles = StyleSheet.create({
             container: {
                 alignItems: 'center',
+                flex:1,
                 backgroundColor: 'white',
             },
             text: {
@@ -138,6 +139,7 @@ export default class CitiesOfBuddy extends Component {
                 marginTop: 8
             },
             alreadyBuddyContainer: {
+                flex:1,
                 width: wp("95%"),
                 marginLeft:wp("1%"),
                 marginRight:wp("1%"),
@@ -150,16 +152,24 @@ export default class CitiesOfBuddy extends Component {
                 borderWidth: 0.5,
                 width: wp("95%"),
                 margin: hp("1%")
+            },
+            citiesContainer:{
+                alignItems: 'center',
+                justifyContent:"center",
+                flex:1,
             }
         })
 
 
         if(this.state.loadingDone != false) {
             //show the cities in which the user is already a buddy
-            let citiesWhereIsAlreadyBuddy
+            let citiesWhereIsAlreadyBuddy = <View style={styles.citiesContainer}>
+                <Text style={styles.text}>You do not have any city yet</Text>
+            </View>
+
             if(this.state.cities != undefined && this.state.cities.length > 0){
                 citiesWhereIsAlreadyBuddy =
-                    <View style={styles.viewContainer}>
+                    <View>
                         <FlatList
                             data={this.state.cities}
                             renderItem={({item}) =>
@@ -176,11 +186,8 @@ export default class CitiesOfBuddy extends Component {
                             showsVerticalScrollIndicator={false}
                         />
                     </View>
-            }else{
-                citiesWhereIsAlreadyBuddy = <View style={styles.text}>
-                    <Text style={styles.text}>You do not have any city yet.</Text>
-                </View>
             }
+
             var foundCities = <FlatList
                 data={this.state.foundCities}
                 renderItem={({item}) =>

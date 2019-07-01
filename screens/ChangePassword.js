@@ -12,7 +12,7 @@ export default class ChangePassword extends React.Component {
     }
 
     componentWillUnmount(){
-        rol()
+        rol(this)
     }
 
     static navigationOptions = () => {

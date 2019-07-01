@@ -28,7 +28,7 @@ export default class ListView extends Component{
     }
 
     componentWillUnmount(){
-        rol()
+        rol(this)
         //remove listeners for this UI
         MeetingsUpdatesHandler.removeAcceptedMeetingListener(this.acceptedMeeting)
         MeetingsUpdatesHandler.removeDeniedMeetingListener(this.deniedMeeting)

@@ -108,7 +108,7 @@ function Feedback(props){
                     />
                 </View>
 
-                <Text style={{fontSize:wp("4%")}}>{props.feedback.text}</Text>
+                <Text style={props.styles.feedbackText}>{props.feedback.text}</Text>
             </View>
         </View>
     )
@@ -177,7 +177,7 @@ export default class ProfileTab extends Component {
     }
 
     componentWillUnmount(){
-        rol()
+        rol(this)
     }
 
     newBiography = (text) => {
@@ -294,6 +294,9 @@ export default class ProfileTab extends Component {
                 opponentNameText: {
                     fontWeight:"bold",
                     fontSize:wp("5%")
+                },
+                feedbackText: {
+                    fontSize:wp("4%")
                 }
             })
         } else {
@@ -400,6 +403,9 @@ export default class ProfileTab extends Component {
                 opponentNameText: {
                     fontWeight:"bold",
                     fontSize: 25
+                },
+                feedbackText: {
+                    fontSize:20
                 }
             })
         }

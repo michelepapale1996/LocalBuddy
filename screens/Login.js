@@ -14,7 +14,6 @@ import LocalMeetingsHandler from "../LocalHandler/LocalMeetingsHandler";
 import ChatsHandler from "../handler/ChatsHandler";
 import LocalChatsHandler from "../LocalHandler/LocalChatsHandler";
 import SingleChatHandler from "../handler/SingleChatHandler";
-import LocalStateUpdater from "../updater/LocalStateUpdater";
 import OrientationHandler from "../handler/OrientationHandler";
 
 export default class Login extends React.Component {
@@ -38,7 +37,6 @@ export default class Login extends React.Component {
 
                 await ConnectyCubeHandler.setInstance()
                 await ConnectyCubeHandler.createSession(userId)
-
                 const CCUserId = ConnectyCubeHandler.getCCUserId()
                 //SingleChatHandler.connectToChat(CCUserId, 'LocalBuddy')
 
@@ -68,7 +66,7 @@ export default class Login extends React.Component {
     }
 
     componentWillUnmount(){
-        rol()
+        rol(this)
     }
 
     handleFacebookLogin = async () => {
@@ -97,16 +95,13 @@ export default class Login extends React.Component {
                 //user exists
                 await ConnectyCubeHandler.setInstance()
                 await ConnectyCubeHandler.createSession(userId)
-
                 const CCUserId = ConnectyCubeHandler.getCCUserId()
                 SingleChatHandler.connectToChat(CCUserId, 'LocalBuddy')
 
                 //save in local
                 LocalUserHandler.storeUserInfo(userInfo)
-
                 const citiesWhereIsBuddy = await UserHandler.getCitiesOfTheBuddy(userId)
                 LocalUserHandler.storeCitiesWhereIsBuddy(citiesWhereIsBuddy)
-
                 LocalMeetingsHandler.setMeetings(userInfo.meetings)
                 ChatsHandler.getChats().then(async chats => {
                     await LocalChatsHandler.setChats(chats)

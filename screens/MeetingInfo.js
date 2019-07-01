@@ -49,14 +49,6 @@ export default class MeetingInfo extends Component{
         })
     }
 
-    componentDidMount(){
-        loc(this)
-    }
-
-    componentWillUnmount(){
-        rol()
-    }
-
     render() {
         const styles = StyleSheet.create({
             mainContainer: {

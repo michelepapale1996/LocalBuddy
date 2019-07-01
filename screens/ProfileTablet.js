@@ -141,7 +141,7 @@ export default class ProfileTablet extends Component {
     }
 
     componentWillUnmount(){
-        rol()
+        rol(this)
     }
 
     async componentDidMount(){

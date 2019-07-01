@@ -9,6 +9,7 @@ import { Text, TouchableRipple, Portal, Dialog, Paragraph, Button, Switch, Surfa
 import AccountHandler from "../handler/AccountHandler";
 import MultiSlider from "@ptomasroos/react-native-multi-slider/MultiSlider";
 import LocalUserHandler from "../LocalHandler/LocalUserHandler";
+import OrientationHandler from "../handler/OrientationHandler";
 
 function BuddyComponent(props){
     stopToBeBuddy = () => {
@@ -26,7 +27,7 @@ function BuddyComponent(props){
     if(props.isBuddy == 1){
         return(
             <View>
-                <View style={props.styles.viewContainer}>
+                <View>
                     <Surface style={props.styles.surfaceContainer}>
                         <View style={{justifyContent:"center", ...props.styles.settingContainer}}>
                             <View style={{flexDirection:"row", alignItems:"center", justifyContent:"space-between"}}>
@@ -49,7 +50,7 @@ function BuddyComponent(props){
                                         props.state.lowerRangeTouristAge,
                                         props.state.upperRangeTouristAge,
                                     ]}
-                                    sliderLength={280}
+                                    sliderLength={props.styles.sliderLength}
                                     onValuesChange={props.multiSliderValuesChange}
                                     min={0}
                                     max={100}
@@ -156,7 +157,6 @@ export default class Settings extends Component {
 
     async componentDidMount(){
         loc(this)
-
         var user = await LocalUserHandler.getUserInfo()
         //const userId = firebase.auth().currentUser.uid;
         //const isBuddy = await UserHandler.isBuddy(userId)
@@ -171,7 +171,7 @@ export default class Settings extends Component {
     }
 
     componentWillUnmount(){
-        rol()
+        rol(this)
     }
 
     //function to change the state of this component from other components
@@ -202,36 +202,70 @@ export default class Settings extends Component {
     }
 
     render() {
-        const styles = StyleSheet.create({
-            mainContainer: {
-                margin: hp("0%"),
-                flex: 1,
-                backgroundColor: 'white',
-            },
-            container:{
-                flex:1,
-                margin:hp("2%"),
-            },
-            settingContainer:{
-                marginBottom: hp("2%"),
-                marginTop: hp("2%"),
-                marginLeft: wp("4%"),
-                marginRight:wp("4%")
-            },
-            text:{
-                fontSize: 20
-            },
-            header:{
-                height: hp("5%"),
-                fontSize: 20,
-                fontWeight:"bold"
-            },
-            surfaceContainer: {
-                elevation: 4,
-                marginBottom: hp("2%"),
-                borderRadius: 5
-            }
-        });
+        var styles;
+        if(OrientationHandler.orientation == "portrait") {
+            styles = StyleSheet.create({
+                mainContainer: {
+                    flex: 1,
+                    backgroundColor: 'white',
+                },
+                container: {
+                    flex: 1,
+                    margin: hp("2%"),
+                },
+                settingContainer: {
+                    marginBottom: hp("2%"),
+                    marginTop: hp("2%"),
+                    marginLeft: wp("4%"),
+                    marginRight: wp("4%")
+                },
+                text: {
+                    fontSize: 20
+                },
+                header: {
+                    height: hp("5%"),
+                    fontSize: 20,
+                    fontWeight: "bold"
+                },
+                surfaceContainer: {
+                    elevation: 4,
+                    marginBottom: hp("2%"),
+                    borderRadius: 5
+                },
+                sliderLength: wp("80%")
+
+            })
+        } else {
+            styles = StyleSheet.create({
+                mainContainer: {
+                    flex: 1,
+                    backgroundColor: 'white',
+                },
+                container:{
+                    flex:1,
+                    margin:hp("2%"),
+                },
+                settingContainer:{
+                    marginBottom: hp("2%"),
+                    marginTop: hp("2%"),
+                    marginLeft: wp("4%"),
+                    marginRight:wp("4%")
+                },
+                text:{
+                    fontSize: 20
+                },
+                header:{
+                    height: hp("7%"),
+                    fontSize: 20,
+                    fontWeight:"bold",
+                },
+                surfaceContainer: {
+                    elevation: 4,
+                    marginBottom: hp("2%"),
+                    borderRadius: 5
+                }
+            })
+        }
 
         if(this.state.loadingDone != false) {
             return (
