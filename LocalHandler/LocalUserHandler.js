@@ -56,7 +56,7 @@ class LocalUserHandler {
 
     static async storeCitiesWhereIsBuddy(cities){
         try {
-            await AsyncStorage.setItem("citiesWhereIsBuddy", JSON.stringify(cities));
+            if(cities.length > 0) await AsyncStorage.setItem("citiesWhereIsBuddy", JSON.stringify(cities));
         } catch (error) {
             console.log(error)
         }

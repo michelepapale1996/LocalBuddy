@@ -25,7 +25,7 @@ class MessagesUpdatesHandler{
                 chatId: payload.dialog_id,
                 createdAt: time
             }
-            LocalChatsHandler.addMessage(update)
+            LocalChatsHandler.addMessage(update, false)
             MessagesUpdatesHandler.listeners.forEach(fn => fn(update, false));
         }
     }

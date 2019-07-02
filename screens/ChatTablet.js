@@ -29,13 +29,13 @@ function Chat(props) {
             })
         }}>
             <View style={(props.item.isSelected === true) ? {backgroundColor: "#bdc3c7"} : {}}>
-            <View style={styles.singleChatContainer}>
+            <View style={props.styles.singleChatContainer}>
                 <Image
-                    style={styles.userPhoto}
+                    style={props.styles.userPhoto}
                     source={{uri: props.item.urlPhotoOther}}/>
-                <View style={styles.singleChat}>
+                <View style={props.styles.singleChat}>
                     <View style={{flexDirection: "row", justifyContent:"space-between", alignItems:"center"}}>
-                        <Text style={styles.text}>
+                        <Text style={props.styles.text}>
                             {props.item.nameAndSurname}
                         </Text>
                         <Text style={{marginRight:wp("1%")}}>
@@ -65,7 +65,7 @@ function AllChats(props){
                     data={props.state.chats}
                     extraData={props.state.chats}
                     renderItem={({item}) => (
-                        <Chat updateChatSelected={props.updateChatSelected} item={item} getTime={props.getTime} nav={props.nav} userName={props.state.username}/>
+                        <Chat styles={props.styles} updateChatSelected={props.updateChatSelected} item={item} getTime={props.getTime} nav={props.nav} userName={props.state.username}/>
                     )}
                     keyExtractor={(item, index) => index.toString()}
                 />
@@ -73,8 +73,8 @@ function AllChats(props){
         )
     }else{
         return(
-            <View style={styles.container}>
-                <Text style={styles.text}>You do not have any chat yet!</Text>
+            <View style={props.styles.container}>
+                <Text style={props.styles.text}>You do not have any chat yet!</Text>
             </View>
         )
     }
@@ -83,7 +83,7 @@ function AllChats(props){
 class SingleChat extends Component{
     constructor(props){
         super(props)
-        this.state = {chatSelected: false, updateChatSelected: props.updateChatSelected}
+        this.state = {chatSelected: false, updateChatSelected: props.updateChatSelected, styles: props.styles}
         ChatTabletHandler.addListener(this.updateState)
         MessagesUpdatesHandler.addListener(this.onMessageRcvd)
     }
@@ -182,14 +182,14 @@ class SingleChat extends Component{
                                 <Text style={{color: '#fff', fontSize: wp("2%"), fontWeight:"bold"}}>{this.state.opponentNameAndSurname}</Text>
                             </TouchableRipple>
                             <View/>
-                            <Button mode={"outlined"} style={styles.button} color={"white"} onPress={()=>{
+                            <Button mode={"outlined"} style={this.state.styles.button} color={"white"} onPress={()=>{
                                 this.state.updateChatSelected(null)
                                 this.setState({chatSelected: false})
                             }}>Close</Button>
                         </Header>
 
                         <View style={{flex:1}}>
-                            <LinearGradient colors={['#2c3e50', '#95a5a6', '#ecf0f1']} style={styles.linearGradient}>
+                            <LinearGradient colors={['#2c3e50', '#95a5a6', '#ecf0f1']} style={this.state.styles.linearGradient}>
                             <GiftedChat
                                 renderDay={this.renderDay}
                                 messages={this.state.messages}
@@ -206,7 +206,7 @@ class SingleChat extends Component{
                     !this.state.chatSelected &&
                     <View style={{flex:1}}>
                         <Header backgroundColor='#2fa1ff'></Header>
-                        <LinearGradient colors={['#2c3e50', '#95a5a6', '#ecf0f1']} style={styles.linearGradient}>
+                        <LinearGradient colors={['#2c3e50', '#95a5a6', '#ecf0f1']} style={this.state.styles.linearGradient}>
                             <View style={{flex:1}}/>
                         </LinearGradient>
                     </View>
@@ -384,8 +384,8 @@ export default class ChatTablet extends Component {
         if(this.state.loadingDone != false){
             return(
                 <View style={{flex:1, flexDirection:"row"}}>
-                    <AllChats updateChatSelected={this.updateChatSelected} state={this.state} nav={this.props.navigation} getTime={this.getTime}/>
-                    <SingleChat updateChatSelected={this.updateChatSelected} navigation={this.props.navigation}/>
+                    <AllChats styles={styles} updateChatSelected={this.updateChatSelected} state={this.state} nav={this.props.navigation} getTime={this.getTime}/>
+                    <SingleChat styles={styles} updateChatSelected={this.updateChatSelected} navigation={this.props.navigation}/>
                 </View>
             )
         }else{

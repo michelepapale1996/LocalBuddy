@@ -34,23 +34,7 @@ export default class Login extends React.Component {
             firebase.auth().signInWithEmailAndPassword(email, password).then(async () => {
                 const userId = firebase.auth().currentUser.uid
                 const userInfo = await UserHandler.getUserInfo(userId)
-
-                await ConnectyCubeHandler.setInstance()
-                await ConnectyCubeHandler.createSession(userId)
-                const CCUserId = ConnectyCubeHandler.getCCUserId()
-                //SingleChatHandler.connectToChat(CCUserId, 'LocalBuddy')
-
-                LocalUserHandler.storeUserInfo(userInfo)
-                LocalMeetingsHandler.setMeetings(userInfo.meetings)
-
-                const citiesWhereIsBuddy = await UserHandler.getCitiesOfTheBuddy(userId)
-                LocalUserHandler.storeCitiesWhereIsBuddy(citiesWhereIsBuddy)
-
-                ChatsHandler.getChats().then(async chats => {
-                    await LocalChatsHandler.setChats(chats)
-                })
-
-                LoadingHandler.initApp(userId).then(() => {
+                LoadingHandler.initAppBecauseLogin(userInfo).then(() => {
                     this.props.navigation.navigate('Chat')
                 })
             }).catch(error => this.setState({
@@ -93,21 +77,7 @@ export default class Login extends React.Component {
         UserHandler.getUserInfo(userId).then(async userInfo => {
             if (userInfo) {
                 //user exists
-                await ConnectyCubeHandler.setInstance()
-                await ConnectyCubeHandler.createSession(userId)
-                const CCUserId = ConnectyCubeHandler.getCCUserId()
-                SingleChatHandler.connectToChat(CCUserId, 'LocalBuddy')
-
-                //save in local
-                LocalUserHandler.storeUserInfo(userInfo)
-                const citiesWhereIsBuddy = await UserHandler.getCitiesOfTheBuddy(userId)
-                LocalUserHandler.storeCitiesWhereIsBuddy(citiesWhereIsBuddy)
-                LocalMeetingsHandler.setMeetings(userInfo.meetings)
-                ChatsHandler.getChats().then(async chats => {
-                    await LocalChatsHandler.setChats(chats)
-                })
-
-                LoadingHandler.initApp(userId).then(() => {
+                LoadingHandler.initAppBecauseLogin(userInfo).then(() => {
                     this.props.navigation.navigate('Chat')
                 })
             } else {
@@ -135,32 +105,21 @@ export default class Login extends React.Component {
                                     string: 'picture.height(600)',
                                 },
                             },
-                        }, (error, result) => {
+                        }, async (error, result) => {
                             if (error) {
                                 console.error(error)
                             } else {
-                                UserHandler.setUrlPhoto(result.picture.data.url)
+                                console.log("AAAAAAAAAA")
+                                console.log(result.picture.data.url)
+                                await UserHandler.setUrlPhoto(result.picture.data.url)
+                                LoadingHandler.initAppBecauseSignUp(userId).then(()=>{
+                                    this.props.navigation.navigate('Chat')
+                                })
                             }
                         })
                         new GraphRequestManager().addRequest(graphRequest).start()
                         //const photoPath = firebaseUserCredential.user._user.photoURL
                         //return UserHandler.setUrlPhoto(photoPath)
-                    }).then(()=>{
-                        return ConnectyCubeHandler.login(userId)
-                    }).then(async () => {
-                        const CCUserId = ConnectyCubeHandler.getCCUserId()
-                        await SingleChatHandler.connectToChat(CCUserId, 'LocalBuddy')
-
-                        //save in local
-                        const user = await UserHandler.getUserInfo(userId)
-                        await LocalUserHandler.storeUserInfo(user)
-                        ChatsHandler.getChats().then(async chats => {
-                            await LocalChatsHandler.setChats(chats)
-                        })
-
-                        LoadingHandler.initApp(userId).then(()=>{
-                            this.props.navigation.navigate('Chat')
-                        })
                     }).catch(error => this.setState({isPresentError: true, errorMessage: error.message}))
                 })
             }

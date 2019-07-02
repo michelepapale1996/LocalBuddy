@@ -1,12 +1,14 @@
 import AsyncStorage from "@react-native-community/async-storage";
 import ChatsHandler from "../handler/ChatsHandler";
+import LocalUserHandler from "./LocalUserHandler";
 
 class LocalChatsHandler {
-    static updates = []
-
-
     static async setChats(chats){
         if(chats !== null) await AsyncStorage.setItem("chats", JSON.stringify(chats));
+    }
+
+    static async setMessages(messages){
+        if(messages !== null) await AsyncStorage.setItem("messages", JSON.stringify(messages));
     }
 
     static async getChats(){
@@ -40,11 +42,7 @@ class LocalChatsHandler {
             var messages = await AsyncStorage.getItem('messages')
             if (messages !== null) {
                 messages = JSON.parse(messages)
-                console.log(messages)
-                messages.forEach((dialog, index) => {
-                    if(dialog[0].chatId == chatId) return messages[index]
-                })
-                return []
+                return messages[chatId]
             } else {
                 return []
             }
@@ -81,29 +79,37 @@ class LocalChatsHandler {
         }
     }
 
-    static async addMessage(payload){
+    static async addMessage(payload, isLocal){
         try {
             var messages = await LocalChatsHandler.getMessages()
-            var chatFound = messages.filter(chat => {
-                return chat[0].chatId === payload.chatId
-            })
-            chatFound = chatFound[0]
-            if(chatFound != null){
+            const userInfo = await LocalUserHandler.getUserInfo()
+
+            var msg = {
+                _id: Math.floor(Math.random() * 10000),
+                text: payload.text,
+                createdAt: payload.createdAt,
+                user: {
+                    _id: 1,
+                    avatar: userInfo.urlPhoto
+                }
+            }
+            if(!isLocal){
+                msg.user._id = 2
+                msg.user.avatar = payload.urlPhotoOther
+            }
+
+            if(messages[payload.chatId] != null){
                 LocalChatsHandler.updateChats(payload)
-                chatFound.push(payload)
+                //put the msg at the beginning
+                messages[payload.chatId].unshift(msg)
             }else{
                 //create a new chat
                 LocalChatsHandler.addChat()
-                chatFound = [payload]
+                messages[payload.chatId] = [msg]
             }
 
-            const otherChats = messages.filter(chat => {
-                return chat.chatId != payload.chatId
-            })
             await AsyncStorage.removeItem('messages')
-
-            if(otherChats.length > 0) await AsyncStorage.setItem("messages", JSON.stringify([chatFound, otherChats]));
-            else await AsyncStorage.setItem("messages", JSON.stringify([chatFound]));
+            await AsyncStorage.setItem("messages", JSON.stringify(messages));
         } catch (error) {
             console.log(error)
         }

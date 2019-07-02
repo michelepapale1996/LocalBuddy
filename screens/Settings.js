@@ -1,6 +1,5 @@
 import React, {Component} from 'react';
 import {StyleSheet, View, Alert, ScrollView } from 'react-native';
-import firebase from 'react-native-firebase'
 import UserHandler from "../handler/UserHandler";
 import {widthPercentageToDP as wp, heightPercentageToDP as hp, listenOrientationChange as loc, removeOrientationListener as rol} from 'react-native-responsive-screen';
 import LoadingComponent from '../components/LoadingComponent'
@@ -52,6 +51,9 @@ function BuddyComponent(props){
                                     ]}
                                     sliderLength={props.styles.sliderLength}
                                     onValuesChange={props.multiSliderValuesChange}
+                                    selectedStyle={{backgroundColor:"#2fa1ff"}}
+                                    unselectedStyle={{backgroundColor:"#2fa1ff"}}
+                                    markerStyle={{backgroundColor:"#2fa1ff"}}
                                     min={0}
                                     max={100}
                                     step={1}

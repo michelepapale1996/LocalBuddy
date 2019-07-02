@@ -74,8 +74,8 @@ export default class SingleChat extends Component {
         })
 
         if(this.state.chatId != null){
-            var messages = await SingleChatHandler.retrieveChatHistory(this.state.chatId, 100, null, urlPhotoOther)
-            //var messages = await LocalChatsHandler.getMessagesWith(this.state.chatId)
+            //var messages = await SingleChatHandler.retrieveChatHistory(this.state.chatId, 100, null, urlPhotoOther)
+            var messages = await LocalChatsHandler.getMessagesWith(this.state.chatId)
             this.setState({messages: messages})
         }
         MessagesUpdatesHandler.addListener(this.onMessageRcvd)

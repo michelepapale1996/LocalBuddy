@@ -123,12 +123,12 @@ class SingleChatHandler{
         };
 
         return new Promise((resolve, reject)=>{
-            ConnectyCubeHandler.getInstance().chat.connect(userCredentials,
-                function(error, contactList) {
-                    if(error !== null) reject(error)
-                    resolve(contactList)
+            ConnectyCubeHandler.getInstance().chat.connect(userCredentials, function(error, contactList) {
+                if(error !== null){
+                    reject(error)
                 }
-            )
+                resolve(contactList)
+            })
         })
     }
 }

@@ -72,15 +72,7 @@ export default class SignUp extends React.Component {
                         this.state.sex,
                         session.id,
                         this.state.birthDate)
-                //save in local
-                const user = await UserHandler.getUserInfo(userId)
-                await LocalUserHandler.storeUserInfo(user)
-
-                await ConnectyCubeHandler.login(userId)
-                await LoadingHandler.initApp(userId)
-                const CCUserId = ConnectyCubeHandler.getCCUserId()
-                SingleChatHandler.connectToChat(CCUserId, 'LocalBuddy')
-                this.props.navigation.navigate('Chat')
+                LoadingHandler.initAppBecauseSignUp(userId).then(()=> this.props.navigation.navigate('Chat'))
             }).catch(error => {
                 this.setState({
                     isPresentError: true,
