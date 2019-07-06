@@ -1,5 +1,5 @@
 import React, { Component } from "react"
-import { StyleSheet, View } from 'react-native'
+import { StyleSheet, View, ScrollView } from 'react-native'
 import DateTimePicker from "react-native-modal-datetime-picker"
 import {widthPercentageToDP as wp, heightPercentageToDP as hp, listenOrientationChange as loc, removeOrientationListener as rol} from 'react-native-responsive-screen';
 import ChatsHandler from "../handler/ChatsHandler"
@@ -9,6 +9,9 @@ import MeetingsHandler from "../handler/MeetingsHandler"
 import { Text, Button } from 'react-native-paper'
 import DateHandler from "../handler/DateHandler";
 import MeetingsUpdatesHandler from "../updater/MeetingsUpdatesHandler";
+import LocalChatsHandler from "../LocalHandler/LocalChatsHandler";
+import LocalUserHandler from "../LocalHandler/LocalUserHandler";
+import LocalMeetingsHandler from "../LocalHandler/LocalMeetingsHandler";
 
 export default class NewMeeting extends Component {
     static navigationOptions = ({ navigation }) => {
@@ -105,14 +108,16 @@ export default class NewMeeting extends Component {
         //in the former case, nameAndSurnameOpponent and idOpponent is setted
         //in the latter, we have to retrieve all the users with whom the user has a chat
         if(this.state.nameAndSurnameOpponent == null){
-            const chats = await ChatsHandler.getChats()
+            //const chats = await ChatsHandler.getChats()
+            const chats = await LocalChatsHandler.getChats()
             const usersWithChat = chats.map(user => ({
                 label: user.nameAndSurname,
                 value: user.opponentUserId
             }))
 
             //do not show opponents with whom the user has already a future meeting and user with account deleted
-            const meetings = await MeetingsHandler.getFutureMeetings()
+            //const meetings = await MeetingsHandler.getFutureMeetings()
+            const meetings = await LocalMeetingsHandler.getFutureMeetings()
             const users = usersWithChat.filter(elem => {
                 return meetings.filter(m => m.idOpponent == elem.value) == 0 && elem.value !== undefined
             })
@@ -178,6 +183,7 @@ export default class NewMeeting extends Component {
 
         if (this.state.loadingDone != false) {
             return (
+                <ScrollView>
                 <View style={styles.mainContainer}>
                     <View style={styles.container}>
                         <Text style={styles.text}>Who</Text>
@@ -222,6 +228,7 @@ export default class NewMeeting extends Component {
                             />
                         </View>
                 </View>
+                </ScrollView>
             )
         } else {
             return (<LoadingComponent/>)

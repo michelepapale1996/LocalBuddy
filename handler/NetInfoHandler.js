@@ -1,20 +1,24 @@
 import NetInfo from "@react-native-community/netinfo";
+import ConnectyCubeHandler from "./ConnectyCubeHandler";
+import SingleChatHandler from "./SingleChatHandler";
 class NetInfoHandler{
     static unsubscribe
+    static isConnected = true
 
     static getInfo(){
         return NetInfo.fetch().then(state => {
-            console.log(state)
-            console.log("Connection type", state.type);
-            console.log("Is connected?", state.isConnected);
+            //NetInfoHandler.isConnected = state.isConnected
         })
     }
 
     static subscribe(){
+        NetInfoHandler.getInfo()
         // Subscribe
         NetInfoHandler.unsubscribe = NetInfo.addEventListener(state => {
-            console.log("NET EVENT")
-            console.log(state)
+            //NetInfoHandler.isConnected = state.isConnected
+            if(state.isConnected){
+
+            }
         });
     }
 

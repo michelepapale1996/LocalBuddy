@@ -52,7 +52,6 @@ function BuddyComponent(props){
                                     sliderLength={props.styles.sliderLength}
                                     onValuesChange={props.multiSliderValuesChange}
                                     selectedStyle={{backgroundColor:"#2fa1ff"}}
-                                    unselectedStyle={{backgroundColor:"#2fa1ff"}}
                                     markerStyle={{backgroundColor:"#2fa1ff"}}
                                     min={0}
                                     max={100}

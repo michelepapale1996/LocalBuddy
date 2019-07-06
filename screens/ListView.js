@@ -120,13 +120,13 @@ export default class ListView extends Component{
     }
 
     acceptedMeeting = (date, time, idOpponent) => {
-        this.setState((prevState) => {
-            let meetingsWithOpponent = prevState.meetings.filter(elem => elem.idOpponent == idOpponent && elem.date == date && elem.time == time)[0]
+        this.setState(prevState => {
+            let meetingsWithOpponent = prevState.meetings.filter(elem => elem.idOpponent == idOpponent)[0]
             const otherMeetings = prevState.meetings.filter(m =>
-                elem.idOpponent != idOpponent || (elem.idOpponent == idOpponent && elem.date != date) || (elem.idOpponent == idOpponent && elem.date == date && elem.time != time)
+                m.idOpponent != idOpponent
             )
             meetingsWithOpponent.meetings.forEach(m => {
-                if (m.isFixed == 0){
+                if (m.date == date && m.time == time){
                     m.isFixed = 1
                     m.isPending = 0
                 }
@@ -168,7 +168,11 @@ export default class ListView extends Component{
     }
 
     changeFromFutureToPastMeeting = (date, time, opponentId) => {
-        this.setState({loadingDone: true})
+        this.setState(prevState => {
+            return {
+                meetings: prevState.meetings
+            }
+        })
     }
 
     render() {

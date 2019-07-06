@@ -1,8 +1,8 @@
 import React, {Component} from 'react'
-import {StyleSheet, View } from 'react-native'
+import {StyleSheet, View, ScrollView} from 'react-native'
 import { Button } from 'react-native-paper'
 import LoadingComponent from '../components/LoadingComponent'
-import {widthPercentageToDP as wp, heightPercentageToDP as hp, listenOrientationChange as loc, removeOrientationListener as rol} from 'react-native-responsive-screen';
+import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen';
 import { Text } from 'react-native-paper'
 import DateHandler from "../handler/DateHandler";
 import MeetingsHandler from "../handler/MeetingsHandler";
@@ -114,6 +114,7 @@ export default class MeetingInfo extends Component{
             if(isFuture){
                 return (
                     <View style={styles.mainContainer}>
+                    <ScrollView contentContainerStyle={{flex:1}}>
                         {
                             this.state.meeting.isFixed != 0 &&
                             <View style={{flex: 1, justifyContent:"space-between", marginBottom: hp("5%")}}>
@@ -204,28 +205,31 @@ export default class MeetingInfo extends Component{
                                 </View>
                             </View>
                         }
+                    </ScrollView>
                     </View>
                 )
             }else{
                 //meeting passed
                 return(
                     <View style={styles.mainContainer}>
-                    <View style={{flex: 1, justifyContent:"space-between"}}>
-                        <View>
-                            <View style={styles.container}>
-                                <Text style={{fontWeight:"bold", ...styles.text}}>Who</Text>
-                                <Text style={styles.text}>{this.state.meeting.nameAndSurname}</Text>
+                        <ScrollView contentContainerStyle={{flex:1}}>
+                            <View style={{flex: 1, justifyContent:"space-between"}}>
+                                <View>
+                                    <View style={styles.container}>
+                                        <Text style={{fontWeight:"bold", ...styles.text}}>Who</Text>
+                                        <Text style={styles.text}>{this.state.meeting.nameAndSurname}</Text>
+                                    </View>
+                                    <View style={styles.container}>
+                                        <Text style={{fontWeight:"bold", ...styles.text}}>When</Text>
+                                        <Text style={styles.text}>{this.state.meeting.date} {this.state.meeting.time}</Text>
+                                    </View>
+                                    <View style={styles.container}>
+                                        <Text style={{fontWeight:"bold", ...styles.text}}>Status</Text>
+                                        <Button style={styles.button} disabled>Passed</Button>
+                                    </View>
+                                </View>
                             </View>
-                            <View style={styles.container}>
-                                <Text style={{fontWeight:"bold", ...styles.text}}>When</Text>
-                                <Text style={styles.text}>{this.state.meeting.date} {this.state.meeting.time}</Text>
-                            </View>
-                            <View style={styles.container}>
-                                <Text style={{fontWeight:"bold", ...styles.text}}>Status</Text>
-                                <Button style={styles.button} disabled>Passed</Button>
-                            </View>
-                        </View>
-                    </View>
+                        </ScrollView>
                     </View>
                 )
             }

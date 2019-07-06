@@ -1,5 +1,7 @@
 import AsyncStorage from '@react-native-community/async-storage'
 import UserHandler from "../handler/UserHandler";
+import LocalUserHandler from "./LocalUserHandler";
+import DateHandler from "../handler/DateHandler";
 
 class LocalMeetingsHandler {
     static async setMeetings(meetings){
@@ -80,6 +82,15 @@ class LocalMeetingsHandler {
         } catch (error) {
             console.log(error)
         }
+    }
+
+    static async getFutureMeetings(){
+        const meetings = await LocalMeetingsHandler.getMeetings()
+        var futureMeetings = meetings.filter(meeting => {
+            return !DateHandler.isInThePast(meeting.date, meeting.time)
+        })
+
+        return futureMeetings
     }
 }
 LocalMeetingsHandler.shared = new LocalMeetingsHandler()

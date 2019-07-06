@@ -217,9 +217,6 @@ export default class ChooseCity extends Component {
                             navigator.geolocation.getCurrentPosition(position => {
                                     Geocoder.init("AIzaSyBRfBut3xLOq-gimCV4mT2zalmchEppB6U");
                                     Geocoder.from(position.coords.latitude, position.coords.longitude).then(json => {
-
-                                        console.log("AAABBBB")
-                                        console.log(json)
                                         const city = json.results.filter(elem => elem.address_components[0].types.includes("locality"))
 
                                         if(city.length > 0){
@@ -237,8 +234,11 @@ export default class ChooseCity extends Component {
                                         console.log("Error: ", error)
                                     });
                                 },
-                                error => console.log(error.message),
-                                {enableHighAccuracy: true, timeout: 20000, maximumAge: 1000}
+                                error =>{
+                                    console.log(error.message)
+                                    this.setState({loadingDone: true})
+                                },
+                                {enableHighAccuracy: true, timeout: 20000}
                             )
                         }}
                     />

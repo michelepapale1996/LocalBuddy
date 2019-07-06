@@ -12,9 +12,9 @@ import NetInfoHandler from "./NetInfoHandler";
 
 class LoadingHandler{
     static async initAppBecauseAlredyLoggedIn(userId){
-        //NetInfoHandler.subscribe()
         await ConnectyCubeHandler.setInstance()
         await ConnectyCubeHandler.createSession(userId)
+        NetInfoHandler.subscribe()
         const CCUserId = ConnectyCubeHandler.getCCUserId()
         SingleChatHandler.connectToChat(CCUserId, 'LocalBuddy')
     }
@@ -45,9 +45,11 @@ class LoadingHandler{
         })
 
         LoadingHandler.setPushNotification()
+        NetInfoHandler.subscribe()
     }
 
     static async initAppBecauseSignUp(userId){
+        NetInfoHandler.subscribe()
         //save in local
         const user = await UserHandler.getUserInfo(userId)
         await LocalUserHandler.storeUserInfo(user)
@@ -57,6 +59,7 @@ class LoadingHandler{
         await SingleChatHandler.connectToChat(CCUserId, 'LocalBuddy')
 
         LoadingHandler.setPushNotification()
+        NetInfoHandler.subscribe()
     }
 
     static async setPushNotification(){

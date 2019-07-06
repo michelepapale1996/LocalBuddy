@@ -9,6 +9,7 @@ import {widthPercentageToDP as wp, heightPercentageToDP as hp, listenOrientation
 import UserHandler from "../handler/UserHandler";
 import firebase from 'react-native-firebase'
 import LocalChatsHandler from "../LocalHandler/LocalChatsHandler";
+import NetInfoHandler from "../handler/NetInfoHandler";
 
 export default class SingleChat extends Component {
     static navigationOptions = ({ navigation }) => {
@@ -110,28 +111,32 @@ export default class SingleChat extends Component {
     }
 
     async onSend(messages){
-        if(this.state.opponentNameAndSurname != "Account Deleted") {
-            var chatID = this.state.chatId
-            //check if the chat exists
-            if (this.state.chatId == null) {
-                //create the conversation and set the chatId
-                chatID = await SingleChatHandler.createConversation(this.state.CCopponentUserId).then(chat => {
-                    return chat._id
-                })
-                this.setState({chatId: chatID})
+        if(NetInfoHandler.isConnected){
+            if(this.state.opponentNameAndSurname != "Account Deleted") {
+                var chatID = this.state.chatId
+                //check if the chat exists
+                if (this.state.chatId == null) {
+                    //create the conversation and set the chatId
+                    chatID = await SingleChatHandler.createConversation(this.state.CCopponentUserId).then(chat => {
+                        return chat._id
+                    })
+                    this.setState({chatId: chatID})
+                }
+                const payload = {
+                    text: messages[0].text,
+                    chatId: chatID,
+                    opponentId: this.state.opponentId,
+                    ccOpponentUserId: this.state.CCopponentUserId,
+                    opponentUsername: this.state.opponentNameAndSurname,
+                    nameAndSurname: this.state.nameAndSurname,
+                    urlPhotoOther: this.state.urlPhotoOther,
+                    createdAt: new Date()
+                }
+                SingleChatHandler.sendMessage(payload)
+                MessagesUpdatesHandler.updateBecauseLocalSending(payload)
             }
-            const payload = {
-                text: messages[0].text,
-                chatId: chatID,
-                opponentId: this.state.opponentId,
-                ccOpponentUserId: this.state.CCopponentUserId,
-                opponentUsername: this.state.opponentNameAndSurname,
-                nameAndSurname: this.state.nameAndSurname,
-                urlPhotoOther: this.state.urlPhotoOther,
-                createdAt: new Date()
-            }
-            SingleChatHandler.sendMessage(payload)
-            MessagesUpdatesHandler.updateBecauseLocalSending(payload)
+        }else{
+            alert("Cannot send message beacuse you are not connected to Internet")
         }
     }
 
