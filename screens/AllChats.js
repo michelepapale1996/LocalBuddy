@@ -8,6 +8,7 @@ import { Text, TouchableRipple, Portal, Dialog, Button, Paragraph } from 'react-
 import ConnectyCubeHandler from "../handler/ConnectyCubeHandler";
 import LocalChatsHandler from "../LocalHandler/LocalChatsHandler";
 import OrientationHandler from "../handler/OrientationHandler";
+import Updater from "../updater/Updater";
 
 function Chat(props) {
     const lastMessageTime = props.getTime(props.item.createdAt)
@@ -80,6 +81,7 @@ export default class AllChats extends Component {
     componentWillUnmount(){
         rol(this)
         MessagesUpdatesHandler.removeListeners(this.onMessageRcvd)
+        Updater.removeListener(this.updateChats)
     }
 
     getTime = (createdAt) => {
@@ -162,16 +164,20 @@ export default class AllChats extends Component {
 
     setDialogIdToDelete = (dialogID) => this.setState({ dialogIdToDelete: dialogID})
 
-    async componentDidMount(){
-        loc(this)
-        MessagesUpdatesHandler.addListener(this.onMessageRcvd)
+    updateChats = () => {
         LocalChatsHandler.getChats().then(chats => {
             this.setState({
                 chats: chats,
                 loadingDone: true
             })
         })
+    }
 
+    async componentDidMount(){
+        loc(this)
+        MessagesUpdatesHandler.addListener(this.onMessageRcvd)
+        Updater.addListener(this.updateChats)
+        this.updateChats()
     }
 
     render() {

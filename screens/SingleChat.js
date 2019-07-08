@@ -10,6 +10,7 @@ import UserHandler from "../handler/UserHandler";
 import firebase from 'react-native-firebase'
 import LocalChatsHandler from "../LocalHandler/LocalChatsHandler";
 import NetInfoHandler from "../handler/NetInfoHandler";
+import Updater from "../updater/Updater";
 
 export default class SingleChat extends Component {
     static navigationOptions = ({ navigation }) => {
@@ -64,6 +65,14 @@ export default class SingleChat extends Component {
         this.props.navigation.setParams({buddyId: this.state.opponentId})
     }
 
+    updateChat = async () => {
+        if(this.state.chatId != null){
+            //var messages = await SingleChatHandler.retrieveChatHistory(this.state.chatId, 100, null, urlPhotoOther)
+            var messages = await LocalChatsHandler.getMessagesWith(this.state.chatId)
+            this.setState({messages: messages})
+        }
+    }
+
     async componentDidMount() {
         loc(this)
         const urlPhotoOther = this.state.urlPhotoOther
@@ -74,16 +83,14 @@ export default class SingleChat extends Component {
             this.setState({nameAndSurname: nameAndSurname})
         })
 
-        if(this.state.chatId != null){
-            //var messages = await SingleChatHandler.retrieveChatHistory(this.state.chatId, 100, null, urlPhotoOther)
-            var messages = await LocalChatsHandler.getMessagesWith(this.state.chatId)
-            this.setState({messages: messages})
-        }
+        this.updateChat()
         MessagesUpdatesHandler.addListener(this.onMessageRcvd)
+        Updater.addListener(this.updateChat)
     }
 
     componentWillUnmount(){
         rol(this)
+        Updater.removeListener(this.updateChat)
         MessagesUpdatesHandler.removeListeners(this.onMessageRcvd)
     }
 
@@ -117,10 +124,9 @@ export default class SingleChat extends Component {
                 //check if the chat exists
                 if (this.state.chatId == null) {
                     //create the conversation and set the chatId
-                    chatID = await SingleChatHandler.createConversation(this.state.CCopponentUserId).then(chat => {
-                        return chat._id
+                    SingleChatHandler.createConversation(this.state.CCopponentUserId).then(chat => {
+                        this.setState({chatId: chat._id})
                     })
-                    this.setState({chatId: chatID})
                 }
                 const payload = {
                     text: messages[0].text,

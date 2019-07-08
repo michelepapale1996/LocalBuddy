@@ -37,6 +37,13 @@ class LocalUserHandler {
         return AsyncStorage.clear()
     }
 
+    static async updateUserPhoto(url){
+        var user = await LocalUserHandler.getUserInfo()
+        await AsyncStorage.removeItem('user')
+        user.urlPhoto = url
+        await LocalUserHandler.storeUserInfo(user)
+    }
+
     static async updateBio(text) {
         var user = await LocalUserHandler.getUserInfo()
         await AsyncStorage.removeItem('user')

@@ -4,11 +4,10 @@ import ConnectyCubeHandler from "./ConnectyCubeHandler"
 import UserHandler from "./UserHandler";
 import ChatsHandler from "./ChatsHandler";
 import LocalChatsHandler from "../LocalHandler/LocalChatsHandler";
-import MessagesUpdatesHandler from "../updater/MessagesUpdatesHandler";
-import LocalStateUpdater from "../updater/LocalStateUpdater";
 import LocalMeetingsHandler from "../LocalHandler/LocalMeetingsHandler";
 import LocalUserHandler from "../LocalHandler/LocalUserHandler";
 import NetInfoHandler from "./NetInfoHandler";
+import Updater from "../updater/Updater";
 
 class LoadingHandler{
     static async initAppBecauseAlredyLoggedIn(userId){
@@ -16,7 +15,32 @@ class LoadingHandler{
         await ConnectyCubeHandler.createSession(userId)
         NetInfoHandler.subscribe()
         const CCUserId = ConnectyCubeHandler.getCCUserId()
-        SingleChatHandler.connectToChat(CCUserId, 'LocalBuddy')
+        SingleChatHandler.connectToChat(CCUserId, 'LocalBuddy').then(async ()=>{
+            const userInfo = await UserHandler.getUserInfo(userId)
+
+            //save in local
+            await LocalUserHandler.storeUserInfo(userInfo)
+            UserHandler.getCitiesOfTheBuddy(userInfo.id).then(citiesWhereIsBuddy => {
+                LocalUserHandler.storeCitiesWhereIsBuddy(citiesWhereIsBuddy)
+            })
+            await LocalMeetingsHandler.setMeetings(userInfo.meetings)
+
+            const chats = await ChatsHandler.getChats()
+            await LocalChatsHandler.setChats(chats)
+
+            //saving in local single chats
+            const promises = chats.map(chat => SingleChatHandler.retrieveChatHistory(chat.chatId, 100, null, null))
+            var messages = {}
+            await Promise.all(promises).then(async results => {
+                results.forEach((res, index) => {
+                    messages[chats[index].chatId] = res
+                })
+                await LocalChatsHandler.setMessages(messages)
+            })
+
+            //when the local state is updated -> fire the updaters
+            Updater.update()
+        })
     }
 
     static async initAppBecauseLogin(userInfo){
@@ -27,8 +51,9 @@ class LoadingHandler{
 
         //save in local
         await LocalUserHandler.storeUserInfo(userInfo)
-        const citiesWhereIsBuddy = await UserHandler.getCitiesOfTheBuddy(userInfo.id)
-        await LocalUserHandler.storeCitiesWhereIsBuddy(citiesWhereIsBuddy)
+        UserHandler.getCitiesOfTheBuddy(userInfo.id).then(citiesWhereIsBuddy => {
+            LocalUserHandler.storeCitiesWhereIsBuddy(citiesWhereIsBuddy)
+        })
         await LocalMeetingsHandler.setMeetings(userInfo.meetings)
 
         const chats = await ChatsHandler.getChats()

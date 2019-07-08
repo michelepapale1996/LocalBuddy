@@ -8,7 +8,7 @@ import {widthPercentageToDP as wp, heightPercentageToDP as hp, listenOrientation
 import DateHandler from "../handler/DateHandler"
 import MeetingsUpdatesHandler from "../updater/MeetingsUpdatesHandler"
 import LocalMeetingsHandler from "../LocalHandler/LocalMeetingsHandler";
-import MeetingsHandler from "../handler/MeetingsHandler";
+import Updater from "../updater/Updater";
 
 export default class CalendarView extends Component {
     static navigationOptions ={
@@ -32,16 +32,10 @@ export default class CalendarView extends Component {
         MeetingsUpdatesHandler.removeNewMeetingListener(this.newMeeting)
         MeetingsUpdatesHandler.removeNewPendingMeetingListener(this.addPendingMeeting)
         MeetingsUpdatesHandler.removeFromFutureToPastMeetingListener(this.changeFromFutureToPastMeeting)
+        Updater.removeListener(this.updateMeetings())
     }
 
-    async componentDidMount(){
-        loc(this)
-        MeetingsUpdatesHandler.setNewPendingMeetingListener(this.addPendingMeeting)
-        MeetingsUpdatesHandler.setAcceptedMeetingListener(this.acceptedMeeting)
-        MeetingsUpdatesHandler.setDeniedMeetingListener(this.deniedMeeting)
-        MeetingsUpdatesHandler.setNewMeetingListener(this.newMeeting)
-        MeetingsUpdatesHandler.setFromFutureToPastMeeting(this.changeFromFutureToPastMeeting)
-
+    updateMeetings = async () => {
         //const meetings = await MeetingsHandler.getMeetings()
         const meetings = await LocalMeetingsHandler.getMeetings()
         if(meetings != null){
@@ -58,6 +52,18 @@ export default class CalendarView extends Component {
                 }
             })
         }
+    }
+
+    async componentDidMount(){
+        loc(this)
+        MeetingsUpdatesHandler.setNewPendingMeetingListener(this.addPendingMeeting)
+        MeetingsUpdatesHandler.setAcceptedMeetingListener(this.acceptedMeeting)
+        MeetingsUpdatesHandler.setDeniedMeetingListener(this.deniedMeeting)
+        MeetingsUpdatesHandler.setNewMeetingListener(this.newMeeting)
+        MeetingsUpdatesHandler.setFromFutureToPastMeeting(this.changeFromFutureToPastMeeting)
+        Updater.addListener(this.updateMeetings)
+
+        this.updateMeetings()
     }
 
     newMeeting = (meeting) => {

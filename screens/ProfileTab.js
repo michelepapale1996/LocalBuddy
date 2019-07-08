@@ -10,6 +10,7 @@ import UserHandler from "../handler/UserHandler";
 import StarRating from 'react-native-star-rating';
 import LocalUserHandler from "../LocalHandler/LocalUserHandler";
 import OrientationHandler from "../handler/OrientationHandler";
+import Loading from "./Loading";
 
 function Biography(props){
     modifyBiography = ()=>{
@@ -61,6 +62,7 @@ function UserInfo(props) {
 }
 
 function PhotoProfile(props) {
+    console.log(props.photoPath)
     uploadImg = () => {
         ImagePicker.showImagePicker((response) => {
             if (response.didCancel) {
@@ -70,9 +72,11 @@ function PhotoProfile(props) {
             } else if (response.customButton) {
                 console.log('User tapped custom button: ', response.customButton);
             } else {
+                props.isUploading(true)
                 var source = response.uri
                 firebase.storage().ref("/PhotosProfile/" + props.userId).putFile(source).then(()=>{
                     firebase.storage().ref("/PhotosProfile/" + props.userId).getDownloadURL().then(url=>{
+                        LocalUserHandler.updateUserPhoto(url)
                         UserHandler.setUrlPhoto(url)
                         props.updatePhoto(url)
                     })
@@ -81,11 +85,17 @@ function PhotoProfile(props) {
         })
     }
 
-    return(
-        <TouchableWithoutFeedback onPress={uploadImg}>
-            <Image style={props.styles.avatar} source={{uri: props.photoPath}}/>
-        </TouchableWithoutFeedback>
-    )
+    if(!props.isUploadingFlag){
+        return(
+            <TouchableWithoutFeedback onPress={uploadImg}>
+                <Image style={props.styles.avatar} source={{uri: props.photoPath}}/>
+            </TouchableWithoutFeedback>
+        )
+    }else{
+        return(
+            <LoadingComponent/>
+        )
+    }
 }
 
 function Feedback(props){
@@ -151,6 +161,7 @@ export default class ProfileTab extends Component {
         this.setState(prevState => {
             let newState = prevState
             newState.user.urlPhoto = url
+            newState.isUploadingPhoto = false
             return newState
         })
     }
@@ -172,7 +183,8 @@ export default class ProfileTab extends Component {
         this.setState({
             user: user,
             citiesWhereIsBuddy: citiesWhereIsBuddy,
-            loadingDone: true
+            loadingDone: true,
+            isUploadingPhoto: false
         })
     }
 
@@ -186,6 +198,10 @@ export default class ProfileTab extends Component {
             newState.user.bio = text
             return newState
         })
+    }
+
+    isUploading = (isUploading) => {
+        this.setState({isUploadingPhoto: isUploading})
     }
 
     render() {
@@ -422,7 +438,7 @@ export default class ProfileTab extends Component {
                             size={30}
                             onPress={() => this.props.navigation.navigate('Settings')}
                         />
-                        <PhotoProfile styles={styles} photoPath={this.state.user.urlPhoto} updatePhoto={this.updateUserPhoto} userId={this.state.user.id}/>
+                        <PhotoProfile styles={styles} isUploading={this.isUploading} isUploadingFlag={this.state.isUploadingPhoto} photoPath={this.state.user.urlPhoto} updatePhoto={this.updateUserPhoto} userId={this.state.user.id}/>
 
                         <View style={styles.bodyContent}>
                             <UserInfo styles={styles} userInfo={this.state.user}/>
