@@ -10,7 +10,7 @@ class UserHandler{
                 response = response.json()
                 return response
             }else{
-                console.log("Error in the request: ", response.status)
+                //the user has been eliminated or it does not exist
                 return null
             }
         }).catch( err => console.log(err))
@@ -86,7 +86,7 @@ class UserHandler{
                     response = response.json()
                     return response
                 }else{
-                    console.log("Error in the request: ", response.status)
+                    console.log("Error in the request of the cities of the buddies: ", response.status)
                     return null
                 }
             }).catch( err => {

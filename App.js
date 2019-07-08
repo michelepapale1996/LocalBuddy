@@ -10,7 +10,8 @@ import TabletApp from "./TabletNavigators"
 import OrientationHandler from "./handler/OrientationHandler";
 
 var AppContainer
-if(Dimensions.get('window').width < 600){
+const size = Math.min(Dimensions.get('window').width, Dimensions.get('window').height)
+if(size < 600){
     AppContainer = createAppContainer(PhoneApp)
 }else{
     AppContainer = createAppContainer(TabletApp)

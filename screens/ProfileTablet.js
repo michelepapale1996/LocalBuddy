@@ -9,6 +9,8 @@ import { IconButton, Colors, Text, Surface, TouchableRipple, Avatar } from 'reac
 import UserHandler from "../handler/UserHandler";
 import StarRating from 'react-native-star-rating';
 import LocalUserHandler from "../LocalHandler/LocalUserHandler";
+import LocalChatsHandler from "../LocalHandler/LocalChatsHandler";
+import Updater from "../updater/Updater";
 
 function Biography(props){
 
@@ -17,17 +19,17 @@ function Biography(props){
     }
 
     return(
-        <View style={styles.biographyContainer}>
+        <View style={props.styles.biographyContainer}>
             <TouchableRipple onPress={modifyBiography} rippleColor="rgba(0, 0, 0, .32)">
-                <View style={styles.biography}>
+                <View style={props.styles.biography}>
                     <View style={{flexDirection:"row", flex: 1, justifyContent: 'flex-end'}}>
                         <Icon name='pencil' type='evilicon' size={30}/>
                     </View>
 
                     {
                         props.bio != ""
-                            ? <Text style={styles.biographyText}>{props.bio}</Text>
-                            : <Text style={styles.biographyText}>You do not have any biography yet. Tap to modify!</Text>
+                            ? <Text style={props.styles.biographyText}>{props.bio}</Text>
+                            : <Text style={props.styles.biographyText}>You do not have any biography yet. Tap to modify!</Text>
                     }
                 </View>
             </TouchableRipple>
@@ -40,10 +42,10 @@ function UserInfo(props) {
     const years = new Date().getFullYear() - birthdate.getFullYear()
     return(
         <View>
-            <Text style={styles.nameAndSurnameText}>
+            <Text style={props.styles.nameAndSurnameText}>
                 {props.userInfo.name} {props.userInfo.surname}
             </Text>
-            <Text style={styles.infoUserText}>{years} years old</Text>
+            <Text style={props.styles.infoUserText}>{years} years old</Text>
         </View>
     )
 }
@@ -58,10 +60,12 @@ function PhotoProfile(props) {
             } else if (response.customButton) {
                 console.log('User tapped custom button: ', response.customButton);
             } else {
+                props.isUploading(true)
                 var source = response.uri
                 firebase.storage().ref("/PhotosProfile/" + props.userId).putFile(source).then(()=>{
                     firebase.storage().ref("/PhotosProfile/" + props.userId).getDownloadURL().then(url=>{
                         UserHandler.setUrlPhoto(url)
+                        LocalUserHandler.updateUserPhoto(url)
                         props.updatePhoto(url)
                     })
                 })
@@ -69,17 +73,23 @@ function PhotoProfile(props) {
         })
     }
 
-    return(
-        <TouchableWithoutFeedback onPress={uploadImg}>
-            <Image style={styles.avatar} source={{uri: props.photoPath}}/>
-        </TouchableWithoutFeedback>
-    )
+    if(!props.isUploadingFlag) {
+        return (
+            <TouchableWithoutFeedback onPress={uploadImg}>
+                <Image style={props.styles.avatar} source={{uri: props.photoPath}}/>
+            </TouchableWithoutFeedback>
+        )
+    } else {
+        return(
+            <LoadingComponent/>
+        )
+    }
 }
 
 function Feedback(props){
     return(
         <View style={{flexDirection:"row", margin:10}}>
-            <Image style={styles.photoTravelerProfile} source={{uri: props.feedback.url}}/>
+            <Image style={props.styles.photoTravelerProfile} source={{uri: props.feedback.url}}/>
             <View style={{margin:5, flex:1}}>
                 <View style={{flexDirection:"row", justifyContent:"space-between", alignItems:"center", flexWrap: "wrap" }}>
                     <Text style={{fontWeight:"bold", fontSize:wp("2,5%")}}>{props.feedback.name}</Text>
@@ -101,7 +111,7 @@ function Feedback(props){
 
 function Feedbacks(props){
     return(
-        <View style={styles.feedbacksContainer}>
+        <View style={props.styles.feedbacksContainer}>
             <Text style={{fontWeight:"bold", fontSize:wp("3%")}}>Feedbacks</Text>
             {
                 props.feedbacks != "" && props.feedbacks != undefined && props.feedbacks != null
@@ -109,11 +119,11 @@ function Feedbacks(props){
                     <FlatList
                         data={props.feedbacks}
                         keyExtractor={(item, index) => index.toString()}
-                        renderItem={({item}) => <Surface style={styles.feedbacks}>
-                            <Feedback key={item.opponentId} feedback={item}/>
+                        renderItem={({item}) => <Surface style={props.styles.feedbacks}>
+                            <Feedback styles={props.styles} key={item.opponentId} feedback={item}/>
                         </Surface>
                         }/>
-                    : <Text style={styles.biographyText}>
+                    : <Text style={props.styles.biographyText}>
                         You do not have any feedback yet.
                     </Text>
             }
@@ -136,12 +146,14 @@ export default class ProfileTablet extends Component {
         this.setState(prevState => {
             let newState = prevState
             newState.user.urlPhoto = url
+            newState.isUploadingPhoto = false
             return newState
         })
     }
 
     componentWillUnmount(){
         rol(this)
+        Updater.removeListener(this.updateUserInfo)
     }
 
     async componentDidMount(){
@@ -153,6 +165,11 @@ export default class ProfileTablet extends Component {
                 loadingDone: true
             })
         })*/
+        Updater.addListener(this.updateUserInfo)
+        this.updateUserInfo()
+    }
+
+    updateUserInfo = async () => {
         const user = await LocalUserHandler.getUserInfo()
         this.setState({
             user: user,
@@ -166,6 +183,10 @@ export default class ProfileTablet extends Component {
             newState.user.bio = text
             return newState
         })
+    }
+
+    isUploading = (isUploading) => {
+        this.setState({isUploadingPhoto: isUploading})
     }
 
     render() {
@@ -258,14 +279,14 @@ export default class ProfileTablet extends Component {
                             size={30}
                             onPress={() => this.props.navigation.navigate('Settings')}
                         />
-                        <PhotoProfile photoPath={this.state.user.urlPhoto} updatePhoto={this.updateUserPhoto} userId={this.state.user.id}/>
+                        <PhotoProfile isUploading={this.isUploading} isUploadingFlag={this.state.isUploadingPhoto} styles={styles} photoPath={this.state.user.urlPhoto} updatePhoto={this.updateUserPhoto} userId={this.state.user.id}/>
 
                         <View style={{flex:1, marginTop: hp("10%"), flexDirection: "row", justifyContent:"space-between", ...styles.bodyContent}}>
                             <View style={{width: wp("30%"), flexDirection: "column"}}>
-                                <UserInfo userInfo={this.state.user}/>
-                                <Biography bio={this.state.user.bio} nav={this.props.navigation} newBiography={this.newBiography}/>
+                                <UserInfo styles={styles} userInfo={this.state.user}/>
+                                <Biography styles={styles} bio={this.state.user.bio} nav={this.props.navigation} newBiography={this.newBiography}/>
                             </View>
-                            <Feedbacks feedbacks={this.state.user.feedbacks}/>
+                            <Feedbacks styles={styles} feedbacks={this.state.user.feedbacks}/>
                         </View>
                     </ScrollView>
                 </View>

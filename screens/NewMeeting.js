@@ -85,7 +85,6 @@ export default class NewMeeting extends Component {
     }
 
     handleDatePicked = date => {
-
         this.setState({date: DateHandler.dateToString(date)})
         this.hideDatePicker();
     }

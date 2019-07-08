@@ -46,7 +46,7 @@ function Chat(props) {
                         </View>
                         <View style={{flexDirection: "row", justifyContent:"space-between"}}>
                             <Text>
-                                {props.item.lastMessageText}
+                                {props.item.lastMessageText.length > 40 ? props.item.lastMessageText.substr(0, 40) + "..." : props.item.lastMessageText}
                             </Text>
                         </View>
                     </View>
@@ -164,12 +164,11 @@ export default class AllChats extends Component {
 
     setDialogIdToDelete = (dialogID) => this.setState({ dialogIdToDelete: dialogID})
 
-    updateChats = () => {
-        LocalChatsHandler.getChats().then(chats => {
-            this.setState({
-                chats: chats,
-                loadingDone: true
-            })
+    updateChats = async () => {
+        const chats = await LocalChatsHandler.getChats()
+        this.setState({
+            chats: chats,
+            loadingDone: true
         })
     }
 
@@ -281,9 +280,9 @@ export default class AllChats extends Component {
                                     <Button onPress={this._hideDialog}>No</Button>
                                     <Button onPress={()=>{
                                         this._hideDialog()
-                                        ConnectyCubeHandler.deleteConversation(this.state.dialogIdToDelete)
+                                        //ConnectyCubeHandler.deleteConversation(this.state.dialogIdToDelete)
+                                        LocalChatsHandler.deleteChatWith(this.state.dialogIdToDelete)
                                         this.setState(prevState => {
-                                            console.log(prevState.chats)
                                             const newState = prevState.chats.filter(chat => {
                                                 return chat.chatId !== this.state.dialogIdToDelete
                                             })

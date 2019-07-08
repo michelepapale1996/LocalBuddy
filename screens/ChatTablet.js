@@ -10,8 +10,9 @@ import firebase from "react-native-firebase";
 import UserHandler from "../handler/UserHandler";
 import SingleChatHandler from "../handler/SingleChatHandler";
 import ChatTabletHandler from "../updater/ChatTabletHandler";
-import { Header } from "react-native-elements"
 import LinearGradient from 'react-native-linear-gradient';
+import Updater from "../updater/Updater";
+import LocalChatsHandler from "../LocalHandler/LocalChatsHandler";
 
 function Chat(props) {
     const lastMessageTime = props.getTime(props.item.createdAt)
@@ -44,7 +45,7 @@ function Chat(props) {
                     </View>
                     <View style={{flexDirection: "row", justifyContent:"space-between"}}>
                         <Text>
-                            {props.item.lastMessageText}
+                            {props.item.lastMessageText.length > 40 ? props.item.lastMessageText.substr(0, 40) + "..." : props.item.lastMessageText}
                         </Text>
                     </View>
                 </View>
@@ -57,10 +58,10 @@ function Chat(props) {
 function AllChats(props){
     if(props.state.chats.length != 0) {
         return (
-            <View style={{width:wp("30%")}}>
-                <Header backgroundColor='#2fa1ff'>
-                    <Text style={{color: '#fff', fontSize: wp("2%"), fontWeight:"bold"}}>Chat</Text>
-                </Header>
+            <View style={{width:wp("35%")}}>
+                <View backgroundColor='#2fa1ff' style={{flexDirection:"row", alignItems:"center", height:hp("10%")}}>
+                    <Text style={{color: '#fff', fontSize: wp("2%"), marginLeft: wp("1%"), fontWeight:"bold"}}>Chat</Text>
+                </View>
                 <FlatList
                     data={props.state.chats}
                     extraData={props.state.chats}
@@ -173,20 +174,24 @@ class SingleChat extends Component{
                 {
                     this.state.chatSelected &&
                     <View style={{flex:1}}>
-                        <Header backgroundColor='#2fa1ff'>
+                        <View backgroundColor='#2fa1ff' style={{flexDirection:"row", alignItems:"center", justifyContent:"space-between", height:hp("10%")}}>
                             <TouchableRipple style={{flex:1}}
-                                 onPress={() => {
-                                     if(this.state.opponentNameAndSurname != "Account Deleted") this.props.navigation.navigate('BuddyProfile', {idUser: this.state.opponentUserId})
-                                 }}
+                                             onPress={() => {
+                                                 if(this.state.opponentNameAndSurname != "Account Deleted") this.props.navigation.navigate('BuddyProfile', {idUser: this.state.opponentUserId})
+                                             }}
                             >
-                                <Text style={{color: '#fff', fontSize: wp("2%"), fontWeight:"bold"}}>{this.state.opponentNameAndSurname}</Text>
+                                <View style={{flex:1, flexDirection:"row", alignItems:"center"}}>
+                                    <Text style={{flex:1, color: '#fff', fontSize: wp("2%"), fontWeight:"bold", textAlign:"center"}}>{this.state.opponentNameAndSurname}</Text>
+                                </View>
                             </TouchableRipple>
-                            <View/>
-                            <Button mode={"outlined"} style={this.state.styles.button} color={"white"} onPress={()=>{
-                                this.state.updateChatSelected(null)
-                                this.setState({chatSelected: false})
-                            }}>Close</Button>
-                        </Header>
+
+                            <View>
+                                <Button mode={"outlined"} style={this.state.styles.button} color={"white"} onPress={()=>{
+                                    this.state.updateChatSelected(null)
+                                    this.setState({chatSelected: false})
+                                }}>Close</Button>
+                            </View>
+                        </View>
 
                         <View style={{flex:1}}>
                             <LinearGradient colors={['#2c3e50', '#95a5a6', '#ecf0f1']} style={this.state.styles.linearGradient}>
@@ -205,7 +210,7 @@ class SingleChat extends Component{
                 {
                     !this.state.chatSelected &&
                     <View style={{flex:1}}>
-                        <Header backgroundColor='#2fa1ff'></Header>
+                        <View backgroundColor='#2fa1ff' style={{flexDirection:"row", alignItems:"center", justifyContent:"space-between", height:hp("10%")}}/>
                         <LinearGradient colors={['#2c3e50', '#95a5a6', '#ecf0f1']} style={this.state.styles.linearGradient}>
                             <View style={{flex:1}}/>
                         </LinearGradient>
@@ -232,6 +237,7 @@ export default class ChatTablet extends Component {
 
     componentWillUnmount(){
         rol(this)
+        Updater.removeListener(this.updateChats)
         MessagesUpdatesHandler.removeListeners(this.onMessageRcvd)
     }
 
@@ -309,15 +315,20 @@ export default class ChatTablet extends Component {
         })
     }
 
-    componentDidMount(){
-        loc(this)
-        MessagesUpdatesHandler.addListener(this.onMessageRcvd)
-        ChatsHandler.getChats().then(chats => {
+    updateChats = () => {
+        LocalChatsHandler.getChats().then(chats => {
             this.setState({
                 chats: chats,
                 loadingDone: true
             })
         })
+    }
+
+    componentDidMount(){
+        loc(this)
+        MessagesUpdatesHandler.addListener(this.onMessageRcvd)
+        Updater.addListener(this.updateChats)
+        this.updateChats()
     }
 
     updateChatSelected = (chatId) => {

@@ -51,6 +51,24 @@ class LocalChatsHandler {
         }
     }
 
+    static async deleteChatWith(dialogId){
+        var messages = await AsyncStorage.getItem('messages')
+        if (messages !== null) {
+            messages = JSON.parse(messages)
+            await AsyncStorage.removeItem('messages')
+            LocalChatsHandler.setMessages(messages)
+
+            var chats = await LocalChatsHandler.getChats()
+            chats = chats.filter(elem => {
+                return elem.chatId != dialogId
+            })
+            await AsyncStorage.removeItem('chats')
+            await AsyncStorage.setItem("chats", JSON.stringify(chats));
+        } else {
+            return []
+        }
+    }
+
     //called if there is not a dialog
     static async addChat(){
         try {
@@ -97,7 +115,6 @@ class LocalChatsHandler {
                 msg.user._id = 2
                 msg.user.avatar = payload.urlPhotoOther
             }
-
             if(messages[payload.chatId] != null){
                 LocalChatsHandler.updateChats(payload)
                 //put the msg at the beginning

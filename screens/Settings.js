@@ -9,6 +9,7 @@ import AccountHandler from "../handler/AccountHandler";
 import MultiSlider from "@ptomasroos/react-native-multi-slider/MultiSlider";
 import LocalUserHandler from "../LocalHandler/LocalUserHandler";
 import OrientationHandler from "../handler/OrientationHandler";
+import Updater from "../updater/Updater";
 
 function BuddyComponent(props){
     stopToBeBuddy = () => {
@@ -156,8 +157,7 @@ export default class Settings extends Component {
         }
     }
 
-    async componentDidMount(){
-        loc(this)
+    updateSettings = async () => {
         var user = await LocalUserHandler.getUserInfo()
         //const userId = firebase.auth().currentUser.uid;
         //const isBuddy = await UserHandler.isBuddy(userId)
@@ -171,8 +171,15 @@ export default class Settings extends Component {
         })
     }
 
+    async componentDidMount(){
+        loc(this)
+        Updater.addListener(this.updateSettings)
+        this.updateSettings()
+    }
+
     componentWillUnmount(){
         rol(this)
+        Updater.removeListener(this.updateSettings)
     }
 
     //function to change the state of this component from other components

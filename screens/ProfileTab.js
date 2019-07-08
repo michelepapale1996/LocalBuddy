@@ -11,6 +11,7 @@ import StarRating from 'react-native-star-rating';
 import LocalUserHandler from "../LocalHandler/LocalUserHandler";
 import OrientationHandler from "../handler/OrientationHandler";
 import Loading from "./Loading";
+import Updater from "../updater/Updater";
 
 function Biography(props){
     modifyBiography = ()=>{
@@ -62,7 +63,6 @@ function UserInfo(props) {
 }
 
 function PhotoProfile(props) {
-    console.log(props.photoPath)
     uploadImg = () => {
         ImagePicker.showImagePicker((response) => {
             if (response.didCancel) {
@@ -104,7 +104,7 @@ function Feedback(props){
             <Image
                 style={props.styles.photoTravelerProfile}
                 source={{uri: props.feedback.url}}/>
-            <View style={{margin:5, flex:1}}>
+            <View style={{marginLeft:wp("2%"), flex:1}}>
 
                 <View style={{flexDirection:"row", justifyContent:"space-between", flexWrap: "wrap" }}>
                     <Text style={props.styles.opponentNameText}>{props.feedback.name}</Text>
@@ -118,7 +118,7 @@ function Feedback(props){
                     />
                 </View>
 
-                <Text style={props.styles.feedbackText}>{props.feedback.text}</Text>
+                <Text style={props.styles.feedbackText}>{props.feedback.text.length > 0 ? props.feedback.text : "This user has not provided a textual feedback"}}</Text>
             </View>
         </View>
     )
@@ -171,6 +171,16 @@ export default class ProfileTab extends Component {
         //const id = firebase.auth().currentUser.uid
         //var user = await UserHandler.getUserInfo(id)
         //const citiesWhereIsBuddy = await UserHandler.getCitiesOfTheBuddy(id)
+        Updater.addListener(this.updateUserInfo)
+        this.updateUserInfo()
+    }
+
+    componentWillUnmount(){
+        rol(this)
+        Updater.removeListener(this.updateUserInfo)
+    }
+
+    updateUserInfo = async () => {
         const citiesWhereIsBuddy = await LocalUserHandler.getCitiesOfTheBuddy()
         var user = await LocalUserHandler.getUserInfo()
         if(user.feedbacks != null){
@@ -186,10 +196,6 @@ export default class ProfileTab extends Component {
             loadingDone: true,
             isUploadingPhoto: false
         })
-    }
-
-    componentWillUnmount(){
-        rol(this)
     }
 
     newBiography = (text) => {

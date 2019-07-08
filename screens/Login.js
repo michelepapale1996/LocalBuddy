@@ -109,8 +109,7 @@ export default class Login extends React.Component {
                             if (error) {
                                 console.error(error)
                             } else {
-                                console.log("AAAAAAAAAA")
-                                console.log(result.picture.data.url)
+                                //console.log(result.picture.data.url)
                                 await UserHandler.setUrlPhoto(result.picture.data.url)
                                 LoadingHandler.initAppBecauseSignUp(userId).then(()=>{
                                     this.props.navigation.navigate('Chat')

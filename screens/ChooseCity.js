@@ -178,7 +178,7 @@ export default class ChooseCity extends Component {
                                     })}>
                                         <View style={{flexDirection: "row"}}>
                                             <IconButton icon={"location-on"}/><Text
-                                            style={styles.text}>{item.name}</Text>
+                                            style={{flex: 1, flexWrap: 'wrap', ...styles.text}}>{item.name}</Text>
                                         </View>
                                     </TouchableRipple>
                                 }

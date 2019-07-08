@@ -33,7 +33,8 @@ const SearchTab = createStackNavigator({
 });
 
 const ChatTab = createStackNavigator({
-    Chat: ChatTablet
+    Chat: ChatTablet,
+    BuddyProfile: BuddyProfileTablet
 });
 
 const MeetingsTab = createMaterialTopTabNavigator({
@@ -132,7 +133,7 @@ const TabNavigator = createBottomTabNavigator({
             height: hp("9%"),
         }
     }
-});
+})
 
 const TabletApp = createSwitchNavigator(
     {

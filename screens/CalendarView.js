@@ -32,7 +32,7 @@ export default class CalendarView extends Component {
         MeetingsUpdatesHandler.removeNewMeetingListener(this.newMeeting)
         MeetingsUpdatesHandler.removeNewPendingMeetingListener(this.addPendingMeeting)
         MeetingsUpdatesHandler.removeFromFutureToPastMeetingListener(this.changeFromFutureToPastMeeting)
-        Updater.removeListener(this.updateMeetings())
+        Updater.removeListener(this.updateMeetings)
     }
 
     updateMeetings = async () => {

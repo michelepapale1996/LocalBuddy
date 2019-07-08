@@ -15,28 +15,16 @@ class LoadingHandler{
         await ConnectyCubeHandler.createSession(userId)
         NetInfoHandler.subscribe()
         const CCUserId = ConnectyCubeHandler.getCCUserId()
-        SingleChatHandler.connectToChat(CCUserId, 'LocalBuddy').then(async ()=>{
-            const userInfo = await UserHandler.getUserInfo(userId)
+        SingleChatHandler.connectToChat(CCUserId, 'LocalBuddy')
 
+        //update info user and meetings
+        UserHandler.getUserInfo(userId).then(async userInfo => {
             //save in local
             await LocalUserHandler.storeUserInfo(userInfo)
-            UserHandler.getCitiesOfTheBuddy(userInfo.id).then(citiesWhereIsBuddy => {
+            await UserHandler.getCitiesOfTheBuddy(userInfo.id).then(citiesWhereIsBuddy => {
                 LocalUserHandler.storeCitiesWhereIsBuddy(citiesWhereIsBuddy)
             })
             await LocalMeetingsHandler.setMeetings(userInfo.meetings)
-
-            const chats = await ChatsHandler.getChats()
-            await LocalChatsHandler.setChats(chats)
-
-            //saving in local single chats
-            const promises = chats.map(chat => SingleChatHandler.retrieveChatHistory(chat.chatId, 100, null, null))
-            var messages = {}
-            await Promise.all(promises).then(async results => {
-                results.forEach((res, index) => {
-                    messages[chats[index].chatId] = res
-                })
-                await LocalChatsHandler.setMessages(messages)
-            })
 
             //when the local state is updated -> fire the updaters
             Updater.update()

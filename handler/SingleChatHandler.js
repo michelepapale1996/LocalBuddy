@@ -87,9 +87,7 @@ class SingleChatHandler{
             },
             markable: 1
         };
-
         ConnectyCubeHandler.getInstance().chat.send(payload.ccOpponentUserId, message);
-
         //send notification
         var notificationBody = JSON.stringify({
             message: payload.text,

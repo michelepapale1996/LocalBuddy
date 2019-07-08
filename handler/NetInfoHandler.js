@@ -15,11 +15,8 @@ class NetInfoHandler{
         NetInfoHandler.getInfo()
         // Subscribe
         NetInfoHandler.unsubscribe = NetInfo.addEventListener(state => {
-            //NetInfoHandler.isConnected = state.isConnected
-            if(state.isConnected){
-
-            }
-        });
+            NetInfoHandler.isConnected = state.isConnected
+        })
     }
 
 

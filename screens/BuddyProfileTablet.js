@@ -12,12 +12,12 @@ import NavigationService from "../handler/NavigationService";
 
 function Biography(props){
     return(
-        <View style={styles.biographyContainer}>
-            <View style={styles.biography}>
+        <View style={props.styles.biographyContainer}>
+            <View style={props.styles.biography}>
                 {
                     props.bio != ""
-                        ? <Text style={styles.biographyText}>{props.bio}</Text>
-                        : <Text style={styles.biographyText}>The buddy does not have any biography yet.</Text>
+                        ? <Text style={props.styles.biographyText}>{props.bio}</Text>
+                        : <Text style={props.styles.biographyText}>The buddy does not have any biography yet.</Text>
                 }
             </View>
         </View>
@@ -30,24 +30,24 @@ function UserInfo(props) {
     const years = new Date().getFullYear() - birthdate.getFullYear()
     return(
         <View>
-            <Text style={styles.nameAndSurnameText}>
+            <Text style={props.styles.nameAndSurnameText}>
                 {props.userInfo.name} {props.userInfo.surname}
             </Text>
-            <Text style={styles.infoUserText}>{years} years old</Text>
+            <Text style={props.styles.infoUserText}>{years} years old</Text>
         </View>
     )
 }
 
 function PhotoProfile(props) {
     return(
-        <Image style={styles.avatar} source={{uri: props.photoPath}}/>
+        <Image style={props.styles.avatar} source={{uri: props.photoPath}}/>
     )
 }
 
 function Feedback(props){
     return(
         <View style={{flexDirection:"row", margin:10}}>
-            <Image style={styles.photoTravelerProfile} source={{uri: props.feedback.url}}/>
+            <Image style={props.styles.photoTravelerProfile} source={{uri: props.feedback.url}}/>
             <View style={{margin:5, flex:1}}>
                 <View style={{flexDirection:"row", justifyContent:"space-between", flexWrap: "wrap" }}>
                     <Text style={{fontWeight:"bold",fontSize:wp("2,5%")}}>{props.feedback.name}</Text>
@@ -69,18 +69,18 @@ function Feedback(props){
 
 function Feedbacks(props){
     return(
-        <View style={styles.feedbacksContainer}>
+        <View style={props.styles.feedbacksContainer}>
             <Text style={{fontWeight:"bold", fontSize:wp("3%"), marginLeft:wp("5%")}}>Feedbacks</Text>
             {
                 props.feedbacks != "" && props.feedbacks != undefined && props.feedbacks != null
                     ? <FlatList
                         data={props.feedbacks}
                         keyExtractor={(item, index) => index.toString()}
-                        renderItem={({item}) => <Surface style={styles.feedbacks}>
-                            <Feedback key={item.opponentId} feedback={item}/>
+                        renderItem={({item}) => <Surface style={props.styles.feedbacks}>
+                            <Feedback styles={props.styles} key={item.opponentId} feedback={item}/>
                         </Surface>
                         }/>
-                    : <Text style={styles.biographyText}>
+                    : <Text style={props.styles.biographyText}>
                         The buddy does not have any feedback yet.
                     </Text>
             }
@@ -229,11 +229,11 @@ export default class ProfileTab extends Component {
                 <View style={styles.container}>
                     <ScrollView>
                         <View style={styles.header}/>
-                        <PhotoProfile photoPath={this.state.user.urlPhoto} chatId={this.state.chatId} userId={this.state.user.id}/>
+                        <PhotoProfile styles={styles} photoPath={this.state.user.urlPhoto} chatId={this.state.chatId} userId={this.state.user.id}/>
 
                         <View style={{flex:1, marginTop: hp("15%"), flexDirection: "row", justifyContent:"space-between", ...styles.bodyContent}}>
                             <View style={{width: wp("30%"), flexDirection: "column"}}>
-                                <UserInfo userInfo={this.state.user}/>
+                                <UserInfo styles={styles} userInfo={this.state.user}/>
                                 <Button
                                     mode={"outlined"}
                                     onPress={async () => {
@@ -252,9 +252,9 @@ export default class ProfileTab extends Component {
                                     }}>
                                     Propose a new meeting
                                 </Button>
-                                <Biography bio={this.state.user.bio} nav={this.props.navigation} newBiography={this.newBiography}/>
+                                <Biography styles={styles} bio={this.state.user.bio} nav={this.props.navigation} newBiography={this.newBiography}/>
                             </View>
-                            <Feedbacks feedbacks={this.state.user.feedbacks}/>
+                            <Feedbacks styles={styles} feedbacks={this.state.user.feedbacks}/>
                         </View>
                     </ScrollView>
                     <FAB

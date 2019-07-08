@@ -118,31 +118,28 @@ export default class SingleChat extends Component {
     }
 
     async onSend(messages){
-        if(NetInfoHandler.isConnected){
-            if(this.state.opponentNameAndSurname != "Account Deleted") {
-                var chatID = this.state.chatId
-                //check if the chat exists
-                if (this.state.chatId == null) {
-                    //create the conversation and set the chatId
-                    SingleChatHandler.createConversation(this.state.CCopponentUserId).then(chat => {
-                        this.setState({chatId: chat._id})
-                    })
-                }
-                const payload = {
-                    text: messages[0].text,
-                    chatId: chatID,
-                    opponentId: this.state.opponentId,
-                    ccOpponentUserId: this.state.CCopponentUserId,
-                    opponentUsername: this.state.opponentNameAndSurname,
-                    nameAndSurname: this.state.nameAndSurname,
-                    urlPhotoOther: this.state.urlPhotoOther,
-                    createdAt: new Date()
-                }
-                SingleChatHandler.sendMessage(payload)
-                MessagesUpdatesHandler.updateBecauseLocalSending(payload)
+        if(this.state.opponentNameAndSurname != "Account Deleted") {
+            var chatID = this.state.chatId
+            //check if the chat exists
+            if (this.state.chatId == null) {
+                //create the conversation and set the chatId
+                chatID = await SingleChatHandler.createConversation(this.state.CCopponentUserId).then(chat => {
+                    this.setState({chatId: chat._id})
+                    return chat._id
+                })
             }
-        }else{
-            alert("Cannot send message beacuse you are not connected to Internet")
+            const payload = {
+                text: messages[0].text,
+                chatId: chatID,
+                opponentId: this.state.opponentId,
+                ccOpponentUserId: this.state.CCopponentUserId,
+                opponentUsername: this.state.opponentNameAndSurname,
+                nameAndSurname: this.state.nameAndSurname,
+                urlPhotoOther: this.state.urlPhotoOther,
+                createdAt: new Date()
+            }
+            SingleChatHandler.sendMessage(payload)
+            MessagesUpdatesHandler.updateBecauseLocalSending(payload)
         }
     }
 

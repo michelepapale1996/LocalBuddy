@@ -8,6 +8,7 @@ import { FAB, Text, Surface, Button, IconButton } from 'react-native-paper';
 import StarRating from 'react-native-star-rating';
 import MeetingsHandler from "../handler/MeetingsHandler";
 import NavigationService from "../handler/NavigationService";
+import OrientationHandler from "../handler/OrientationHandler";
 
 function Biography(props){
     return(
@@ -53,10 +54,10 @@ function Feedback(props){
             <Image
                 style={props.styles.photoTravelerProfile}
                 source={{uri: props.feedback.url}}/>
-            <View style={{margin:5, flex:1}}>
+            <View style={{marginLeft:wp("2%"), flex:1}}>
 
                 <View style={{flexDirection:"row", justifyContent:"space-between", flexWrap: "wrap" }}>
-                    <Text style={{fontWeight:"bold",fontSize:wp("5%")}}>{props.feedback.name}</Text>
+                    <Text style={props.styles.opponentNameText}>{props.feedback.name}</Text>
                     <StarRating
                         disabled={true}
                         maxStars={5}
@@ -67,7 +68,7 @@ function Feedback(props){
                     />
                 </View>
 
-                <Text style={{fontSize:wp("4%")}}>{props.feedback.text}</Text>
+                <Text style={props.styles.feedbackText}>{props.feedback.text.length > 0 ? props.feedback.text : "This user has not provided a textual feedback"}</Text>
             </View>
         </View>
     )
@@ -76,7 +77,7 @@ function Feedback(props){
 function Feedbacks(props){
     return(
         <View style={props.styles.feedbacksContainer}>
-            <Text style={{fontWeight:"bold", fontSize:wp("6%"), marginLeft:wp("5%")}}>Feedbacks</Text>
+            <Text style={props.styles.feedbacksLabelText}>Feedbacks</Text>
                 {
                     props.feedbacks != "" && props.feedbacks != undefined && props.feedbacks != null
                         ? <FlatList
@@ -150,100 +151,233 @@ export default class ProfileTab extends Component {
     };
 
     render() {
-        const styles = StyleSheet.create({
-            biographyContainer: {
-                fontSize: hp("30%"),
-                width: wp("95%"),
-                margin: hp("1%"),
-            },
-            feedbacksContainer: {
-                fontSize: hp("30%"),
-                width: wp("95%"),
-                margin: hp("1%"),
-            },
-            biography:{
-                margin: wp("4%"),
-            },
-            feedbacks:{
-                margin: wp("1%"),
-                borderRadius: 5,
-                elevation:2
-            },
-            biographyText:{
-                textAlign: "center",
-                fontSize:wp("4%"),
-                flex: 1,
-            },
-            infoUser:{
-                flex: 1,
-                width: wp("80%"),
-                fontWeight:'600',
-                marginTop: hp("5%"),
-            },
-            nameAndSurnameText:{
-                fontSize:wp("7%"),
-                flex: 1,
-                fontWeight:'600',
-                textAlign:"center"
-            },
-            infoUserText:{
-                fontSize:wp("5%"),
-                flex: 1,
-                fontWeight:'300',
-                marginLeft: 0,
-                textAlign:"center"
-            },
-            nameAndSurname:{
-                flex:1
-            },
-            photoTravelerProfile:{
-                width: wp("20%"),
-                height: wp("20%"),
-                borderRadius: wp("20%")
-            },
-            header:{
-                backgroundColor: "#52c8ff",
-                height:hp("30%"),
-            },
-            bodyContent: {
-                flex: 1,
-                alignItems: 'center',
-                padding:hp("10%"),
-                backgroundColor: "white"
-            },
-            avatar: {
-                width: wp("50%"),
-                height: wp("50%"),
-                borderRadius: wp("40%"),
-                borderWidth: 4,
-                borderColor: "white",
-                alignSelf:'center',
-                position: 'absolute',
-                marginTop:wp("20%"),
-                zIndex:9
-            },
-            settingsButton:{
-                position: 'absolute',
-                marginTop:hp("5%"),
-                marginLeft:wp("85%")
-            },
-            photoButton:{
-                width: wp("10%"),
-                height: wp("10%"),
-                borderRadius: wp("10%"),
-                position: 'absolute',
-                marginTop:hp("20%"),
-                marginLeft:wp("65%"),
-                zIndex:10,
-                backgroundColor:"dodgerblue"
-            },
-            fab: {
-                position: 'absolute',
-                right: wp("3%"),
-                top: hp("70%"),
-                backgroundColor: "#52c8ff"
-            },
-        });
+        var styles;
+        if(OrientationHandler.orientation == "portrait") {
+            styles = StyleSheet.create({
+                biographyContainer: {
+                    fontSize: hp("30%"),
+                    width: wp("95%"),
+                    margin: hp("1%"),
+                },
+                feedbacksContainer: {
+                    fontSize: hp("30%"),
+                    width: wp("95%"),
+                    margin: hp("1%"),
+                },
+                biography: {
+                    margin: wp("4%"),
+                },
+                feedbacks: {
+                    margin: wp("1%"),
+                    borderRadius: 5,
+                    elevation: 2
+                },
+                biographyText: {
+                    textAlign: "center",
+                    fontSize: wp("4%"),
+                    flex: 1,
+                },
+                infoUser: {
+                    flex: 1,
+                    width: wp("80%"),
+                    fontWeight: '600',
+                    marginTop: hp("5%"),
+                },
+                nameAndSurnameText: {
+                    fontSize: wp("7%"),
+                    flex: 1,
+                    fontWeight: '600',
+                    textAlign: "center"
+                },
+                infoUserText: {
+                    fontSize: wp("5%"),
+                    flex: 1,
+                    fontWeight: '300',
+                    marginLeft: 0,
+                    textAlign: "center"
+                },
+                nameAndSurname: {
+                    flex: 1
+                },
+                photoTravelerProfile: {
+                    width: wp("20%"),
+                    height: wp("20%"),
+                    borderRadius: wp("20%")
+                },
+                header: {
+                    backgroundColor: "#52c8ff",
+                    height: hp("30%"),
+                },
+                bodyContent: {
+                    flex: 1,
+                    alignItems: 'center',
+                    padding: hp("10%"),
+                    backgroundColor: "white"
+                },
+                avatar: {
+                    width: wp("50%"),
+                    height: wp("50%"),
+                    borderRadius: wp("40%"),
+                    borderWidth: 4,
+                    borderColor: "white",
+                    alignSelf: 'center',
+                    position: 'absolute',
+                    marginTop: wp("20%"),
+                    zIndex: 9
+                },
+                settingsButton: {
+                    position: 'absolute',
+                    marginTop: hp("5%"),
+                    marginLeft: wp("85%")
+                },
+                photoButton: {
+                    width: wp("10%"),
+                    height: wp("10%"),
+                    borderRadius: wp("10%"),
+                    position: 'absolute',
+                    marginTop: hp("20%"),
+                    marginLeft: wp("65%"),
+                    zIndex: 10,
+                    backgroundColor: "dodgerblue"
+                },
+                fab: {
+                    position: 'absolute',
+                    right: wp("3%"),
+                    top: hp("70%"),
+                    backgroundColor: "#52c8ff"
+                },
+                citiesLabelText: {
+                    fontWeight:"bold",
+                    fontSize:wp("6%"),
+                    marginLeft:wp("5%")
+                },
+                nameCityText: {
+                    fontSize:wp("4%"),
+                    marginLeft:wp("2%")
+                },
+                feedbacksLabelText: {
+                    fontWeight:"bold",
+                    fontSize:wp("6%"),
+                    marginLeft:wp("5%")
+                },
+                opponentNameText: {
+                    fontWeight:"bold",
+                    fontSize:wp("5%")
+                },
+                feedbackText: {
+                    fontSize:wp("4%")
+                }
+            });
+        } else {
+            styles = StyleSheet.create({
+                container: {
+                    backgroundColor: 'white',
+                    marginBottom: 2,
+                    shadowColor: "#000000",
+                    shadowOpacity: 0.8,
+                    shadowRadius: 2,
+                    shadowOffset: {
+                        height: 1,
+                        width: 1
+                    }
+                },
+                biographyContainer: {
+                    width: wp("95%"),
+                    margin: hp("1%"),
+                },
+                feedbacksContainer: {
+                    width: wp("95%"),
+                    margin: hp("1%"),
+                },
+                biography: {
+                    margin: wp("4%")
+                },
+                biographyText: {
+                    textAlign: "center",
+                    fontSize: 20,
+                    flex: 1,
+                },
+                feedbacks: {
+                    margin: wp("1%"),
+                    borderRadius: 5,
+                    elevation: 2
+                },
+                infoUser: {
+                    flex: 1,
+                    width: wp("80%"),
+                    fontWeight: '600',
+                    marginTop: hp("5%"),
+                },
+                nameAndSurnameText: {
+                    fontSize: 30,
+                    flex: 1,
+                    fontWeight: '600',
+                    textAlign: "center"
+                },
+                infoUserText: {
+                    fontSize: 20,
+                    flex: 1,
+                    fontWeight: '300',
+                    marginLeft: 0,
+                    textAlign: "center"
+                },
+                nameAndSurname: {
+                    flex: 1
+                },
+                photoTravelerProfile: {
+                    width: wp("10%"),
+                    height: wp("10%"),
+                    borderRadius: wp("20%")
+                },
+                header: {
+                    backgroundColor: "#52c8ff",
+                    height: hp("40%"),
+                },
+                bodyContent: {
+                    flex: 1,
+                    alignItems: 'center',
+                    padding: hp("10%"),
+                    backgroundColor: "white"
+                },
+                avatar: {
+                    width: wp("30%"),
+                    height: wp("30%"),
+                    borderRadius: wp("40%"),
+                    borderWidth: 4,
+                    borderColor: "white",
+                    alignSelf: 'center',
+                    position: 'absolute',
+                    marginTop: hp("5%"),
+                    zIndex: 9
+                },
+                settingsButton: {
+                    position: 'absolute',
+                    marginTop: hp("5%"),
+                    marginLeft: wp("90%")
+                },
+                citiesLabelText: {
+                    fontWeight:"bold",
+                    fontSize:25,
+                    marginLeft:wp("5%")
+                },
+                nameCityText: {
+                    fontSize:18,
+                    marginLeft:wp("2%")
+                },
+                feedbacksLabelText: {
+                    fontWeight:"bold",
+                    fontSize: 25,
+                    marginLeft:wp("5%")
+                },
+                opponentNameText: {
+                    fontWeight:"bold",
+                    fontSize: 25
+                },
+                feedbackText: {
+                    fontSize:20
+                }
+            })
+        }
 
         if (this.state.loadingDone){
             return(
@@ -282,14 +416,14 @@ export default class ProfileTab extends Component {
                             {
                                 this.state.citiesWhereIsBuddy != undefined && this.state.citiesWhereIsBuddy.length > 0 ?
                                     <View style={styles.feedbacksContainer}>
-                                        <Text style={{fontWeight:"bold", fontSize:wp("6%"), marginLeft:wp("5%")}}>Cities</Text>
+                                        <Text style={styles.citiesLabelText}>Cities</Text>
                                         <Surface style={styles.feedbacks}>
                                             <FlatList
                                                 data={this.state.citiesWhereIsBuddy}
                                                 renderItem={({item}) =>
                                                     <View style={{flexDirection: "row", alignItems:"center"}}>
                                                         <IconButton icon={"location-on"}/>
-                                                        <Text style={{fontSize:wp("4%"), marginLeft:wp("2%")}}>{item.cityName}</Text>
+                                                        <Text style={styles.nameCityText}>{item.cityName}</Text>
                                                     </View>
                                                 }
                                                 keyExtractor={(item, index) => index.toString()}

@@ -10,6 +10,7 @@ import MeetingsUpdatesHandler from "../updater/MeetingsUpdatesHandler";
 import DateHandler from "../handler/DateHandler";
 import LocalMeetingsHandler from "../LocalHandler/LocalMeetingsHandler";
 import OrientationHandler from "../handler/OrientationHandler";
+import Updater from "../updater/Updater";
 
 export default class ListView extends Component{
     constructor(props){
@@ -46,6 +47,11 @@ export default class ListView extends Component{
         MeetingsUpdatesHandler.setNewMeetingListener(this.newMeeting)
         MeetingsUpdatesHandler.setFromFutureToPastMeeting(this.changeFromFutureToPastMeeting)
 
+        Updater.addListener(this.updateMeetings)
+        await this.updateMeetings()
+    }
+
+    updateMeetings = async () => {
         //var meetings = await MeetingsHandler.getMeetings()
         var meetings = await LocalMeetingsHandler.getMeetings()
 
@@ -151,7 +157,6 @@ export default class ListView extends Component{
             meetingsWithTheSameUser = meetingsWithTheSameUser[0]
 
             var filteredMeetingsWithTheSameUser = meetingsWithTheSameUser.meetings.filter(meeting => {
-                console.log(meeting)
                 return meeting.date != date || (meeting.date == date && meeting.time != time)
             })
 
