@@ -22,6 +22,7 @@ import CityChosen from "./screens/CityChosen";
 import NewBiography from "./screens/NewBiography";
 import CalendarView from "./screens/CalendarView";
 import MeetingInfo from "./screens/MeetingInfo";
+import OrientationHandler from "./handler/OrientationHandler";
 
 const SearchTab = createStackNavigator({
     Home: {
@@ -147,12 +148,12 @@ const TabNavigator = createBottomTabNavigator({
 },{
     tabBarOptions: {
         labelStyle: {
-            fontSize: hp("2%"),
+            fontSize: 15,
         },
         activeTintColor:'#3498db',
         inactiveTintColor: "#343a40",
         style: {
-            height: hp("9%"),
+            height: 60
         }
     }
 });

@@ -139,17 +139,19 @@ export default class Login extends React.Component {
                     backgroundColor: "transparent",
                     borderBottomWidth: 1,
                     borderColor: "white",
-                    color: "white"
+                    color: "white",
+                    fontSize: hp("2%")
                 },
                 button: {
                     marginTop: hp("3%"),
                     width: wp("80%"),
                     borderRadius: 5,
-                    height: hp("6%")
+                    height: hp("6%"),
+                    fontSize: hp("2%")
                 },
                 text: {
                     color: "white",
-                    fontSize: 20,
+                    fontSize: hp("4%")
                 },
                 logo: {
                     marginTop: hp("10%"),
@@ -184,17 +186,19 @@ export default class Login extends React.Component {
                     backgroundColor: "transparent",
                     borderBottomWidth: 1,
                     borderColor: "white",
-                    color: "white"
+                    color: "white",
+                    fontSize: hp("2%")
                 },
                 button: {
                     marginTop: hp("3%"),
                     width: wp("80%"),
                     borderRadius: 5,
-                    height: hp("10%")
+                    height: hp("10%"),
+                    fontSize: hp("2%")
                 },
                 text: {
                     color: "white",
-                    fontSize: 20,
+                    fontSize: hp("4%")
                 },
                 logo: {
                     marginTop: hp("5%"),
@@ -251,20 +255,18 @@ export default class Login extends React.Component {
                         </View>
                     </View>
                     <View style={{marginBottom:hp("10%"), alignItems:"center"}}>
-                        <Button
-                            mode={"contained"}
-                            style={styles.button}
-                            color={"white"}
-                            onPress={this.handleLogin}>
-                            Login
-                        </Button>
+                        <TouchableRipple style={styles.facebookButton} rippleColor="grey" onPress={this.handleLogin}>
+                            <Text style={{color:"black", fontSize: hp("2%"), textAlign:"center"}}>
+                                Login
+                            </Text>
+                        </TouchableRipple>
 
-                        <Text style={styles.text}> or </Text>
+                        <Text style={{color: "white", fontSize: hp("2%")}}> or </Text>
 
                         <TouchableRipple style={styles.facebookButton} rippleColor="grey" onPress={this.handleFacebookLogin}>
                             <View style={{flexDirection:"row", alignItems: "center", justifyContent:"center"}}>
                                 <Image style={styles.facebookLogo} source={require('../img/facebook_logo.jpeg')}/>
-                                <Text style={{color:"black", fontSize: 17}}>
+                                <Text style={{color:"black", fontSize: hp("2%")}}>
                                     Login with Facebook
                                 </Text>
                             </View>

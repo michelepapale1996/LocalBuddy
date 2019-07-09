@@ -59,7 +59,7 @@ function AllChats(props){
     if(props.state.chats.length != 0) {
         return (
             <View style={{width:wp("35%")}}>
-                <View backgroundColor='#2fa1ff' style={{flexDirection:"row", alignItems:"center", height:hp("10%")}}>
+                <View backgroundColor='#2fa1ff' style={{flexDirection:"row", alignItems:"center", height:hp("9%")}}>
                     <Text style={{color: '#fff', fontSize: wp("2%"), marginLeft: wp("1%"), fontWeight:"bold"}}>Chat</Text>
                 </View>
                 <FlatList
@@ -102,11 +102,13 @@ class SingleChat extends Component{
         ChatTabletHandler.removeListener()
     }
 
-    updateState = (state) => {
+    updateState = async (state) => {
         this.setState(state)
         const urlPhotoOther = state.urlPhotoOther
         if(state.chatId != null){
-            SingleChatHandler.retrieveChatHistory(state.chatId, 100, null, urlPhotoOther).then(messages => this.setState({messages: messages}))
+            //SingleChatHandler.retrieveChatHistory(state.chatId, 100, null, urlPhotoOther).then(messages => this.setState({messages: messages}))
+            var messages = await LocalChatsHandler.getMessagesWith(state.chatId)
+            this.setState({messages: messages})
         }
     }
 
@@ -174,7 +176,7 @@ class SingleChat extends Component{
                 {
                     this.state.chatSelected &&
                     <View style={{flex:1}}>
-                        <View backgroundColor='#2fa1ff' style={{flexDirection:"row", alignItems:"center", justifyContent:"space-between", height:hp("10%")}}>
+                        <View backgroundColor='#2fa1ff' style={{flexDirection:"row", alignItems:"center", justifyContent:"space-between", height:hp("9%")}}>
                             <TouchableRipple style={{flex:1}}
                                              onPress={() => {
                                                  if(this.state.opponentNameAndSurname != "Account Deleted") this.props.navigation.navigate('BuddyProfile', {idUser: this.state.opponentUserId})
@@ -210,7 +212,7 @@ class SingleChat extends Component{
                 {
                     !this.state.chatSelected &&
                     <View style={{flex:1}}>
-                        <View backgroundColor='#2fa1ff' style={{flexDirection:"row", alignItems:"center", justifyContent:"space-between", height:hp("10%")}}/>
+                        <View backgroundColor='#2fa1ff' style={{flexDirection:"row", alignItems:"center", justifyContent:"space-between", height:hp("9%")}}/>
                         <LinearGradient colors={['#2c3e50', '#95a5a6', '#ecf0f1']} style={this.state.styles.linearGradient}>
                             <View style={{flex:1}}/>
                         </LinearGradient>
@@ -383,7 +385,7 @@ export default class ChatTablet extends Component {
             },
             button:{
                 marginLeft:0,
-                marginRight:0,
+                marginRight:wp("1%"),
                 borderRadius: 5,
                 borderColor: "white"
             },

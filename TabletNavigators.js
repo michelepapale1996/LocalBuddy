@@ -19,10 +19,12 @@ import NewBiography from "./screens/NewBiography";
 import ChatTablet from "./screens/ChatTablet"
 import CalendarView from "./screens/CalendarView";
 import MeetingInfo from "./screens/MeetingInfo";
+import ChooseCityTablet from "./screens/ChooseCityTablet";
+import SettingsTablet from "./screens/SettingsTablet";
 
 const SearchTab = createStackNavigator({
     Home: {
-        screen: ChooseCity,
+        screen: ChooseCityTablet,
     },
     CityChosen: {
         screen: CityChosen,
@@ -83,7 +85,7 @@ const ProfileTabNavigator = createStackNavigator({
         }
     },
     Settings:{
-        screen: Settings
+        screen: SettingsTablet
     },
     ChangePassword:{
         screen: ChangePassword
@@ -101,36 +103,36 @@ const TabNavigator = createBottomTabNavigator({
     Chat: {
         screen: ChatTab,
         navigationOptions:{
-            tabBarIcon: ({tintColor}) =>  <Icon name="chat" size={35} color={tintColor}/>
+            tabBarIcon: ({tintColor}) =>  <Icon name="chat" size={45} color={tintColor}/>
         }
     },
     MyMeetings: {
         screen: FutureMeetingsTabNavigator,
         navigationOptions:{
-            tabBarIcon: ({tintColor}) => <Icon name="account-multiple" type="material-community" size={35} color={tintColor}/>
+            tabBarIcon: ({tintColor}) => <Icon name="account-multiple" type="material-community" size={45} color={tintColor}/>
         }
     },
     Search: {
         screen: SearchTab,
         navigationOptions:{
-            tabBarIcon: ({tintColor}) => <Icon name="search" size={35} color={tintColor}/>
+            tabBarIcon: ({tintColor}) => <Icon name="search" size={45} color={tintColor}/>
         }
     },
     Profile: {
         screen: ProfileTabNavigator,
         navigationOptions:{
-            tabBarIcon: ({tintColor}) => <Icon name="person" size={35} color={tintColor}/>
+            tabBarIcon: ({tintColor}) => <Icon name="person" size={45} color={tintColor}/>
         }
     }
 },{
     tabBarOptions: {
         labelStyle: {
-            fontSize: hp("2%"),
+            fontSize: 20,
         },
         activeTintColor:'#3498db',
         inactiveTintColor: "#343a40",
         style: {
-            height: hp("9%"),
+            height: 80,
         }
     }
 })

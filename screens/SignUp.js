@@ -104,7 +104,8 @@ export default class SignUp extends React.Component {
                 backgroundColor:"transparent",
                 borderBottomWidth: 1,
                 borderColor: "white",
-                color:"white"
+                color:"white",
+                fontSize: hp("2%")
             },
             button:{
                 marginTop:hp("2%"),
@@ -121,7 +122,7 @@ export default class SignUp extends React.Component {
             },
             text:{
                 color:"white",
-                fontSize: 20,
+                fontSize: hp("2%")
             },
         })
 
