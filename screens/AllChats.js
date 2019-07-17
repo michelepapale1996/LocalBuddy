@@ -116,7 +116,8 @@ export default class AllChats extends Component {
                         chatId: payload.chatId,
                         CCopponentUserId: payload.ccOpponentUserId,
                         nameAndSurname: payload.opponentUsername,
-                        urlPhotoOther: payload.urlPhotoOther
+                        urlPhotoOther: payload.urlPhotoOther,
+                        opponentUserId: payload.opponentId
                     }
                 }
                 toUpdate.lastMessageText = payload.text
@@ -280,7 +281,7 @@ export default class AllChats extends Component {
                                     <Button onPress={this._hideDialog}>No</Button>
                                     <Button onPress={()=>{
                                         this._hideDialog()
-                                        //ConnectyCubeHandler.deleteConversation(this.state.dialogIdToDelete)
+                                        ConnectyCubeHandler.deleteConversation(this.state.dialogIdToDelete)
                                         LocalChatsHandler.deleteChatWith(this.state.dialogIdToDelete)
                                         this.setState(prevState => {
                                             const newState = prevState.chats.filter(chat => {

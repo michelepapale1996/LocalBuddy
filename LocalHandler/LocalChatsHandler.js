@@ -4,17 +4,23 @@ import LocalUserHandler from "./LocalUserHandler";
 
 class LocalChatsHandler {
     static async setChats(chats){
-        if(chats !== null) await AsyncStorage.setItem("chats", JSON.stringify(chats));
+        if(chats != null){
+            await AsyncStorage.removeItem('chats')
+            await AsyncStorage.setItem("chats", JSON.stringify(chats));
+        }
     }
 
     static async setMessages(messages){
-        if(messages !== null) await AsyncStorage.setItem("messages", JSON.stringify(messages));
+        if(messages != null){
+            await AsyncStorage.removeItem('messages')
+            await AsyncStorage.setItem("messages", JSON.stringify(messages));
+        }
     }
 
     static async getChats(){
         try {
             const value = await AsyncStorage.getItem('chats')
-            if (value !== null) {
+            if (value != null) {
                 return JSON.parse(value)
             } else {
                 return []
@@ -53,9 +59,10 @@ class LocalChatsHandler {
 
     static async deleteChatWith(dialogId){
         var messages = await AsyncStorage.getItem('messages')
-        if (messages !== null) {
+        if (messages != null) {
             messages = JSON.parse(messages)
             await AsyncStorage.removeItem('messages')
+            delete messages[dialogId]
             LocalChatsHandler.setMessages(messages)
 
             var chats = await LocalChatsHandler.getChats()
@@ -121,7 +128,7 @@ class LocalChatsHandler {
                 messages[payload.chatId].unshift(msg)
             }else{
                 //create a new chat
-                LocalChatsHandler.addChat()
+                await LocalChatsHandler.addChat()
                 messages[payload.chatId] = [msg]
             }
 

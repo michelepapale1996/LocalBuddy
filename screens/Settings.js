@@ -10,18 +10,28 @@ import MultiSlider from "@ptomasroos/react-native-multi-slider/MultiSlider";
 import LocalUserHandler from "../LocalHandler/LocalUserHandler";
 import OrientationHandler from "../handler/OrientationHandler";
 import Updater from "../updater/Updater";
+import NetInfoHandler from "../handler/NetInfoHandler";
+import firebase from "react-native-firebase"
 
 function BuddyComponent(props){
     stopToBeBuddy = () => {
-        UserHandler.stopToBeBuddy()
-        LocalUserHandler.isBuddy(0)
-        props.isBuddyUpdater(0)
+        if(NetInfoHandler.isConnected){
+            UserHandler.stopToBeBuddy()
+            LocalUserHandler.isBuddy(0)
+            props.isBuddyUpdater(0)
+        } else {
+            alert("You are not connected to the network. Check your connection and retry.")
+        }
     }
 
     becomeBuddy = () => {
-        UserHandler.becomeBuddy()
-        LocalUserHandler.isBuddy(1)
-        props.isBuddyUpdater(1)
+        if(NetInfoHandler.isConnected){
+            UserHandler.becomeBuddy()
+            LocalUserHandler.isBuddy(1)
+            props.isBuddyUpdater(1)
+        } else {
+            alert("You are not connected to the network. Check your connection and retry.")
+        }
     }
 
     if(props.isBuddy == 1){
@@ -51,7 +61,9 @@ function BuddyComponent(props){
                                         props.state.upperRangeTouristAge,
                                     ]}
                                     sliderLength={props.styles.sliderLength}
-                                    onValuesChange={props.multiSliderValuesChange}
+                                    onValuesChangeFinish={props.multiSliderValuesChange}
+                                    enabledOne={NetInfoHandler.isConnected}
+                                    enabledTwo={NetInfoHandler.isConnected}
                                     selectedStyle={{backgroundColor:"#2fa1ff"}}
                                     markerStyle={{backgroundColor:"#2fa1ff"}}
                                     min={0}
@@ -196,17 +208,25 @@ export default class Settings extends Component {
     }
 
     multiSliderValuesChange = values => {
-        this.setState({
-            lowerRangeTouristAge: values[0],
-            upperRangeTouristAge: values[1]
-        });
-        UserHandler.savePreferences(values[0], values[1], this.state.onlySameSex)
+        if(NetInfoHandler.isConnected){
+            this.setState({
+                lowerRangeTouristAge: values[0],
+                upperRangeTouristAge: values[1]
+            });
+            UserHandler.savePreferences(values[0], values[1], this.state.onlySameSex)
+        } else {
+            alert("You are not connected to the network. Check your connection and retry.")
+        }
     };
 
     onlySameSexChange = () => {
-        UserHandler.savePreferences(this.state.lowerRangeTouristAge, this.state.upperRangeTouristAge, !this.state.onlySameSex)
-        LocalUserHandler.savePreferences(this.state.lowerRangeTouristAge, this.state.upperRangeTouristAge, !this.state.onlySameSex)
-        this.setState({ onlySameSex: !this.state.onlySameSex });
+        if(NetInfoHandler.isConnected){
+            UserHandler.savePreferences(this.state.lowerRangeTouristAge, this.state.upperRangeTouristAge, !this.state.onlySameSex)
+            LocalUserHandler.savePreferences(this.state.lowerRangeTouristAge, this.state.upperRangeTouristAge, !this.state.onlySameSex)
+            this.setState({ onlySameSex: !this.state.onlySameSex });
+        } else {
+            alert("You are not connected to the network. Check your connection and retry.")
+        }
     }
 
     render() {
@@ -285,15 +305,19 @@ export default class Settings extends Component {
                         </View>
                         <View style={styles.container}>
                             <Text style={styles.header}>Account</Text>
-                            <ChangePassword styles={styles}nav={this.props.navigation}/>
+                            {firebase.auth().currentUser._user.providerData[0].providerId == "password" && <ChangePassword styles={styles}nav={this.props.navigation}/>}
                             <DeleteAccount styles={styles}nav={this.props.navigation} deleteAlert={this.deleteAlert}/>
 
                             <Surface style={styles.surfaceContainer}>
                                 <TouchableRipple onPress={() =>{
-                                    this.setState({loadingDone: false})
-                                    AccountHandler.logOut().then(() => {
-                                        this.props.navigation.navigate('Loading')
-                                    })
+                                    if(NetInfoHandler.isConnected){
+                                        this.setState({loadingDone: false})
+                                        AccountHandler.logOut().then(() => {
+                                            this.props.navigation.navigate('Loading')
+                                        })
+                                    } else {
+                                        alert("You are not connected to the network. Check your connection and retry.")
+                                    }
                                 }}>
                                     <View style={{flexDirection:"row", alignItems:"center", justifyContent:"space-between", ...styles.settingContainer}}>
                                         <Text style={styles.text}>Log out</Text>
@@ -336,15 +360,19 @@ export default class Settings extends Component {
                             onDismiss={() => this.setState({deleteUserToggle: false})}>
                             <Dialog.Title>Delete account</Dialog.Title>
                             <Dialog.Content>
-                                <Paragraph>Are you sure you want to delete your account? The action will not be reversible</Paragraph>
+                                <Paragraph>Are you sure you want to delete your account? The action will not be reversible.</Paragraph>
                             </Dialog.Content>
                             <Dialog.Actions>
                                 <Button onPress={() => this.setState({deleteUserToggle: false})}>No</Button>
                                 <Button onPress={() => {
-                                    AccountHandler.deleteAccount().then(()=>{
-                                        this.setState({deleteUserToggle: false})
-                                        this.props.navigation.navigate('Loading')
-                                    })
+                                    if(NetInfoHandler.isConnected){
+                                        AccountHandler.deleteAccount().then(()=>{
+                                            this.setState({deleteUserToggle: false})
+                                            this.props.navigation.navigate('Loading')
+                                        })
+                                    } else {
+                                        alert("You are not connected to the network. Check your connection and retry.")
+                                    }
                                 }}>Yes</Button>
                             </Dialog.Actions>
                         </Dialog>

@@ -3,11 +3,11 @@ import ConnectyCubeHandler from "./ConnectyCubeHandler";
 import SingleChatHandler from "./SingleChatHandler";
 class NetInfoHandler{
     static unsubscribe
-    static isConnected = true
+    static isConnected = false
 
     static getInfo(){
         return NetInfo.fetch().then(state => {
-            //NetInfoHandler.isConnected = state.isConnected
+            NetInfoHandler.isConnected = state.isConnected
         })
     }
 

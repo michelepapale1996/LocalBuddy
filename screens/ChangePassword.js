@@ -3,6 +3,7 @@ import { View, StyleSheet, TextInput } from 'react-native'
 import AccountHandler from "../handler/AccountHandler"
 import { Text, Button, IconButton, Snackbar } from 'react-native-paper'
 import {widthPercentageToDP as wp, heightPercentageToDP as hp, listenOrientationChange as loc, removeOrientationListener as rol} from "react-native-responsive-screen"
+import NetInfoHandler from "../handler/NetInfoHandler";
 
 export default class ChangePassword extends React.Component {
     state = { oldPassword: '', newPassword: '', errorMessage: null , repeatNewPassword: "", isPresentError: false}
@@ -29,9 +30,13 @@ export default class ChangePassword extends React.Component {
     };
 
     handleChangePassword = () => {
-        AccountHandler.changePassword(this.state.oldPassword, this.state.newPassword, this.state.repeatNewPassword).then(response=>{
-            alert("Password changed!")
-        }).catch(error => this.setState({ isPresentError: true, errorMessage: error }))
+        if(NetInfoHandler.isConnected){
+            AccountHandler.changePassword(this.state.oldPassword, this.state.newPassword, this.state.repeatNewPassword).then(response=>{
+                alert("Password changed!")
+            }).catch(error => this.setState({ isPresentError: true, errorMessage: error }))
+        } else {
+            alert("You are not connected to the network. Check your connection and retry.")
+        }
     }
 
     render() {

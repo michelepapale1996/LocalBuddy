@@ -12,6 +12,7 @@ import LocalUserHandler from "../LocalHandler/LocalUserHandler";
 import UserHandler from "../handler/UserHandler";
 import DateHandler from "../handler/DateHandler";
 import SingleChatHandler from "../handler/SingleChatHandler";
+import NetInfoHandler from "../handler/NetInfoHandler";
 
 export default class SignUp extends React.Component {
     constructor(props){
@@ -46,24 +47,25 @@ export default class SignUp extends React.Component {
     };
 
     handleSignUp = () => {
-        if(this.state.password !== this.state.passwordRepeated){
-            this.setState({isPresentError: true, errorMessage: "The passwords you typed are different"})
-        }
-        // check that the name and the password are not empty
-        else if(this.state.name === "" ||
-            this.state.username === "" ||
-            this.state.email === "" ||
-            this.state.password === "" ||
-            this.state.birthDate === null) {
-            this.setState({isPresentError: true, errorMessage: "Make sure you have filled all the fields."})
-        }else{
-            this.setState({buttonClicked: true})
-            firebase.auth().createUserWithEmailAndPassword(this.state.email, this.state.password).then(async () => {
-                const userId = firebase.auth().currentUser.uid
-                await ConnectyCubeHandler.setInstance()
+        if(NetInfoHandler.isConnected){
+            if(this.state.password !== this.state.passwordRepeated){
+                this.setState({isPresentError: true, errorMessage: "The passwords you typed are different"})
+            }
+            // check that the name and the password are not empty
+            else if(this.state.name === "" ||
+                this.state.username === "" ||
+                this.state.email === "" ||
+                this.state.password === "" ||
+                this.state.birthDate === null) {
+                this.setState({isPresentError: true, errorMessage: "Make sure you have filled all the fields."})
+            }else{
+                this.setState({buttonClicked: true})
+                firebase.auth().createUserWithEmailAndPassword(this.state.email, this.state.password).then(async () => {
+                    const userId = firebase.auth().currentUser.uid
+                    await ConnectyCubeHandler.setInstance()
 
-                const session = await ConnectyCubeHandler.signUp(userId, userId)
-                await AccountHandler.signUp(
+                    const session = await ConnectyCubeHandler.signUp(userId, userId)
+                    await AccountHandler.signUp(
                         userId,
                         this.state.name,
                         this.state.surname,
@@ -72,14 +74,17 @@ export default class SignUp extends React.Component {
                         this.state.sex,
                         session.id,
                         this.state.birthDate)
-                LoadingHandler.initAppBecauseSignUp(userId).then(()=> this.props.navigation.navigate('Chat'))
-            }).catch(error => {
-                this.setState({
-                    isPresentError: true,
-                    errorMessage: error.message,
-                    buttonClicked: false
+                    LoadingHandler.initAppBecauseSignUp(userId).then(()=> this.props.navigation.navigate('Chat'))
+                }).catch(error => {
+                    this.setState({
+                        isPresentError: true,
+                        errorMessage: error.message,
+                        buttonClicked: false
+                    })
                 })
-            })
+            }
+        } else {
+            alert("You are not connected to the network. Check your connection and retry.")
         }
     }
 

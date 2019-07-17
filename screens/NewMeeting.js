@@ -12,6 +12,7 @@ import MeetingsUpdatesHandler from "../updater/MeetingsUpdatesHandler";
 import LocalChatsHandler from "../LocalHandler/LocalChatsHandler";
 import LocalUserHandler from "../LocalHandler/LocalUserHandler";
 import LocalMeetingsHandler from "../LocalHandler/LocalMeetingsHandler";
+import NetInfoHandler from "../handler/NetInfoHandler";
 
 export default class NewMeeting extends Component {
     static navigationOptions = ({ navigation }) => {
@@ -46,10 +47,15 @@ export default class NewMeeting extends Component {
         if(this.state.chosenUserId == null) {
             alert("Please, choose a person.")
         }else{
-            MeetingsHandler.createMeeting(this.state.date, this.state.time, this.state.chosenUserId).then(()=>{
-                MeetingsUpdatesHandler.newPendingMeeting(this.state.date, this.state.time, this.state.chosenUserId)
-                this.props.navigation.goBack()
-            })
+            //if the user is not connected to the internet, he cannot create the meeting
+            if(NetInfoHandler.isConnected){
+                MeetingsHandler.createMeeting(this.state.date, this.state.time, this.state.chosenUserId).then(()=>{
+                    MeetingsUpdatesHandler.newPendingMeeting(this.state.date, this.state.time, this.state.chosenUserId)
+                    this.props.navigation.goBack()
+                })
+            }else{
+                alert("You are not connected to the network. Check your connection and retry.")
+            }
         }
     }
 

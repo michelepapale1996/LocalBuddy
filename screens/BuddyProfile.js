@@ -114,10 +114,12 @@ export default class ProfileTab extends Component {
 
         const citiesWhereIsBuddy = await UserHandler.getCitiesOfTheBuddy(idBuddy)
         //var user = await LocalUserHandler.getUserInfo()
-        var total = 0
-        buddy.feedbacks.forEach(elem => total += elem.rating)
-        buddy.rating = total / buddy.feedbacks.length
-        buddy.numberOfFeedbacks = buddy.feedbacks.length
+        if(buddy.feedbacks != null) {
+            var total = 0
+            buddy.feedbacks.forEach(elem => total += elem.rating)
+            buddy.rating = total / buddy.feedbacks.length
+            buddy.numberOfFeedbacks = buddy.feedbacks.length
+        }
 
         var connectyCubeChatId
         try{

@@ -11,6 +11,7 @@ import DateHandler from "../handler/DateHandler";
 import LocalMeetingsHandler from "../LocalHandler/LocalMeetingsHandler";
 import OrientationHandler from "../handler/OrientationHandler";
 import Updater from "../updater/Updater";
+import NetInfoHandler from "../handler/NetInfoHandler";
 
 export default class ListView extends Component{
     constructor(props){
@@ -38,7 +39,7 @@ export default class ListView extends Component{
         MeetingsUpdatesHandler.removeFromFutureToPastMeetingListener(this.changeFromFutureToPastMeeting)
     }
 
-    async componentDidMount(){
+    componentDidMount(){
         loc(this)
         //add listeners for this UI
         MeetingsUpdatesHandler.setNewPendingMeetingListener(this.addPendingMeeting)
@@ -48,7 +49,7 @@ export default class ListView extends Component{
         MeetingsUpdatesHandler.setFromFutureToPastMeeting(this.changeFromFutureToPastMeeting)
 
         Updater.addListener(this.updateMeetings)
-        await this.updateMeetings()
+        this.updateMeetings()
     }
 
     updateMeetings = async () => {
@@ -340,14 +341,19 @@ export default class ListView extends Component{
                                         )
                                         return(
                                             <Surface style={styles.opponentMeetings}>
-                                                <TouchableRipple onPress={() => this.props.navigation.navigate('BuddyProfile', {idUser: item.meetings[0].idOpponent})}>
+                                                <TouchableRipple onPress={() => {
+                                                    if(NetInfoHandler.isConnected) this.props.navigation.navigate('BuddyProfile', {idUser: item.meetings[0].idOpponent})
+                                                    else alert("You are not connected to the network. Check your connection and retry.")
+                                                }}>
                                                     <View style={styles.userContainer}>
                                                         <Image style={styles.userPhoto} source={{uri: item.meetings[0].urlPhoto}}/>
-                                                        <Text style={{fontWeight: "bold",...styles.text}}>{item.meetings[0].nameAndSurname}</Text>
+                                                        <View style={{flex: 1, flexDirection:"column"}}>
+                                                        <Text style={{fontWeight: "bold", textAlign:"center", ...styles.text}}>{item.meetings[0].nameAndSurname}</Text>
                                                         {item.feedbackAlreadyGiven === 0 && item.atLeastOnePassed &&
                                                             <Button style={styles.button} mode="outlined" onPress={()=>{
                                                                 this.props.navigation.navigate("Feedback", {feedbackedIdUser: item.meetings[0].idOpponent, feedbackGiven: this.feedbackGiven})
                                                             }}>Add a feedback</Button>}
+                                                        </View>
                                                     </View>
                                                 </TouchableRipple>
                                                 {meetings}

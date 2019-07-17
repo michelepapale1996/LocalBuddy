@@ -1,10 +1,10 @@
 import React, {Component} from "react";
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, View, TextInput } from 'react-native';
 import {widthPercentageToDP as wp, heightPercentageToDP as hp, listenOrientationChange as loc, removeOrientationListener as rol} from 'react-native-responsive-screen';
 import LoadingComponent from '../components/LoadingComponent'
 import StarRating from 'react-native-star-rating';
 import UserHandler from "../handler/UserHandler";
-import { Text, TextInput, Button } from 'react-native-paper';
+import { Text, Button } from 'react-native-paper';
 
 export default class Feedback extends Component {
     static navigationOptions = ({ navigation }) => {
@@ -15,6 +15,12 @@ export default class Feedback extends Component {
                     mode={"outlined"}
                     onPress={()=>navigation.getParam("saveFeedback", null)()}
                     color={"white"}
+                    style={{
+                        marginLeft:0,
+                        marginRight:0,
+                        borderRadius: 5,
+                        borderColor: "white"
+                    }}
                 >Save</Button>
             ),
             headerTintColor: 'white',
@@ -71,16 +77,11 @@ export default class Feedback extends Component {
 
     render() {
         const styles = StyleSheet.create({
-            mainContainer: {
-                margin: hp("0%"),
-                flex: 1,
-                backgroundColor: 'white',
-            },
             container:{
+                backgroundColor: 'white',
+                flex:1,
                 justifyContent: 'center',
-                margin:hp("2%"),
-                borderBottomColor: 'grey',
-                borderBottomWidth: 1,
+                margin:hp("2%")
             },
             singleOptionContainer:{
                 flex:1,
@@ -123,24 +124,29 @@ export default class Feedback extends Component {
 
         if (this.state.loadingDone != false) {
             return (
-                <View style={styles.mainContainer}>
-                    <View style={styles.container}>
-                        <Text style={styles.text}>Please, rate {this.state.username}</Text>
+                <View style={styles.container}>
+                    <Text style={styles.text}>Rating {this.state.username}</Text>
+                    <View style={{width:wp("90%"), marginTop:hp("2%"), marginBottom: hp("2%"), alignItems:"center"}}>
                         <StarRating
                             disabled={false}
                             maxStars={5}
                             rating={this.state.starCount}
                             selectedStar={(rating) => this.onStarRatingPress(rating)}
-                            fullStarColor={'red'}
+                            emptyStarColor={'#f1c40f'}
+                            fullStarColor={'#f1c40f'}
                         />
-                        <Text>Your rating is {this.state.starCount}</Text>
                     </View>
-                    <View style={styles.container}>
-                        <Text style={styles.text}>Please, give a feedback(optional)</Text>
+                    <View style={{flex:1}}>
+                        <Text style={styles.text}>Please, give a feedback</Text>
                         <TextInput
-                            mode={"outlined"}
+                            multiline={true}
+                            placeholder={"Give a feedback to " + this.state.username}
                             onChangeText={(text) => this.setState({text})}
                             value={this.state.text}
+                            style={{
+                                fontSize: hp("2%")
+                            }}
+                            underlineColorAndroid={"#2fa1ff"}
                         />
                     </View>
                 </View>

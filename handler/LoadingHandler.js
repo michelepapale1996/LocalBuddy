@@ -13,7 +13,6 @@ class LoadingHandler{
     static async initAppBecauseAlredyLoggedIn(userId){
         await ConnectyCubeHandler.setInstance()
         await ConnectyCubeHandler.createSession(userId)
-        NetInfoHandler.subscribe()
         const CCUserId = ConnectyCubeHandler.getCCUserId()
         SingleChatHandler.connectToChat(CCUserId, 'LocalBuddy')
 
@@ -58,7 +57,6 @@ class LoadingHandler{
         })
 
         LoadingHandler.setPushNotification()
-        NetInfoHandler.subscribe()
     }
 
     static async initAppBecauseSignUp(userId){
@@ -72,7 +70,6 @@ class LoadingHandler{
         await SingleChatHandler.connectToChat(CCUserId, 'LocalBuddy')
 
         LoadingHandler.setPushNotification()
-        NetInfoHandler.subscribe()
     }
 
     static async setPushNotification(){

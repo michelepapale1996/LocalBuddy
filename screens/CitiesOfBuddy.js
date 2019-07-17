@@ -3,9 +3,9 @@ import React, {Component} from "react";
 import LoadingComponent from "./../components/LoadingComponent"
 import UserHandler from "../handler/UserHandler";
 import {widthPercentageToDP as wp, heightPercentageToDP as hp, listenOrientationChange as loc, removeOrientationListener as rol} from 'react-native-responsive-screen';
-import firebase from "react-native-firebase";
 import { Text, TextInput, IconButton, Searchbar, Snackbar } from 'react-native-paper';
 import LocalUserHandler from "../LocalHandler/LocalUserHandler";
+import NetInfoHandler from "../handler/NetInfoHandler";
 
 export default class CitiesOfBuddy extends Component {
     static navigationOptions = () => {
@@ -54,70 +54,82 @@ export default class CitiesOfBuddy extends Component {
     }
 
     getCities = (input) => {
-        const ApiKey = "AIzaSyBRfBut3xLOq-gimCV4mT2zalmchEppB6U"
-        const sessionToken = "1234567890"
+        if(NetInfoHandler.isConnected){
+            const ApiKey = "AIzaSyBRfBut3xLOq-gimCV4mT2zalmchEppB6U"
+            const sessionToken = "1234567890"
 
-        const AppId = "nIjKA6dhmhmoMEAGvlaA"
-        const AppCode = "Ii8RBuVJB1l_RiJbtZcp-Q"
+            const AppId = "nIjKA6dhmhmoMEAGvlaA"
+            const AppCode = "Ii8RBuVJB1l_RiJbtZcp-Q"
 
-        if(input != null && input.length > 3){
-            const queryGoogle = "https://maps.googleapis.com/maps/api/place/autocomplete/json?input="
-                +input+"&key="+ApiKey+"&sessiontoken="+sessionToken+"&types=(cities)"
-                +"&language=it"
+            if(input != null && input.length > 3){
+                const queryGoogle = "https://maps.googleapis.com/maps/api/place/autocomplete/json?input="
+                    +input+"&key="+ApiKey+"&sessiontoken="+sessionToken+"&types=(cities)"
+                    +"&language=it"
 
-            fetch(queryGoogle).then(response => {
-                response.json().then(json => {
-                    let cities = json.predictions.map(
-                        prediction => {
-                            return {name : prediction.description, cityId: prediction.place_id}
-                        }
-                    )
-                    this.setState({
-                        foundCities: cities
+                fetch(queryGoogle).then(response => {
+                    response.json().then(json => {
+                        let cities = json.predictions.map(
+                            prediction => {
+                                return {name : prediction.description, cityId: prediction.place_id}
+                            }
+                        )
+                        this.setState({
+                            foundCities: cities
+                        })
                     })
+                }).catch(
+                    err => console.log(err)
+                )
+            }
+            if(input.length <= 3){
+                this.setState({
+                    foundCities: []
                 })
-            }).catch(
-                err => console.log(err)
-            )
-        }
-        if(input.length <= 3){
-            this.setState({
-                foundCities: []
-            })
+            }
+        } else {
+            alert("You are not connected to the network. Check your connection and retry.")
         }
     }
 
     addCity = (cityId, cityName) => {
-        this.setState((prevState) => {
-            //city is the first one -> initialize the array
-            if (prevState.cities == undefined) {
-                return {cities: [{cityName: cityName, cityId: cityId}], newCityDialogVisible: true, foundCities: [], addedCityName: cityName}
-            } else {
-                //check if the user is already a buddy in that city
-                const toCheck = prevState.cities.filter(elem => elem.cityId == cityId)
-                if(toCheck.length == 0){
-                    const cities = [...prevState.cities, {cityName: cityName, cityId: cityId}]
-                    return {cities: cities, newCityDialogVisible: true, foundCities: [], addedCityName: cityName}
-                }else{
-                    return {clickedOnCityWhereIsAlreadyBuddy: true, addedCityName: cityName}
+        if(NetInfoHandler.isConnected){
+            this.setState((prevState) => {
+                //city is the first one -> initialize the array
+                if (prevState.cities == undefined) {
+                    return {cities: [{cityName: cityName, cityId: cityId}], newCityDialogVisible: true, foundCities: [], addedCityName: cityName}
+                } else {
+                    //check if the user is already a buddy in that city
+                    const toCheck = prevState.cities.filter(elem => elem.cityId == cityId)
+                    if(toCheck.length == 0){
+                        const cities = [...prevState.cities, {cityName: cityName, cityId: cityId}]
+                        return {cities: cities, newCityDialogVisible: true, foundCities: [], addedCityName: cityName}
+                    }else{
+                        return {clickedOnCityWhereIsAlreadyBuddy: true, addedCityName: cityName}
+                    }
                 }
-            }
-        })
-        LocalUserHandler.addCityWhereIsBuddy(cityId, cityName)
-        UserHandler.addCity(cityId, cityName)
+            })
+            LocalUserHandler.addCityWhereIsBuddy(cityId, cityName)
+            UserHandler.addCity(cityId, cityName)
+        } else {
+            alert("You are not connected to the network. Check your connection and retry.")
+        }
     }
 
     deleteCity = (cityId, cityName) => {
-        UserHandler.deleteCity(cityId)
-        LocalUserHandler.deleteCity(cityId)
-        this.setState((prevState) => {
-            if(prevState.cities.length == 1){
-                return {cities: undefined, removeCityDialogVisible: true, removedCityName: cityName}
-            }else{
-                let cities = prevState.cities.filter(val => val.cityName !== cityName)
-                return {cities: cities, removeCityDialogVisible: true, removedCityName: cityName}
-            }
-        })
+        if(NetInfoHandler.isConnected){
+            UserHandler.deleteCity(cityId)
+            LocalUserHandler.deleteCity(cityId)
+            this.setState((prevState) => {
+                if(prevState.cities.length == 1){
+                    return {cities: undefined, removeCityDialogVisible: true, removedCityName: cityName}
+                }else{
+                    let cities = prevState.cities.filter(val => val.cityName !== cityName)
+                    return {cities: cities, removeCityDialogVisible: true, removedCityName: cityName}
+                }
+            })
+        } else {
+            alert("You are not connected to the network. Check your connection and retry.")
+        }
     }
 
     render() {

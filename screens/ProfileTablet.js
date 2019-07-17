@@ -11,6 +11,7 @@ import StarRating from 'react-native-star-rating';
 import LocalUserHandler from "../LocalHandler/LocalUserHandler";
 import LocalChatsHandler from "../LocalHandler/LocalChatsHandler";
 import Updater from "../updater/Updater";
+import NetInfoHandler from "../handler/NetInfoHandler";
 
 function Biography(props){
 
@@ -52,25 +53,29 @@ function UserInfo(props) {
 
 function PhotoProfile(props) {
     uploadImg = () => {
-        ImagePicker.showImagePicker((response) => {
-            if (response.didCancel) {
-                console.log('User cancelled image picker');
-            } else if (response.error) {
-                console.log('ImagePicker Error: ', response.error);
-            } else if (response.customButton) {
-                console.log('User tapped custom button: ', response.customButton);
-            } else {
-                props.isUploading(true)
-                var source = response.uri
-                firebase.storage().ref("/PhotosProfile/" + props.userId).putFile(source).then(()=>{
-                    firebase.storage().ref("/PhotosProfile/" + props.userId).getDownloadURL().then(url=>{
-                        UserHandler.setUrlPhoto(url)
-                        LocalUserHandler.updateUserPhoto(url)
-                        props.updatePhoto(url)
+        if(NetInfoHandler.isConnected){
+            ImagePicker.showImagePicker((response) => {
+                if (response.didCancel) {
+                    console.log('User cancelled image picker');
+                } else if (response.error) {
+                    console.log('ImagePicker Error: ', response.error);
+                } else if (response.customButton) {
+                    console.log('User tapped custom button: ', response.customButton);
+                } else {
+                    props.isUploading(true)
+                    var source = response.uri
+                    firebase.storage().ref("/PhotosProfile/" + props.userId).putFile(source).then(()=>{
+                        firebase.storage().ref("/PhotosProfile/" + props.userId).getDownloadURL().then(url=>{
+                            UserHandler.setUrlPhoto(url)
+                            LocalUserHandler.updateUserPhoto(url)
+                            props.updatePhoto(url)
+                        })
                     })
-                })
-            }
-        })
+                }
+            })
+        } else {
+            alert("You are not connected to the network. Check your connection and retry.")
+        }
     }
 
     if(!props.isUploadingFlag) {

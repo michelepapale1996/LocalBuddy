@@ -5,6 +5,7 @@ import LoadingHandler from "../handler/LoadingHandler";
 import MessagesNotificationsHandler from "../handler/MessagesNotificationsHandler";
 import MeetingsNotificationsHandler from "../handler/MeetingsNotificationsHandler";
 import UserHandler from "../handler/UserHandler";
+import NetInfoHandler from "../handler/NetInfoHandler";
 var PushNotification = require('react-native-push-notification');
 
 export default class Loading extends React.Component {
@@ -53,6 +54,7 @@ export default class Loading extends React.Component {
     }
 
     componentDidMount() {
+        NetInfoHandler.subscribe()
         firebase.auth().onAuthStateChanged(user => {
             if(!this.authFlag) {
                 this.authFlag = true

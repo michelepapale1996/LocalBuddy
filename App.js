@@ -16,7 +16,7 @@ if(size < 600){
 }else{
     AppContainer = createAppContainer(TabletApp)
 }
-
+console.disableYellowBox = true;
 const theme = {
     ...DefaultTheme,
     roundness: 2,

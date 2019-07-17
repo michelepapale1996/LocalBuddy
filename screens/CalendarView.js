@@ -44,7 +44,8 @@ export default class CalendarView extends Component {
                     if(prevState.items[elem.date] == undefined){
                         prevState.items[elem.date] = [elem]
                     }else{
-                        prevState.items[elem.date].push(elem)
+                        const filtered = prevState.items[elem.date].filter(meetingsInThatDate => meetingsInThatDate.idOpponent == elem.idOpponent && meetingsInThatDate.time == elem.time)
+                        if(filtered.length == 0) prevState.items[elem.date].push(elem)
                     }
                 })
                 return {

@@ -7,6 +7,7 @@ import { Text } from 'react-native-paper'
 import DateHandler from "../handler/DateHandler";
 import MeetingsHandler from "../handler/MeetingsHandler";
 import MeetingsUpdatesHandler from "../updater/MeetingsUpdatesHandler";
+import NetInfoHandler from "../handler/NetInfoHandler";
 
 export default class MeetingInfo extends Component{
     constructor(props){
@@ -31,22 +32,30 @@ export default class MeetingInfo extends Component{
     }
 
     acceptMeeting = (date, time, idOpponent)=>{
-        MeetingsHandler.acceptMeeting(date, time, idOpponent).then(()=>{
-            MeetingsUpdatesHandler.acceptedMeeting(date, time, idOpponent)
-            this.setState(prevState => {
-                const meeting = prevState.meeting
-                meeting.isFixed = 1
-                meeting.isPending = 0
-                return {meeting: meeting}
+        if(NetInfoHandler.isConnected){
+            MeetingsHandler.acceptMeeting(date, time, idOpponent).then(()=>{
+                MeetingsUpdatesHandler.acceptedMeeting(date, time, idOpponent)
+                this.setState(prevState => {
+                    const meeting = prevState.meeting
+                    meeting.isFixed = 1
+                    meeting.isPending = 0
+                    return {meeting: meeting}
+                })
             })
-        })
+        } else {
+            alert("You are not connected to the network. Check your connection and retry.")
+        }
     }
 
     denyMeeting = (date, time, idOpponent)=>{
-        MeetingsHandler.denyMeeting(date, time, idOpponent).then(()=>{
-            MeetingsUpdatesHandler.deniedMeeting(date, time, idOpponent)
-            this.props.navigation.goBack()
-        })
+        if(NetInfoHandler.isConnected){
+            MeetingsHandler.denyMeeting(date, time, idOpponent).then(()=>{
+                MeetingsUpdatesHandler.deniedMeeting(date, time, idOpponent)
+                this.props.navigation.goBack()
+            })
+        } else {
+            alert("You are not connected to the network. Check your connection and retry.")
+        }
     }
 
     render() {

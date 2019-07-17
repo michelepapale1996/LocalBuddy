@@ -38,9 +38,13 @@ export default class SingleChat extends Component {
             headerTitle:
                 <TouchableRipple
                     onPress={() => {
-                        const name = navigation.getParam("opponentNameAndSurname", "Error")
-                        if(name != "Account Deleted"){
-                            navigation.navigate('BuddyProfile', {idUser: navigation.getParam("buddyId", null)})
+                        if(NetInfoHandler.isConnected){
+                            const name = navigation.getParam("opponentNameAndSurname", "Error")
+                            if(name != "Account Deleted"){
+                                navigation.navigate('BuddyProfile', {idUser: navigation.getParam("buddyId", null)})
+                            }
+                        } else {
+                            alert("You are not connected to the network. Check your connection and retry.")
                         }
                     }}
                     rippleColor="rgba(0, 0, 0, .32)"
@@ -69,6 +73,9 @@ export default class SingleChat extends Component {
         if(this.state.chatId != null){
             //var messages = await SingleChatHandler.retrieveChatHistory(this.state.chatId, 100, null, urlPhotoOther)
             var messages = await LocalChatsHandler.getMessagesWith(this.state.chatId)
+            messages.forEach(elem => {
+                if(elem.user._id == 2) elem.user.avatar = this.state.urlPhotoOther
+            })
             this.setState({messages: messages})
         }
     }

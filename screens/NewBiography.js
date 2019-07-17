@@ -5,6 +5,7 @@ import LoadingComponent from '../components/LoadingComponent'
 import { Text, Button } from 'react-native-paper';
 import UserHandler from "../handler/UserHandler";
 import LocalUserHandler from "../LocalHandler/LocalUserHandler";
+import NetInfoHandler from "../handler/NetInfoHandler";
 
 export default class NewBiography extends Component {
     static navigationOptions = ({ navigation }) => {
@@ -36,10 +37,15 @@ export default class NewBiography extends Component {
     }
 
     saveBiography = async () => {
-        await UserHandler.saveBiography(this.state.text)
-        LocalUserHandler.updateBio(this.state.text)
-        this.props.navigation.getParam("newBiography", null)(this.state.text)
-        this.props.navigation.goBack()
+        if(NetInfoHandler.isConnected){
+            await UserHandler.saveBiography(this.state.text)
+            LocalUserHandler.updateBio(this.state.text)
+            this.props.navigation.getParam("newBiography", null)(this.state.text)
+            this.props.navigation.goBack()
+        }else{
+            alert("You are not connected to the network. Check your connection and retry.")
+        }
+
     }
 
     constructor(props) {
@@ -123,6 +129,7 @@ export default class NewBiography extends Component {
                         multiline={true}
                         onChangeText={(text) => this.setState({text})}
                         style={styles.textInput}
+                        placeholder={"Insert a biography..."}
                         value={this.state.text}
                         underlineColorAndroid={"#2fa1ff"}
                     />

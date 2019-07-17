@@ -58,7 +58,6 @@ export default class CityChosen extends Component {
     componentDidMount(){
         loc(this)
         CityHandler.getFilteredCity(this.cityId).then(response => {
-            //response status is 200
             if(response != null){
                 this.setState({
                     buddies: response.buddies,

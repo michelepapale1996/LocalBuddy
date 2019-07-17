@@ -10,18 +10,27 @@ import MultiSlider from "@ptomasroos/react-native-multi-slider/MultiSlider";
 import LocalUserHandler from "../LocalHandler/LocalUserHandler";
 import OrientationHandler from "../handler/OrientationHandler";
 import Updater from "../updater/Updater";
+import NetInfoHandler from "../handler/NetInfoHandler";
 
 function BuddyComponent(props){
     stopToBeBuddy = () => {
-        UserHandler.stopToBeBuddy()
-        LocalUserHandler.isBuddy(0)
-        props.isBuddyUpdater(0)
+        if(NetInfoHandler.isConnected){
+            UserHandler.stopToBeBuddy()
+            LocalUserHandler.isBuddy(0)
+            props.isBuddyUpdater(0)
+        } else {
+            alert("You are not connected to the network. Check your connection and retry.")
+        }
     }
 
     becomeBuddy = () => {
-        UserHandler.becomeBuddy()
-        LocalUserHandler.isBuddy(1)
-        props.isBuddyUpdater(1)
+        if(NetInfoHandler.isConnected){
+            UserHandler.becomeBuddy()
+            LocalUserHandler.isBuddy(1)
+            props.isBuddyUpdater(1)
+        } else {
+            alert("You are not connected to the network. Check your connection and retry.")
+        }
     }
 
     if(props.isBuddy == 1){
@@ -196,17 +205,25 @@ export default class SettingsTablet extends Component {
     }
 
     multiSliderValuesChange = values => {
-        this.setState({
-            lowerRangeTouristAge: values[0],
-            upperRangeTouristAge: values[1]
-        });
-        UserHandler.savePreferences(values[0], values[1], this.state.onlySameSex)
+        if(NetInfoHandler.isConnected){
+            this.setState({
+                lowerRangeTouristAge: values[0],
+                upperRangeTouristAge: values[1]
+            });
+            UserHandler.savePreferences(values[0], values[1], this.state.onlySameSex)
+        } else {
+            alert("You are not connected to the network. Check your connection and retry.")
+        }
     };
 
     onlySameSexChange = () => {
-        UserHandler.savePreferences(this.state.lowerRangeTouristAge, this.state.upperRangeTouristAge, !this.state.onlySameSex)
-        LocalUserHandler.savePreferences(this.state.lowerRangeTouristAge, this.state.upperRangeTouristAge, !this.state.onlySameSex)
-        this.setState({ onlySameSex: !this.state.onlySameSex });
+        if(NetInfoHandler.isConnected){
+            UserHandler.savePreferences(this.state.lowerRangeTouristAge, this.state.upperRangeTouristAge, !this.state.onlySameSex)
+            LocalUserHandler.savePreferences(this.state.lowerRangeTouristAge, this.state.upperRangeTouristAge, !this.state.onlySameSex)
+            this.setState({ onlySameSex: !this.state.onlySameSex });
+        } else {
+            alert("You are not connected to the network. Check your connection and retry.")
+        }
     }
 
     render() {
@@ -292,10 +309,15 @@ export default class SettingsTablet extends Component {
 
                                 <Surface style={styles.surfaceContainer}>
                                     <TouchableRipple onPress={() =>{
-                                        this.setState({loadingDone: false})
-                                        AccountHandler.logOut().then(() => {
-                                            this.props.navigation.navigate('Loading')
-                                        })
+                                        if(NetInfoHandler.isConnected){
+                                            this.setState({loadingDone: false})
+                                            AccountHandler.logOut().then(() => {
+                                                this.props.navigation.navigate('Loading')
+                                            })
+                                        } else {
+                                            this.setState({loadingDone: false})
+                                            alert("You are not connected to the network. Check your connection and retry.")
+                                        }
                                     }}>
                                         <View style={{flexDirection:"row", alignItems:"center", justifyContent:"space-between", ...styles.settingContainer}}>
                                             <Text style={styles.text}>Log out</Text>
@@ -339,15 +361,20 @@ export default class SettingsTablet extends Component {
                             onDismiss={() => this.setState({deleteUserToggle: false})}>
                             <Dialog.Title>Delete account</Dialog.Title>
                             <Dialog.Content>
-                                <Paragraph>Are you sure you want to delete your account? The action will not be reversible</Paragraph>
+                                <Paragraph>Are you sure you want to delete your account? The action will not be reversible.</Paragraph>
                             </Dialog.Content>
                             <Dialog.Actions>
                                 <Button onPress={() => this.setState({deleteUserToggle: false})}>No</Button>
                                 <Button onPress={() => {
-                                    AccountHandler.deleteAccount().then(()=>{
+                                    if(NetInfoHandler.isConnected){
+                                        AccountHandler.deleteAccount().then(()=>{
+                                            this.setState({deleteUserToggle: false})
+                                            this.props.navigation.navigate('Loading')
+                                        })
+                                    } else {
                                         this.setState({deleteUserToggle: false})
-                                        this.props.navigation.navigate('Loading')
-                                    })
+                                        alert("You are not connected to the network. Check your connection and retry.")
+                                    }
                                 }}>Yes</Button>
                             </Dialog.Actions>
                         </Dialog>

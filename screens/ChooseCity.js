@@ -5,6 +5,7 @@ import { Searchbar, Text, TouchableRipple, Card, Title, IconButton, FAB, Snackba
 import Geocoder from "react-native-geocoding";
 import LoadingComponent from "../components/LoadingComponent";
 import OrientationHandler from "../handler/OrientationHandler";
+import NetInfoHandler from "../handler/NetInfoHandler";
 
 export default class ChooseCity extends Component {
     constructor(props) {
@@ -64,29 +65,33 @@ export default class ChooseCity extends Component {
     }
 
     getCities = (input) => {
-        const ApiKey = "AIzaSyBRfBut3xLOq-gimCV4mT2zalmchEppB6U"
-        const sessionToken = "1234567890"
+        if(NetInfoHandler.isConnected){
+            const ApiKey = "AIzaSyBRfBut3xLOq-gimCV4mT2zalmchEppB6U"
+            const sessionToken = "1234567890"
 
-        const AppId = "nIjKA6dhmhmoMEAGvlaA"
-        const AppCode = "Ii8RBuVJB1l_RiJbtZcp-Q"
+            const AppId = "nIjKA6dhmhmoMEAGvlaA"
+            const AppCode = "Ii8RBuVJB1l_RiJbtZcp-Q"
 
-        if(input != null && input.length > 3){
-            const queryGoogle = "https://maps.googleapis.com/maps/api/place/autocomplete/json?input="
-                +input+"&key="+ApiKey+"&sessiontoken="+sessionToken+"&types=(cities)"
-                +"&language=it"
+            if(input != null && input.length > 3){
+                const queryGoogle = "https://maps.googleapis.com/maps/api/place/autocomplete/json?input="
+                    +input+"&key="+ApiKey+"&sessiontoken="+sessionToken+"&types=(cities)"
+                    +"&language=it"
 
-            fetch(queryGoogle).then(response => {
-                response.json().then(json => {
-                    let cities = json.predictions.map(
-                        prediction => {
-                            return {name : prediction.description, cityId: prediction.place_id}
-                        }
-                    )
-                    this.setState({
-                        cities: cities
+                fetch(queryGoogle).then(response => {
+                    response.json().then(json => {
+                        let cities = json.predictions.map(
+                            prediction => {
+                                return {name : prediction.description, cityId: prediction.place_id}
+                            }
+                        )
+                        this.setState({
+                            cities: cities
+                        })
                     })
-                })
-            }).catch(err => console.log(err))
+                }).catch(err => console.log(err))
+            }
+        } else {
+            alert("You are not connected to the network. Check your connection and retry.")
         }
     }
 
@@ -213,33 +218,37 @@ export default class ChooseCity extends Component {
                         icon={"gps-fixed"}
                         style={styles.fab}
                         onPress={() => {
-                            this.setState({loadingDone: false})
-                            navigator.geolocation.getCurrentPosition(position => {
-                                    Geocoder.init("AIzaSyBRfBut3xLOq-gimCV4mT2zalmchEppB6U");
-                                    Geocoder.from(position.coords.latitude, position.coords.longitude).then(json => {
-                                        const city = json.results.filter(elem => elem.address_components[0].types.includes("locality"))
+                            if(NetInfoHandler.isConnected) {
+                                this.setState({loadingDone: false})
+                                navigator.geolocation.getCurrentPosition(position => {
+                                        Geocoder.init("AIzaSyBRfBut3xLOq-gimCV4mT2zalmchEppB6U");
+                                        Geocoder.from(position.coords.latitude, position.coords.longitude).then(json => {
+                                            const city = json.results.filter(elem => elem.address_components[0].types.includes("locality"))
 
-                                        if(city.length > 0){
-                                            this.setState({loadingDone: true})
-                                            this.props.navigation.navigate('CityChosen', {
-                                                cityId: city[0].place_id,
-                                                cityName: city[0].formatted_address
-                                            })
-                                        } else {
+                                            if(city.length > 0){
+                                                this.setState({loadingDone: true})
+                                                this.props.navigation.navigate('CityChosen', {
+                                                    cityId: city[0].place_id,
+                                                    cityName: city[0].formatted_address
+                                                })
+                                            } else {
+                                                this.setState({noCitiesAvailable: true, loadingDone: true})
+                                            }
+
+                                        }).catch(error => {
                                             this.setState({noCitiesAvailable: true, loadingDone: true})
-                                        }
-
-                                    }).catch(error => {
-                                        this.setState({noCitiesAvailable: true, loadingDone: true})
-                                        console.log("Error: ", error)
-                                    });
-                                },
-                                error =>{
-                                    console.log(error.message)
-                                    this.setState({loadingDone: true})
-                                },
-                                {enableHighAccuracy: true, timeout: 20000}
-                            )
+                                            console.log("Error: ", error)
+                                        });
+                                    },
+                                    error =>{
+                                        console.log(error.message)
+                                        this.setState({loadingDone: true})
+                                    },
+                                    {enableHighAccuracy: true, timeout: 20000}
+                                )
+                            } else {
+                                alert("You are not connected to the network. Check your connection and retry.")
+                            }
                         }}
                     />
                     <Snackbar
